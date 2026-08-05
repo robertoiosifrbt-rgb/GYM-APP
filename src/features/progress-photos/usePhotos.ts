@@ -11,7 +11,7 @@ export function usePhotos() {
     getAllPhotoSets().then((loaded) => setPhotoSets(loaded.sort(byDateDesc)))
   }, [])
 
-  async function addPhotoSet(date: string, photos: Record<PhotoAngle, File>) {
+  async function addPhotoSet(date: string, photos: Record<PhotoAngle, Blob>) {
     const photoSet: ProgressPhotoSet = { id: crypto.randomUUID(), date, photos }
     await savePhotoSet(photoSet)
     setPhotoSets((prev) => [...prev, photoSet].sort(byDateDesc))

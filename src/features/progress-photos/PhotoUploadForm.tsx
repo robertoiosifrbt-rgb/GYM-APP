@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { PHOTO_ANGLES, type PhotoAngle } from './types'
+import { resizeImage } from './resizeImage'
 
 interface PhotoUploadFormProps {
-  onAdd: (date: string, photos: Record<PhotoAngle, File>) => void
+  onAdd: (date: string, photos: Record<PhotoAngle, Blob>) => void
 }
 
 const today = () => new Date().toISOString().slice(0, 10)
@@ -14,23 +15,31 @@ const angleLabels: Record<PhotoAngle, string> = {
   right: 'Right',
 }
 
-const emptyFiles: Partial<Record<PhotoAngle, File>> = {}
+const emptyPhotos: Partial<Record<PhotoAngle, Blob>> = {}
 
 export function PhotoUploadForm({ onAdd }: PhotoUploadFormProps) {
   const [date, setDate] = useState(today())
-  const [files, setFiles] = useState(emptyFiles)
+  const [photos, setPhotos] = useState(emptyPhotos)
+  const [processingAngle, setProcessingAngle] = useState<PhotoAngle | null>(null)
 
-  const allFilesSelected = PHOTO_ANGLES.every((angle) => files[angle])
+  const allPhotosSelected = PHOTO_ANGLES.every((angle) => photos[angle])
 
-  function handleFileChange(angle: PhotoAngle, file: File | null) {
-    setFiles((prev) => ({ ...prev, [angle]: file ?? undefined }))
+  async function handleFileChange(angle: PhotoAngle, file: File | null) {
+    if (!file) {
+      setPhotos((prev) => ({ ...prev, [angle]: undefined }))
+      return
+    }
+    setProcessingAngle(angle)
+    const resized = await resizeImage(file)
+    setPhotos((prev) => ({ ...prev, [angle]: resized }))
+    setProcessingAngle(null)
   }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
-    if (!allFilesSelected) return
-    onAdd(date, files as Record<PhotoAngle, File>)
-    setFiles(emptyFiles)
+    if (!allPhotosSelected) return
+    onAdd(date, photos as Record<PhotoAngle, Blob>)
+    setPhotos(emptyPhotos)
   }
 
   return (
@@ -48,7 +57,11 @@ export function PhotoUploadForm({ onAdd }: PhotoUploadFormProps) {
 
       {PHOTO_ANGLES.map((angle) => (
         <div className="field" key={angle}>
-          <label htmlFor={`photo-${angle}`}>{angleLabels[angle]}</label>
+          <label htmlFor={`photo-${angle}`}>
+            {angleLabels[angle]}
+            {photos[angle] && ' ✓'}
+            {processingAngle === angle && ' (processing…)'}
+          </label>
           <input
             id={`photo-${angle}`}
             type="file"
@@ -58,7 +71,7 @@ export function PhotoUploadForm({ onAdd }: PhotoUploadFormProps) {
         </div>
       ))}
 
-      <button type="submit" disabled={!allFilesSelected}>
+      <button type="submit" disabled={!allPhotosSelected}>
         Add photos
       </button>
     </form>
