@@ -5,14 +5,19 @@ import { ExercisesPage } from '../features/exercises'
 import { WorkoutLogPage } from '../features/workout-log'
 import { HomePage } from './HomePage'
 import { Nav } from './Nav'
+import { SubNav } from './SubNav'
 import { ErrorBoundary } from './ErrorBoundary'
 import { UpdateBanner } from './UpdateBanner'
 import { useVersionCheck } from './useVersionCheck'
 
 export type Page = 'home' | 'body' | 'workout'
+type BodySubPage = 'measurements' | 'photos'
+type WorkoutSubPage = 'log' | 'exercises'
 
 function App() {
   const [page, setPage] = useState<Page>('home')
+  const [bodySubPage, setBodySubPage] = useState<BodySubPage>('measurements')
+  const [workoutSubPage, setWorkoutSubPage] = useState<WorkoutSubPage>('log')
   const updateAvailable = useVersionCheck()
 
   return (
@@ -26,16 +31,34 @@ function App() {
       <main className="app-content">
         <ErrorBoundary>
           {page === 'home' && <HomePage />}
+
           {page === 'body' && (
             <>
-              <MeasurementsPage />
-              <ProgressPhotosPage />
+              <SubNav
+                tabs={[
+                  { key: 'measurements', label: 'Measurements' },
+                  { key: 'photos', label: 'Photos' },
+                ]}
+                current={bodySubPage}
+                onChange={setBodySubPage}
+              />
+              {bodySubPage === 'measurements' && <MeasurementsPage />}
+              {bodySubPage === 'photos' && <ProgressPhotosPage />}
             </>
           )}
+
           {page === 'workout' && (
             <>
-              <WorkoutLogPage />
-              <ExercisesPage />
+              <SubNav
+                tabs={[
+                  { key: 'log', label: 'Log' },
+                  { key: 'exercises', label: 'Exercises' },
+                ]}
+                current={workoutSubPage}
+                onChange={setWorkoutSubPage}
+              />
+              {workoutSubPage === 'log' && <WorkoutLogPage />}
+              {workoutSubPage === 'exercises' && <ExercisesPage />}
             </>
           )}
         </ErrorBoundary>

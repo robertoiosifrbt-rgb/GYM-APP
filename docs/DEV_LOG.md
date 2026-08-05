@@ -16,3 +16,5 @@
 - Scos butonul "Switch"/căutarea de sesiuni — ca să continui o sesiune veche, apeși direct pe titlul ei din istoric (`WorkoutHistory`), care o face sesiunea curentă.
 - Redesign navigare sesiuni: `SessionPicker` înlocuit cu **`SessionChips`** (bandă orizontală glisabilă cu ultimele 10 sesiuni + "+ New") și `SessionForm` (creare/editare extras separat, reutilizat de ambele).
 - Consolidare bottom nav de la 5 tab-uri la 3: **Body** (Measurements + Photos) și **Workout** (Log + Exercises), pe lângă Home. Modulele rămân separate în cod — doar `App.tsx` le grupează, fiecare cu propriul card.
+- Bug CSS: titlurile din istoric (`workout-day-heading`) aveau specificitate mai mică decât `button[type='button']`, deci apăreau ca butoane pline identice cu chips-urile de sesiune — confuz vizual, părea că se repetă aceeași listă. Fix: `button.workout-day-heading` (specificitate egală, câștigă prin ordine).
+- Body și Workout aveau totul stivuit cu scroll, fără navigare rapidă între sub-secțiuni. Adăugat `SubNav` (segmented control reutilizabil) — arată o singură sub-pagină (Measurements/Photos, Log/Exercises) la un moment dat.
