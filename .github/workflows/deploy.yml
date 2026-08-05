@@ -25,7 +25,12 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
+      - id: version
+        run: echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+      - run: echo "${{ steps.version.outputs.sha }}" > public/version.txt
       - run: npm run build
+        env:
+          VITE_COMMIT_SHA: ${{ steps.version.outputs.sha }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

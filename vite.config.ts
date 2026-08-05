@@ -5,4 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: '/GYM-APP/',
   plugins: [react()],
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.VITE_COMMIT_SHA ?? 'dev'),
+  },
 })
