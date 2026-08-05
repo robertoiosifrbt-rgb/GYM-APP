@@ -16,18 +16,25 @@ function App() {
   const updateAvailable = useVersionCheck()
 
   return (
-    <main>
+    <div className="app-shell">
+      <header className="app-header">
+        <span className="app-title">Gym App</span>
+      </header>
+
       {updateAvailable && <UpdateBanner />}
-      <h1>Gym App</h1>
+
+      <main className="app-content">
+        <ErrorBoundary>
+          {page === 'home' && <HomePage />}
+          {page === 'measurements' && <MeasurementsPage />}
+          {page === 'photos' && <ProgressPhotosPage />}
+          {page === 'exercises' && <ExercisesPage />}
+          {page === 'log' && <WorkoutLogPage />}
+        </ErrorBoundary>
+      </main>
+
       <Nav current={page} onNavigate={setPage} />
-      <ErrorBoundary>
-        {page === 'home' && <HomePage />}
-        {page === 'measurements' && <MeasurementsPage />}
-        {page === 'photos' && <ProgressPhotosPage />}
-        {page === 'exercises' && <ExercisesPage />}
-        {page === 'log' && <WorkoutLogPage />}
-      </ErrorBoundary>
-    </main>
+    </div>
   )
 }
 

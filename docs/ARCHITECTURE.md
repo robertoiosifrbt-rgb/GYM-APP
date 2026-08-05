@@ -28,3 +28,9 @@ _(actualizat pe măsură ce le construim)_
 
 - Documentele de continuitate (`CLAUDE.md`, `docs/*`) sunt în română.
 - Interfața aplicației (tot ce vede utilizatorul: texte, etichete, butoane) e în engleză.
+
+## Design
+
+- `src/index.css` conține un mic sistem de design pe variabile CSS (`--color-*`, `--radius-*`, `--shadow-card`), cu variantă light/dark automată (`prefers-color-scheme`). Orice culoare/colț rotunjit nou ar trebui să folosească variabilele existente, nu valori hardcodate.
+- Layout de aplicație mobilă: `.app-shell` (header sticky sus + conținut scrollabil + bottom nav fix), definit în `App.tsx`/`Nav.tsx`. Fiecare pagină e un `<section>` la rădăcină — stilat generic ca "card" prin `.app-content > section`, fără să fie nevoie de o clasă separată per pagină.
+- `index.html` are `viewport-fit=cover` + `theme-color`, pentru zona sigură (notch) pe iOS.
