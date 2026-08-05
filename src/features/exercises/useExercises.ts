@@ -20,9 +20,13 @@ export function useExercises() {
     setExercises((prev) => [...prev, exercise])
   }
 
+  function updateExercise(id: string, name: string, fields: string[], details: ExerciseDetails) {
+    setExercises((prev) => prev.map((e) => (e.id === id ? { ...e, name, fields, ...details } : e)))
+  }
+
   function deleteExercise(id: string) {
     setExercises((prev) => prev.filter((e) => e.id !== id))
   }
 
-  return { exercises, addExercise, deleteExercise }
+  return { exercises, addExercise, updateExercise, deleteExercise }
 }

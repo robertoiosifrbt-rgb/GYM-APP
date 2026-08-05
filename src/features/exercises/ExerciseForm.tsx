@@ -4,7 +4,10 @@ import { DEFAULT_CATEGORIES, DIFFICULTIES, type Exercise, type ExerciseDetails }
 
 interface ExerciseFormProps {
   exercises: Exercise[]
-  onAdd: (name: string, fields: string[], details: ExerciseDetails) => void
+  initial?: Exercise
+  submitLabel: string
+  onSubmit: (name: string, fields: string[], details: ExerciseDetails) => void
+  onCancel?: () => void
 }
 
 const emptyDetails: ExerciseDetails = {
@@ -16,15 +19,27 @@ const emptyDetails: ExerciseDetails = {
   instructions: '',
 }
 
-export function ExerciseForm({ exercises, onAdd }: ExerciseFormProps) {
+export function ExerciseForm({ exercises, initial, submitLabel, onSubmit, onCancel }: ExerciseFormProps) {
   const { fieldTypes, addFieldType } = useFieldTypes()
-  const [name, setName] = useState('')
-  const [details, setDetails] = useState<ExerciseDetails>(emptyDetails)
-  const [fields, setFields] = useState<string[]>([])
+  const [name, setName] = useState(initial?.name ?? '')
+  const [details, setDetails] = useState<ExerciseDetails>(
+    initial
+      ? {
+          category: initial.category,
+          difficulty: initial.difficulty,
+          equipment: initial.equipment,
+          primaryMuscles: initial.primaryMuscles,
+          secondaryMuscles: initial.secondaryMuscles,
+          instructions: initial.instructions,
+        }
+      : emptyDetails,
+  )
+  const [fields, setFields] = useState<string[]>(initial?.fields ?? [])
   const [addingField, setAddingField] = useState(false)
   const [newFieldLabel, setNewFieldLabel] = useState('')
   const [newFieldUnit, setNewFieldUnit] = useState('')
 
+  const formId = initial?.id ?? 'new'
   const categorySuggestions = [
     ...new Set([...DEFAULT_CATEGORIES, ...exercises.map((e) => e.category).filter(Boolean)]),
   ]
@@ -49,29 +64,36 @@ export function ExerciseForm({ exercises, onAdd }: ExerciseFormProps) {
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     if (!name.trim() || fields.length === 0) return
-    onAdd(name.trim(), fields, details)
-    setName('')
-    setDetails(emptyDetails)
-    setFields([])
+    onSubmit(name.trim(), fields, details)
+    if (!initial) {
+      setName('')
+      setDetails(emptyDetails)
+      setFields([])
+    }
   }
 
   return (
     <form onSubmit={handleSubmit}>
       <div className="field">
-        <label htmlFor="exercise-name">Name</label>
-        <input id="exercise-name" value={name} onChange={(e) => setName(e.target.value)} required />
+        <label htmlFor={`exercise-name-${formId}`}>Name</label>
+        <input
+          id={`exercise-name-${formId}`}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
       </div>
 
       <div className="field">
-        <label htmlFor="exercise-category">Category</label>
+        <label htmlFor={`exercise-category-${formId}`}>Category</label>
         <input
-          id="exercise-category"
-          list="exercise-categories"
+          id={`exercise-category-${formId}`}
+          list={`exercise-categories-${formId}`}
           value={details.category}
           onChange={(e) => updateDetail('category', e.target.value)}
           placeholder="e.g. Chest, Back, Cardio"
         />
-        <datalist id="exercise-categories">
+        <datalist id={`exercise-categories-${formId}`}>
           {categorySuggestions.map((c) => (
             <option key={c} value={c} />
           ))}
@@ -79,9 +101,9 @@ export function ExerciseForm({ exercises, onAdd }: ExerciseFormProps) {
       </div>
 
       <div className="field">
-        <label htmlFor="exercise-difficulty">Difficulty</label>
+        <label htmlFor={`exercise-difficulty-${formId}`}>Difficulty</label>
         <select
-          id="exercise-difficulty"
+          id={`exercise-difficulty-${formId}`}
           value={details.difficulty}
           onChange={(e) => updateDetail('difficulty', e.target.value)}
         >
@@ -95,9 +117,9 @@ export function ExerciseForm({ exercises, onAdd }: ExerciseFormProps) {
       </div>
 
       <div className="field">
-        <label htmlFor="exercise-equipment">Equipment</label>
+        <label htmlFor={`exercise-equipment-${formId}`}>Equipment</label>
         <input
-          id="exercise-equipment"
+          id={`exercise-equipment-${formId}`}
           value={details.equipment}
           onChange={(e) => updateDetail('equipment', e.target.value)}
           placeholder="e.g. Barbell, Dumbbell"
@@ -105,27 +127,27 @@ export function ExerciseForm({ exercises, onAdd }: ExerciseFormProps) {
       </div>
 
       <div className="field">
-        <label htmlFor="exercise-primary-muscles">Primary muscles</label>
+        <label htmlFor={`exercise-primary-muscles-${formId}`}>Primary muscles</label>
         <input
-          id="exercise-primary-muscles"
+          id={`exercise-primary-muscles-${formId}`}
           value={details.primaryMuscles}
           onChange={(e) => updateDetail('primaryMuscles', e.target.value)}
         />
       </div>
 
       <div className="field">
-        <label htmlFor="exercise-secondary-muscles">Secondary muscles</label>
+        <label htmlFor={`exercise-secondary-muscles-${formId}`}>Secondary muscles</label>
         <input
-          id="exercise-secondary-muscles"
+          id={`exercise-secondary-muscles-${formId}`}
           value={details.secondaryMuscles}
           onChange={(e) => updateDetail('secondaryMuscles', e.target.value)}
         />
       </div>
 
       <div className="field field-wide">
-        <label htmlFor="exercise-instructions">Instructions</label>
+        <label htmlFor={`exercise-instructions-${formId}`}>Instructions</label>
         <textarea
-          id="exercise-instructions"
+          id={`exercise-instructions-${formId}`}
           value={details.instructions}
           onChange={(e) => updateDetail('instructions', e.target.value)}
           rows={3}
@@ -169,8 +191,13 @@ export function ExerciseForm({ exercises, onAdd }: ExerciseFormProps) {
       </div>
 
       <button type="submit" disabled={fields.length === 0}>
-        Add exercise
+        {submitLabel}
       </button>
+      {onCancel && (
+        <button type="button" onClick={onCancel}>
+          Cancel
+        </button>
+      )}
     </form>
   )
 }
