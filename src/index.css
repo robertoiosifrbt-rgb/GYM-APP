@@ -119,3 +119,34 @@ td {
   font-weight: bold;
   cursor: pointer;
 }
+
+.last-log-hint {
+  font-style: italic;
+  opacity: 0.8;
+  width: 100%;
+}
+
+.sets-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: 100%;
+}
+
+.set-row {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.workout-day {
+  margin-bottom: 1.5rem;
+}
+
+.workout-day h3 {
+  margin: 0 0 0.5rem;
+}
+
+.workout-day ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}

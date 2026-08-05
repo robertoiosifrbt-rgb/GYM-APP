@@ -9,6 +9,7 @@ const pages: Array<{ key: Page; label: string }> = [
   { key: 'home', label: 'Home' },
   { key: 'measurements', label: 'Measurements' },
   { key: 'photos', label: 'Photos' },
+  { key: 'log', label: 'Log' },
 ]
 
 export function Nav({ current, onNavigate }: NavProps) {

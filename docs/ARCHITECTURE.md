@@ -21,6 +21,7 @@ _(actualizat pe măsură ce le construim)_
 
 - `src/features/measurements/` — măsurători corporale: height, greutate, % grăsime, neck/chest/waist/hips (o valoare), și arms/thighs separat pe stânga/dreapta (pentru simetrie). Persistență în `localStorage` prin hook-ul `useMeasurements`. Formular (`MeasurementForm`) + istoric (`MeasurementHistory`) combinate în `MeasurementsPage`.
 - `src/features/progress-photos/` — poze de progres: un set de 4 poze per dată (front/back/left/right, toate obligatorii la adăugare). Fiecare poză e redimensionată/comprimată (`resizeImage.ts`, max 1280px, JPEG) imediat la selectare — pozele brute de telefon (12MP+) pot face tab-ul browserului să crape din lipsă de memorie. Persistență în `IndexedDB` (nu `localStorage` — pozele sunt prea mari) prin `db.ts` + hook-ul `usePhotos`. Formular de upload (`PhotoUploadForm`) + galerie grupată pe dată (`PhotoGallery`) combinate în `ProgressPhotosPage`.
+- `src/features/workout-log/` — jurnal zilnic de antrenament: o intrare = un exercițiu + o listă de seturi. Fiecare set e text liber (nu greutate/repetări fixe), ca să meargă și pentru exerciții non-standard (plank, cardio etc). La completarea numelui exercițiului (cu autocomplete din exercițiile deja folosite, prin `<datalist>`), formularul arată automat ultimul log salvat pentru acel exercițiu (`getLastEntry` în `useWorkoutLog`), ca reper pentru progres. Persistență în `localStorage`. Istoric grupat pe dată în `WorkoutHistory`.
 
 ## Limbă
 
