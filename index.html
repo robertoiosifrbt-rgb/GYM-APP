@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gym App</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">GYM APP</p>
+      <h1>Exercise Library</h1>
+      <p>Create your own exercises and decide exactly what each one tracks.</p>
+    </div>
+    <button id="addExerciseBtn" class="primary">Add exercise</button>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <input id="searchInput" type="search" placeholder="Search exercises..." />
+    </div>
+
+    <section id="emptyState" class="empty-state">
+      <h2>Your library is empty</h2>
+      <p>Add exercises manually. Nothing is preloaded.</p>
+      <button id="emptyAddBtn" class="primary">Add first exercise</button>
+    </section>
+
+    <section id="exerciseList" class="exercise-list"></section>
+  </main>
+
+  <dialog id="exerciseDialog">
+    <form id="exerciseForm">
+      <div class="dialog-head">
+        <h2 id="formTitle">Add exercise</h2>
+        <button type="button" id="closeExerciseDialog" class="icon-btn">×</button>
+      </div>
+
+      <input id="exerciseId" type="hidden" />
+
+      <label>
+        Exercise name
+        <input id="exerciseName" required maxlength="100" placeholder="e.g. Chest Press" />
+      </label>
+
+      <label>
+        Group / category
+        <input id="exerciseGroup" maxlength="100" placeholder="Anything you want" />
+      </label>
+
+      <label>
+        Notes
+        <textarea id="exerciseNotes" rows="3" maxlength="1000"></textarea>
+      </label>
+
+      <section class="fields-section">
+        <div class="section-head">
+          <div>
+            <h3>Tracking fields</h3>
+            <p>Add any fields you want. Every field is editable.</p>
+          </div>
+          <button type="button" id="addFieldBtn" class="secondary">Add field</button>
+        </div>
+        <div id="fieldEditor"></div>
+      </section>
+
+      <div class="actions">
+        <button type="button" id="cancelExerciseBtn" class="secondary">Cancel</button>
+        <button type="submit" class="primary">Save exercise</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="entryDialog">
+    <form id="entryForm">
+      <div class="dialog-head">
+        <div>
+          <h2 id="entryTitle">Log entry</h2>
+          <p id="entrySubtitle"></p>
+        </div>
+        <button type="button" id="closeEntryDialog" class="icon-btn">×</button>
+      </div>
+
+      <input id="entryExerciseId" type="hidden" />
+      <div id="entryFields"></div>
+
+      <label>
+        Entry notes
+        <textarea id="entryNotes" rows="3"></textarea>
+      </label>
+
+      <div class="actions">
+        <button type="button" id="cancelEntryBtn" class="secondary">Cancel</button>
+        <button type="submit" class="primary">Save entry</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
