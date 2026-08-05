@@ -15,3 +15,4 @@
 - Interfața aplicației e în engleză de acum; documentele de continuitate rămân în română.
 - Arms și thighs împărțite pe stânga/dreapta (left/right), pentru a urmări simetria corpului. Formularul și tabelul de istoric au fost rescrise pe bază de config, ca să nu se repete cod la fiecare câmp nou.
 - Adăugat deploy static pe GitHub Pages (`.github/workflows/deploy.yml` + `base: '/GYM-APP/'` în `vite.config.ts`), ca aplicația să fie accesibilă de pe telefon printr-un link permanent. Necesită un pas manual unic: în repo, Settings → Pages → Source → "GitHub Actions".
+- Repo-ul a fost făcut public (Pages gratuit nu funcționează pe repo privat), iar restricția de branch a environment-ului `github-pages` a fost setată pe "No restrictions". Deploy funcțional: https://robertoiosifrbt-rgb.github.io/GYM-APP/
