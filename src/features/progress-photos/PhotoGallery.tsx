@@ -1,32 +1,46 @@
 import { useEffect, useState } from 'react'
-import type { ProgressPhoto } from './types'
+import { PHOTO_ANGLES, type ProgressPhotoSet } from './types'
 
 interface PhotoGalleryProps {
-  photos: ProgressPhoto[]
+  photoSets: ProgressPhotoSet[]
 }
 
-export function PhotoGallery({ photos }: PhotoGalleryProps) {
+const angleLabels = { front: 'Front', back: 'Back', left: 'Left', right: 'Right' }
+
+export function PhotoGallery({ photoSets }: PhotoGalleryProps) {
   const [urls, setUrls] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    const nextUrls = Object.fromEntries(photos.map((p) => [p.id, URL.createObjectURL(p.photo)]))
+    const nextUrls: Record<string, string> = {}
+    for (const set of photoSets) {
+      for (const angle of PHOTO_ANGLES) {
+        nextUrls[`${set.id}-${angle}`] = URL.createObjectURL(set.photos[angle])
+      }
+    }
     setUrls(nextUrls)
     return () => {
       Object.values(nextUrls).forEach((url) => URL.revokeObjectURL(url))
     }
-  }, [photos])
+  }, [photoSets])
 
-  if (photos.length === 0) {
+  if (photoSets.length === 0) {
     return <p>No photos yet.</p>
   }
 
   return (
-    <div className="photo-grid">
-      {photos.map((p) => (
-        <figure key={p.id}>
-          {urls[p.id] && <img src={urls[p.id]} alt={`Progress photo from ${p.date}`} />}
-          <figcaption>{p.date}</figcaption>
-        </figure>
+    <div className="photo-sets">
+      {photoSets.map((set) => (
+        <div className="photo-set" key={set.id}>
+          <h3>{set.date}</h3>
+          <div className="photo-grid">
+            {PHOTO_ANGLES.map((angle) => (
+              <figure key={angle}>
+                <img src={urls[`${set.id}-${angle}`]} alt={`${angleLabels[angle]} photo from ${set.date}`} />
+                <figcaption>{angleLabels[angle]}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
       ))}
     </div>
   )

@@ -1,2 +1,2 @@
 export { ProgressPhotosPage } from './ProgressPhotosPage'
-export type { ProgressPhoto } from './types'
+export type { ProgressPhotoSet } from './types'

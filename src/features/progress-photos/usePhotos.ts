@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react'
-import type { ProgressPhoto } from './types'
-import { getAllPhotos, savePhoto } from './db'
+import type { PhotoAngle, ProgressPhotoSet } from './types'
+import { getAllPhotoSets, savePhotoSet } from './db'
 
-const byDateDesc = (a: ProgressPhoto, b: ProgressPhoto) => b.date.localeCompare(a.date)
+const byDateDesc = (a: ProgressPhotoSet, b: ProgressPhotoSet) => b.date.localeCompare(a.date)
 
 export function usePhotos() {
-  const [photos, setPhotos] = useState<ProgressPhoto[]>([])
+  const [photoSets, setPhotoSets] = useState<ProgressPhotoSet[]>([])
 
   useEffect(() => {
-    getAllPhotos().then((loaded) => setPhotos(loaded.sort(byDateDesc)))
+    getAllPhotoSets().then((loaded) => setPhotoSets(loaded.sort(byDateDesc)))
   }, [])
 
-  async function addPhoto(date: string, file: File) {
-    const photo: ProgressPhoto = { id: crypto.randomUUID(), date, photo: file }
-    await savePhoto(photo)
-    setPhotos((prev) => [...prev, photo].sort(byDateDesc))
+  async function addPhotoSet(date: string, photos: Record<PhotoAngle, File>) {
+    const photoSet: ProgressPhotoSet = { id: crypto.randomUUID(), date, photos }
+    await savePhotoSet(photoSet)
+    setPhotoSets((prev) => [...prev, photoSet].sort(byDateDesc))
   }
 
-  return { photos, addPhoto }
+  return { photoSets, addPhotoSet }
 }

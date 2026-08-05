@@ -77,3 +77,11 @@ td {
   text-align: center;
   font-size: 0.85rem;
 }
+
+.photo-set {
+  margin-bottom: 1.5rem;
+}
+
+.photo-set h3 {
+  margin: 0 0 0.5rem;
+}

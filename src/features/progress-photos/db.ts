@@ -1,4 +1,4 @@
-import type { ProgressPhoto } from './types'
+import type { ProgressPhotoSet } from './types'
 
 const DB_NAME = 'gym-app'
 const STORE_NAME = 'progress-photos'
@@ -15,7 +15,7 @@ function openDb(): Promise<IDBDatabase> {
   })
 }
 
-export async function getAllPhotos(): Promise<ProgressPhoto[]> {
+export async function getAllPhotoSets(): Promise<ProgressPhotoSet[]> {
   const db = await openDb()
   return new Promise((resolve, reject) => {
     const request = db.transaction(STORE_NAME, 'readonly').objectStore(STORE_NAME).getAll()
@@ -24,11 +24,11 @@ export async function getAllPhotos(): Promise<ProgressPhoto[]> {
   })
 }
 
-export async function savePhoto(photo: ProgressPhoto): Promise<void> {
+export async function savePhotoSet(photoSet: ProgressPhotoSet): Promise<void> {
   const db = await openDb()
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite')
-    tx.objectStore(STORE_NAME).put(photo)
+    tx.objectStore(STORE_NAME).put(photoSet)
     tx.oncomplete = () => resolve()
     tx.onerror = () => reject(tx.error)
   })
