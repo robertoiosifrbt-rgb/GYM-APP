@@ -7,3 +7,7 @@ export interface ProgressPhotoSet {
   date: string
   photos: Record<PhotoAngle, Blob>
 }
+
+export function isValidPhotoSet(set: ProgressPhotoSet): boolean {
+  return Boolean(set.photos) && PHOTO_ANGLES.every((angle) => set.photos[angle] instanceof Blob)
+}

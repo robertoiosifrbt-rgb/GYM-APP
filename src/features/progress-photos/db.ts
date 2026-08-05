@@ -33,3 +33,13 @@ export async function savePhotoSet(photoSet: ProgressPhotoSet): Promise<void> {
     tx.onerror = () => reject(tx.error)
   })
 }
+
+export async function deletePhotoSet(id: string): Promise<void> {
+  const db = await openDb()
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite')
+    tx.objectStore(STORE_NAME).delete(id)
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+  })
+}

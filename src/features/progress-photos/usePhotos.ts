@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import type { PhotoAngle, ProgressPhotoSet } from './types'
-import { getAllPhotoSets, savePhotoSet } from './db'
+import { isValidPhotoSet, type PhotoAngle, type ProgressPhotoSet } from './types'
+import { deletePhotoSet, getAllPhotoSets, savePhotoSet } from './db'
 
 const byDateDesc = (a: ProgressPhotoSet, b: ProgressPhotoSet) => b.date.localeCompare(a.date)
 
@@ -10,7 +10,12 @@ export function usePhotos() {
 
   useEffect(() => {
     getAllPhotoSets()
-      .then((loaded) => setPhotoSets(loaded.sort(byDateDesc)))
+      .then((loaded) => {
+        const valid = loaded.filter(isValidPhotoSet)
+        const invalid = loaded.filter((set) => !isValidPhotoSet(set))
+        invalid.forEach((set) => deletePhotoSet(set.id))
+        setPhotoSets(valid.sort(byDateDesc))
+      })
       .catch((err) => setLoadError(err instanceof Error ? err.message : String(err)))
   }, [])
 
