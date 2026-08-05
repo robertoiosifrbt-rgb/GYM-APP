@@ -1,13 +1,14 @@
-import { SET_FIELDS, type Exercise } from './types'
+import type { Exercise, FieldType } from './types'
 
 interface ExerciseListProps {
   exercises: Exercise[]
+  fieldTypes: FieldType[]
   onDelete: (id: string) => void
 }
 
-const labelFor = (key: string) => SET_FIELDS.find((f) => f.key === key)?.label ?? key
+export function ExerciseList({ exercises, fieldTypes, onDelete }: ExerciseListProps) {
+  const labelFor = (id: string) => fieldTypes.find((f) => f.id === id)?.label ?? id
 
-export function ExerciseList({ exercises, onDelete }: ExerciseListProps) {
   if (exercises.length === 0) {
     return <p>No exercises yet. Add your first one above.</p>
   }

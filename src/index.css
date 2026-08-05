@@ -170,6 +170,17 @@ td {
   border-bottom: 1px solid #8884;
 }
 
+.new-field-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.new-field-row input {
+  width: 10rem;
+}
+
 .workout-day {
   margin-bottom: 1.5rem;
 }

@@ -1,8 +1,10 @@
+import type { FieldType } from '../exercises'
 import type { WorkoutEntry } from './types'
 import { formatSet } from './formatSet'
 
 interface WorkoutHistoryProps {
   entries: WorkoutEntry[]
+  fieldTypes: FieldType[]
 }
 
 function groupByDate(entries: WorkoutEntry[]): Array<[string, WorkoutEntry[]]> {
@@ -15,7 +17,7 @@ function groupByDate(entries: WorkoutEntry[]): Array<[string, WorkoutEntry[]]> {
   return Array.from(groups.entries())
 }
 
-export function WorkoutHistory({ entries }: WorkoutHistoryProps) {
+export function WorkoutHistory({ entries, fieldTypes }: WorkoutHistoryProps) {
   if (entries.length === 0) {
     return <p>No workouts logged yet.</p>
   }
@@ -28,7 +30,8 @@ export function WorkoutHistory({ entries }: WorkoutHistoryProps) {
           <ul>
             {dayEntries.map((entry) => (
               <li key={entry.id}>
-                <strong>{entry.exerciseName}</strong>: {entry.sets.map(formatSet).join(', ')}
+                <strong>{entry.exerciseName}</strong>:{' '}
+                {entry.sets.map((set) => formatSet(set, fieldTypes)).join(', ')}
               </li>
             ))}
           </ul>

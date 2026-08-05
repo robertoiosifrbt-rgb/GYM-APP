@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { Exercise, SetFieldKey } from './types'
+import type { Exercise } from './types'
 
 const STORAGE_KEY = 'gym-app:exercises'
 
@@ -15,7 +15,7 @@ export function useExercises() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(exercises))
   }, [exercises])
 
-  function addExercise(name: string, fields: SetFieldKey[]) {
+  function addExercise(name: string, fields: string[]) {
     const exercise: Exercise = { id: crypto.randomUUID(), name, fields }
     setExercises((prev) => [...prev, exercise])
   }

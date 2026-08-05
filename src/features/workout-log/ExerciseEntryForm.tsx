@@ -1,17 +1,18 @@
 import { useState } from 'react'
-import { SET_FIELDS, type Exercise } from '../exercises'
+import type { Exercise, FieldType } from '../exercises'
 import type { NewWorkoutEntry, SetValues, WorkoutEntry } from './types'
 import { formatSet } from './formatSet'
 
 interface ExerciseEntryFormProps {
   exercises: Exercise[]
+  fieldTypes: FieldType[]
   getLastEntry: (exerciseId: string) => WorkoutEntry | undefined
   onAdd: (entry: NewWorkoutEntry) => void
 }
 
 const today = () => new Date().toISOString().slice(0, 10)
 
-export function ExerciseEntryForm({ exercises, getLastEntry, onAdd }: ExerciseEntryFormProps) {
+export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }: ExerciseEntryFormProps) {
   const [date, setDate] = useState(today())
   const [exerciseId, setExerciseId] = useState('')
   const [sets, setSets] = useState<SetValues[]>([{}])
@@ -19,9 +20,15 @@ export function ExerciseEntryForm({ exercises, getLastEntry, onAdd }: ExerciseEn
   const exercise = exercises.find((e) => e.id === exerciseId)
   const lastEntry = exerciseId ? getLastEntry(exerciseId) : undefined
 
-  function updateSetField(index: number, key: keyof SetValues, value: string) {
+  function updateSetField(index: number, fieldId: string, value: string) {
     setSets((prev) =>
-      prev.map((set, i) => (i === index ? { ...set, [key]: value === '' ? undefined : Number(value) } : set)),
+      prev.map((set, i) => {
+        if (i !== index) return set
+        const next = { ...set }
+        if (value === '') delete next[fieldId]
+        else next[fieldId] = Number(value)
+        return next
+      }),
     )
   }
 
@@ -81,7 +88,7 @@ export function ExerciseEntryForm({ exercises, getLastEntry, onAdd }: ExerciseEn
 
       {lastEntry && (
         <p className="last-log-hint">
-          Last time ({lastEntry.date}): {lastEntry.sets.map(formatSet).join(', ')}
+          Last time ({lastEntry.date}): {lastEntry.sets.map((set) => formatSet(set, fieldTypes)).join(', ')}
         </p>
       )}
 
@@ -90,16 +97,17 @@ export function ExerciseEntryForm({ exercises, getLastEntry, onAdd }: ExerciseEn
           {sets.map((set, index) => (
             <div className="set-row" key={index}>
               <span>Set {index + 1}</span>
-              {exercise.fields.map((key) => {
-                const field = SET_FIELDS.find((f) => f.key === key)!
+              {exercise.fields.map((fieldId) => {
+                const field = fieldTypes.find((f) => f.id === fieldId)
+                if (!field) return null
                 return (
                   <input
-                    key={key}
+                    key={fieldId}
                     type="number"
-                    step={key === 'reps' ? 1 : 0.1}
+                    step={0.1}
                     placeholder={field.label}
-                    value={set[key] ?? ''}
-                    onChange={(e) => updateSetField(index, key, e.target.value)}
+                    value={set[fieldId] ?? ''}
+                    onChange={(e) => updateSetField(index, fieldId, e.target.value)}
                   />
                 )
               })}
