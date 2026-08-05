@@ -310,6 +310,26 @@ th {
 
 /* Workout log */
 
+.session-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  margin-bottom: 1.25rem;
+  font-weight: 600;
+}
+
+select[size] {
+  height: auto;
+}
+
+.session-picker-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
 .last-log-hint {
   font-style: italic;
   color: var(--color-text-secondary);

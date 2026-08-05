@@ -7,6 +7,8 @@ import { ExerciseEntryForm } from './ExerciseEntryForm'
 import { WorkoutHistory } from './WorkoutHistory'
 import type { NewExerciseEntry } from './types'
 
+const today = () => new Date().toISOString().slice(0, 10)
+
 export function WorkoutLogPage() {
   const { exercises } = useExercises()
   const { fieldTypes } = useFieldTypes()
@@ -14,6 +16,7 @@ export function WorkoutLogPage() {
   const { entries, addEntry, getLastEntry, backfillSessionIds } = useWorkoutLog()
   const [currentSessionId, setCurrentSessionId] = useState('')
   const migrated = useRef(false)
+  const autoSelected = useRef(false)
 
   useEffect(() => {
     if (migrated.current) return
@@ -29,11 +32,26 @@ export function WorkoutLogPage() {
     backfillSessionIds(sessionIdByDate)
   }, [entries, sessions, addSession, backfillSessionIds])
 
+  useEffect(() => {
+    if (autoSelected.current || currentSessionId) return
+    const todaysSession = sessions.find((s) => s.date === today())
+    if (todaysSession) {
+      autoSelected.current = true
+      setCurrentSessionId(todaysSession.id)
+    }
+  }, [sessions, currentSessionId])
+
   const currentSession = sessions.find((s) => s.id === currentSessionId)
 
   function handleCreateSession(session: Parameters<typeof addSession>[0]) {
+    autoSelected.current = true
     const created = addSession(session)
     setCurrentSessionId(created.id)
+  }
+
+  function handleSelectSession(id: string) {
+    autoSelected.current = true
+    setCurrentSessionId(id)
   }
 
   function handleAddEntry(entry: NewExerciseEntry) {
@@ -46,8 +64,8 @@ export function WorkoutLogPage() {
       <h2>Daily log</h2>
       <SessionPicker
         sessions={sessions}
-        currentSessionId={currentSessionId}
-        onSelect={setCurrentSessionId}
+        currentSession={currentSession}
+        onSelect={handleSelectSession}
         onCreate={handleCreateSession}
       />
 

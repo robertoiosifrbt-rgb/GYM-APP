@@ -3,35 +3,34 @@ import type { NewWorkoutSession, WorkoutSession } from './types'
 
 interface SessionPickerProps {
   sessions: WorkoutSession[]
-  currentSessionId: string
+  currentSession: WorkoutSession | undefined
   onSelect: (id: string) => void
   onCreate: (session: NewWorkoutSession) => void
 }
 
-const NEW_SESSION = '__new__'
 const today = () => new Date().toISOString().slice(0, 10)
 
-export function SessionPicker({ sessions, currentSessionId, onSelect, onCreate }: SessionPickerProps) {
-  const [creating, setCreating] = useState(sessions.length === 0)
+const sessionLabel = (s: WorkoutSession) => `${s.date}${s.name ? ` — ${s.name}` : ''}`
+
+export function SessionPicker({ sessions, currentSession, onSelect, onCreate }: SessionPickerProps) {
+  const [mode, setMode] = useState<'current' | 'switching' | 'creating'>(
+    currentSession ? 'current' : 'creating',
+  )
+  const [search, setSearch] = useState('')
   const [date, setDate] = useState(today())
   const [name, setName] = useState('')
 
-  function handleSelectChange(value: string) {
-    if (value === NEW_SESSION) {
-      setCreating(true)
-    } else {
-      onSelect(value)
-    }
-  }
+  const matches = sessions.filter((s) => sessionLabel(s).toLowerCase().includes(search.toLowerCase()))
 
   function handleCreate(event: React.FormEvent) {
     event.preventDefault()
     onCreate({ date, name: name.trim() })
     setName('')
-    setCreating(false)
+    setSearch('')
+    setMode('current')
   }
 
-  if (creating) {
+  if (mode === 'creating') {
     return (
       <form onSubmit={handleCreate}>
         <div className="field">
@@ -49,7 +48,7 @@ export function SessionPicker({ sessions, currentSessionId, onSelect, onCreate }
         </div>
         <button type="submit">Start session</button>
         {sessions.length > 0 && (
-          <button type="button" onClick={() => setCreating(false)}>
+          <button type="button" onClick={() => setMode('current')}>
             Cancel
           </button>
         )}
@@ -57,18 +56,51 @@ export function SessionPicker({ sessions, currentSessionId, onSelect, onCreate }
     )
   }
 
+  if (mode === 'switching') {
+    return (
+      <div className="field field-wide">
+        <label htmlFor="session-search">Find session</label>
+        <input
+          id="session-search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by date or name…"
+          autoFocus
+        />
+        <select
+          size={Math.min(matches.length, 6) || 1}
+          value=""
+          onChange={(e) => {
+            onSelect(e.target.value)
+            setSearch('')
+            setMode('current')
+          }}
+        >
+          {matches.length === 0 && <option disabled>No matching sessions</option>}
+          {matches.map((s) => (
+            <option key={s.id} value={s.id}>
+              {sessionLabel(s)}
+            </option>
+          ))}
+        </select>
+        <div className="session-picker-actions">
+          <button type="button" onClick={() => setMode('creating')}>
+            + New session
+          </button>
+          <button type="button" onClick={() => setMode('current')}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="field field-wide">
-      <label htmlFor="session-select">Session</label>
-      <select id="session-select" value={currentSessionId} onChange={(e) => handleSelectChange(e.target.value)}>
-        {sessions.map((s) => (
-          <option key={s.id} value={s.id}>
-            {s.date}
-            {s.name ? ` — ${s.name}` : ''}
-          </option>
-        ))}
-        <option value={NEW_SESSION}>+ New session…</option>
-      </select>
+    <div className="session-summary">
+      <span>Session: {currentSession ? sessionLabel(currentSession) : '—'}</span>
+      <button type="button" onClick={() => setMode('switching')}>
+        Switch
+      </button>
     </div>
   )
 }
