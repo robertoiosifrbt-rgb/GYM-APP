@@ -2,7 +2,7 @@
 
 ## Structura de foldere
 
-- `src/app/` — componenta rădăcină a aplicației (`App.tsx`) și configurația generală (layout, routing, când va fi nevoie).
+- `src/app/` — componenta rădăcină (`App.tsx`), navigarea (`Nav.tsx`) și pagina Home (`HomePage.tsx`). Navigarea e simplă, prin state React (fără URL/rute) — dacă la un moment dat vom vrea adrese URL separate per pagină, trecem la `react-router-dom`.
 - `src/features/<nume-modul>/` — câte un folder per funcționalitate (ex: `exercises`, `workouts`, `plans`). Fiecare modul e autonom: propriile componente, tipuri și logică.
 - `src/shared/` — cod folosit de mai multe module (componente UI comune, utilitare). Se creează abia când apare o nevoie reală de partajare între module, nu în avans.
 

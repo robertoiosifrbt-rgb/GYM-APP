@@ -18,3 +18,4 @@
 - Repo-ul a fost făcut public (Pages gratuit nu funcționează pe repo privat), iar restricția de branch a environment-ului `github-pages` a fost setată pe "No restrictions". Deploy funcțional: https://robertoiosifrbt-rgb.github.io/GYM-APP/
 - Adăugat height și neck la măsurători corporale.
 - Construit modul nou: poze de progres (`src/features/progress-photos`) — o poză per dată, stocate în IndexedDB (nu localStorage, prea mic pentru fișiere).
+- Adăugat pagina Home (goală, placeholder) și un meniu de navigare (`src/app/Nav.tsx`) între Home / Measurements / Photos. Navigare simplă prin state React, fără router.

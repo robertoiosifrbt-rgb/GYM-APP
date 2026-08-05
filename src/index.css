@@ -8,6 +8,27 @@ body {
   padding: 2rem;
 }
 
+nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #8884;
+  padding-bottom: 1rem;
+}
+
+nav button {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #8884;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+
+nav button.active {
+  background: #8882;
+  font-weight: bold;
+}
+
 form {
   display: flex;
   flex-wrap: wrap;
