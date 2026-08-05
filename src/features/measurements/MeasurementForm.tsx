@@ -9,8 +9,10 @@ const today = () => new Date().toISOString().slice(0, 10)
 
 const emptyForm = {
   date: today(),
+  heightCm: '',
   weightKg: '',
   bodyFatPercent: '',
+  neckCm: '',
   chestCm: '',
   waistCm: '',
   hipsCm: '',
@@ -23,8 +25,10 @@ const emptyForm = {
 type FormField = keyof typeof emptyForm
 
 const numberFields: Array<{ key: FormField; label: string; required?: boolean }> = [
+  { key: 'heightCm', label: 'Height (cm)' },
   { key: 'weightKg', label: 'Weight (kg)', required: true },
   { key: 'bodyFatPercent', label: 'Body fat (%)' },
+  { key: 'neckCm', label: 'Neck (cm)' },
   { key: 'chestCm', label: 'Chest (cm)' },
   { key: 'waistCm', label: 'Waist (cm)' },
   { key: 'hipsCm', label: 'Hips (cm)' },

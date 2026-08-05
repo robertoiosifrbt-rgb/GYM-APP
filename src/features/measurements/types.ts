@@ -2,7 +2,9 @@ export interface Measurement {
   id: string
   date: string
   weightKg: number
+  heightCm?: number
   bodyFatPercent?: number
+  neckCm?: number
   chestCm?: number
   waistCm?: number
   hipsCm?: number

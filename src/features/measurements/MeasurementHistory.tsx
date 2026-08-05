@@ -5,7 +5,9 @@ interface MeasurementHistoryProps {
 }
 
 const columns: Array<{ key: keyof Measurement; label: string }> = [
+  { key: 'heightCm', label: 'Height (cm)' },
   { key: 'bodyFatPercent', label: 'Body fat (%)' },
+  { key: 'neckCm', label: 'Neck (cm)' },
   { key: 'chestCm', label: 'Chest (cm)' },
   { key: 'waistCm', label: 'Waist (cm)' },
   { key: 'hipsCm', label: 'Hips (cm)' },
