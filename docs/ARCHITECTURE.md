@@ -43,12 +43,12 @@ Un test nou ar trebui să pice dacă reintroduci defectul pe care îl păzește.
 
 ## Publicare
 
-Două workflow-uri, separate intenționat:
+- `.github/workflows/deploy.yml` — `main` **și** `claude/**`: rulează `lint` + `test`, apoi `build`, apoi publică pe GitHub Pages. Verificările rulează **înaintea** artefactului, deci un push cu teste picate nu publică absolut nimic. `cancel-in-progress: false`, ca două publicări să nu se anuleze reciproc.
+- `.github/workflows/ci.yml` — PR-uri și ramuri care nu publică: aceleași `lint` + `test` + `build`, fără deploy. `main` și `claude/**` sunt excluse aici ca să nu ruleze totul de două ori la fiecare push.
 
-- `.github/workflows/ci.yml` — orice ramură în afară de `main`, plus PR-uri: `lint` + `test` + `build`. **Fără deploy.**
-- `.github/workflows/deploy.yml` — numai `main`: `lint` + `test` + `build`, apoi publică pe GitHub Pages. Verificările rulează înaintea artefactului, deci o verificare picată nu urcă nimic. `cancel-in-progress: false`, ca două publicări să nu se anuleze reciproc.
+**Decizie de proprietar**, contrar recomandării auditului: auditul cerea ca `claude/**` să nu mai publice (o versiune neterminată putea ajunge live). S-a păstrat publicarea din ramura de lucru — pentru o aplicație de o persoană, să ai nevoie de merge ca să ajungă aplicația pe telefon costă mai mult decât protejează.
 
-Înainte, deploy-ul pornea și pe `claude/**`: orice push pe o ramură de lucru înlocuia aplicația live. Singura cale către live e acum merge în `main`.
+Ce înlocuiește protecția: poarta de `lint` + `test` de dinaintea build-ului. Acoperă riscul real — cod stricat care ajunge live. Ce **nu** acoperă: două ramuri împinse aproape simultan publică în ordinea în care termină, deci ramura pe care faci push e ramura live.
 
 ## Limbă
 

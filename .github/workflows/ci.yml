@@ -1,12 +1,16 @@
 name: CI
 
-# Checks for work branches and pull requests. Deliberately does not deploy:
-# reaching the live site is what merging into `main` is for (see deploy.yml).
+# Checks for pull requests and for branches that do not publish.
+#
+# `main` and `claude/**` are covered by deploy.yml, which runs the same lint +
+# test + build before it publishes — listing them here too would just run
+# everything twice per push.
 on:
+  pull_request:
   push:
     branches-ignore:
       - main
-  pull_request:
+      - 'claude/**'
   workflow_dispatch:
 
 permissions:

@@ -1,15 +1,22 @@
 name: Deploy to GitHub Pages
 
-# Publishing to the live site happens from `main` only.
+# Publishing happens from `main` and from the `claude/**` work branches.
 #
-# This used to also run for `claude/**`, which meant any push to a work branch
-# replaced the live app — an unfinished version could go out, and a verified
-# one could be overwritten by an experiment. Work branches now run `ci.yml`
-# (lint + test + build) and reach the live site only by being merged here.
+# The audit asked for work branches to stop publishing, because an unfinished
+# version could reach the live app. Owner's decision was to keep publishing
+# from the branch being worked on — for a one-person app, needing a merge to
+# get the app onto a phone costs more than it protects.
+#
+# What replaces that protection: lint and the test suite run BEFORE the
+# artifact is built, so a broken push publishes nothing at all. That covers the
+# real risk (broken code going live). What it does not cover: two branches
+# pushed close together still publish in whatever order they finish, so treat
+# whichever branch you push as the live one.
 on:
   push:
     branches:
       - main
+      - 'claude/**'
   workflow_dispatch:
 
 permissions:
@@ -26,8 +33,6 @@ concurrency:
 
 jobs:
   build:
-    # Belt and braces for workflow_dispatch, which can be started from any ref.
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
