@@ -11,6 +11,8 @@ export const DEFAULT_FIELD_TYPES: FieldType[] = [
   { id: 'distance', label: 'Distance (m)', unit: 'm' },
 ]
 
+export const DEFAULT_CATEGORIES = ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Cardio', 'Full Body']
+
 export type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced'
 
 export const DIFFICULTIES: Difficulty[] = ['Beginner', 'Intermediate', 'Advanced']

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useFieldTypes } from './useFieldTypes'
-import { DIFFICULTIES, type ExerciseDetails } from './types'
+import { DEFAULT_CATEGORIES, DIFFICULTIES, type Exercise, type ExerciseDetails } from './types'
 
 interface ExerciseFormProps {
+  exercises: Exercise[]
   onAdd: (name: string, fields: string[], details: ExerciseDetails) => void
 }
 
@@ -15,7 +16,7 @@ const emptyDetails: ExerciseDetails = {
   instructions: '',
 }
 
-export function ExerciseForm({ onAdd }: ExerciseFormProps) {
+export function ExerciseForm({ exercises, onAdd }: ExerciseFormProps) {
   const { fieldTypes, addFieldType } = useFieldTypes()
   const [name, setName] = useState('')
   const [details, setDetails] = useState<ExerciseDetails>(emptyDetails)
@@ -23,6 +24,10 @@ export function ExerciseForm({ onAdd }: ExerciseFormProps) {
   const [addingField, setAddingField] = useState(false)
   const [newFieldLabel, setNewFieldLabel] = useState('')
   const [newFieldUnit, setNewFieldUnit] = useState('')
+
+  const categorySuggestions = [
+    ...new Set([...DEFAULT_CATEGORIES, ...exercises.map((e) => e.category).filter(Boolean)]),
+  ]
 
   function updateDetail(key: keyof ExerciseDetails, value: string) {
     setDetails((prev) => ({ ...prev, [key]: value }))
@@ -67,7 +72,7 @@ export function ExerciseForm({ onAdd }: ExerciseFormProps) {
           placeholder="e.g. Chest, Back, Cardio"
         />
         <datalist id="exercise-categories">
-          {['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Cardio', 'Full Body'].map((c) => (
+          {categorySuggestions.map((c) => (
             <option key={c} value={c} />
           ))}
         </datalist>

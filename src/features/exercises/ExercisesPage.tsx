@@ -10,7 +10,7 @@ export function ExercisesPage() {
   return (
     <section>
       <h2>Exercises</h2>
-      <ExerciseForm onAdd={addExercise} />
+      <ExerciseForm exercises={exercises} onAdd={addExercise} />
       <ExerciseList exercises={exercises} fieldTypes={fieldTypes} onDelete={deleteExercise} />
     </section>
   )
