@@ -335,50 +335,34 @@ th {
 
 /* Workout log */
 
-.session-chips {
-  display: flex;
-  gap: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 0.35rem;
-  margin-bottom: 0.75rem;
-  -webkit-overflow-scrolling: touch;
-}
-
-.session-chip {
-  flex: 0 0 auto;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
+.session-card {
   border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+button.session-card-header {
+  display: block;
+  width: 100%;
+  text-align: left;
   background: var(--color-surface-alt);
-  color: var(--color-text);
-  font-size: 0.85rem;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.session-chip-new {
-  border-style: dashed;
-  color: var(--color-text-secondary);
-}
-
-.session-chip.active {
-  background: var(--color-accent);
-  color: var(--color-accent-contrast);
-  border-color: var(--color-accent);
-}
-
-.session-summary-line {
-  margin: 0 0 1rem;
-}
-
-.session-summary-line button {
-  background: none;
   border: none;
-  padding: 0;
-  color: var(--color-text-secondary);
-  font-size: 0.85rem;
+  padding: 0.75rem 1rem;
   cursor: pointer;
+}
+
+.session-card-header h3 {
+  margin: 0;
+}
+
+.session-card-body {
+  padding: 0.75rem 1rem 1rem;
+}
+
+.session-card-body ul {
+  margin: 0 0 1rem;
+  padding-left: 1.2rem;
 }
 
 .last-log-hint {
@@ -411,38 +395,6 @@ th {
 
 .set-row input {
   width: 5.5rem;
-}
-
-.workout-day {
-  margin-bottom: 1.5rem;
-}
-
-.workout-day h3 {
-  margin: 0 0 0.5rem;
-  color: var(--color-text-secondary);
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-button.workout-day-heading {
-  display: block;
-  width: 100%;
-  text-align: left;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.workout-day-heading h3 {
-  text-decoration: underline;
-  text-decoration-style: dotted;
-}
-
-.workout-day ul {
-  margin: 0;
-  padding-left: 1.2rem;
 }
 
 /* Exercises */

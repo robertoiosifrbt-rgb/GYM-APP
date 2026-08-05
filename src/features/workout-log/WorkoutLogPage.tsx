@@ -2,11 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useExercises, useFieldTypes } from '../exercises'
 import { useWorkoutLog } from './useWorkoutLog'
 import { useWorkoutSessions } from './useWorkoutSessions'
-import { SessionChips } from './SessionChips'
+import { SessionCard } from './SessionCard'
 import { SessionForm } from './SessionForm'
-import { ExerciseEntryForm } from './ExerciseEntryForm'
-import { WorkoutHistory } from './WorkoutHistory'
-import type { NewExerciseEntry } from './types'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -15,10 +12,10 @@ export function WorkoutLogPage() {
   const { fieldTypes } = useFieldTypes()
   const { sessions, addSession, updateSession } = useWorkoutSessions()
   const { entries, addEntry, getLastEntry, backfillSessionIds, updateEntriesDate } = useWorkoutLog()
-  const [currentSessionId, setCurrentSessionId] = useState('')
-  const [formMode, setFormMode] = useState<'none' | 'creating' | 'editing'>('none')
+  const [openSessionId, setOpenSessionId] = useState('')
+  const [creating, setCreating] = useState(false)
   const migrated = useRef(false)
-  const autoSelected = useRef(false)
+  const autoOpened = useRef(false)
 
   useEffect(() => {
     if (migrated.current) return
@@ -35,84 +32,57 @@ export function WorkoutLogPage() {
   }, [entries, sessions, addSession, backfillSessionIds])
 
   useEffect(() => {
-    if (autoSelected.current || currentSessionId) return
+    if (autoOpened.current || openSessionId) return
     const todaysSession = sessions.find((s) => s.date === today())
     if (todaysSession) {
-      autoSelected.current = true
-      setCurrentSessionId(todaysSession.id)
-    } else if (sessions.length === 0) {
-      setFormMode('creating')
+      autoOpened.current = true
+      setOpenSessionId(todaysSession.id)
     }
-  }, [sessions, currentSessionId])
+  }, [sessions, openSessionId])
 
-  const currentSession = sessions.find((s) => s.id === currentSessionId)
-
-  function handleSelectSession(id: string) {
-    autoSelected.current = true
-    setCurrentSessionId(id)
-    setFormMode('none')
+  function handleCreate(date: string, name: string) {
+    autoOpened.current = true
+    const created = addSession({ date, name })
+    setOpenSessionId(created.id)
+    setCreating(false)
   }
 
-  function handleFormSubmit(date: string, name: string) {
-    if (formMode === 'editing' && currentSession) {
-      updateSession(currentSession.id, date, name)
-      updateEntriesDate(currentSession.id, date)
-    } else {
-      autoSelected.current = true
-      const created = addSession({ date, name })
-      setCurrentSessionId(created.id)
-    }
-    setFormMode('none')
-  }
-
-  function handleAddEntry(entry: NewExerciseEntry) {
-    if (!currentSession) return
-    addEntry({ ...entry, sessionId: currentSession.id, date: currentSession.date })
+  function handleToggle(id: string) {
+    autoOpened.current = true
+    setOpenSessionId((prev) => (prev === id ? '' : id))
   }
 
   return (
     <section>
       <h2>Daily log</h2>
 
-      <SessionChips
-        sessions={sessions}
-        currentSessionId={currentSessionId}
-        onSelect={handleSelectSession}
-        onNew={() => setFormMode('creating')}
-      />
-
-      {currentSession && formMode === 'none' && (
-        <p className="session-summary-line">
-          <button type="button" onClick={() => setFormMode('editing')}>
-            ✏️ Edit {currentSession.name || currentSession.date}
-          </button>
-        </p>
+      {creating ? (
+        <SessionForm onSubmit={handleCreate} onCancel={() => setCreating(false)} />
+      ) : (
+        <button type="button" onClick={() => setCreating(true)}>
+          + New session
+        </button>
       )}
 
-      {formMode !== 'none' && (
-        <SessionForm
-          initial={formMode === 'editing' ? currentSession : undefined}
-          onSubmit={handleFormSubmit}
-          onCancel={() => setFormMode('none')}
-        />
-      )}
+      {sessions.length === 0 && <p>No sessions yet.</p>}
 
-      {currentSession && formMode === 'none' && (
-        <ExerciseEntryForm
+      {sessions.map((session) => (
+        <SessionCard
+          key={session.id}
+          session={session}
+          entries={entries.filter((e) => e.sessionId === session.id)}
+          isOpen={session.id === openSessionId}
           exercises={exercises}
           fieldTypes={fieldTypes}
           getLastEntry={getLastEntry}
-          onAdd={handleAddEntry}
+          onToggle={() => handleToggle(session.id)}
+          onUpdateSession={(date, name) => {
+            updateSession(session.id, date, name)
+            updateEntriesDate(session.id, date)
+          }}
+          onAddEntry={(entry) => addEntry({ ...entry, sessionId: session.id, date: session.date })}
         />
-      )}
-
-      <h3>History</h3>
-      <WorkoutHistory
-        entries={entries}
-        sessions={sessions}
-        fieldTypes={fieldTypes}
-        onSelectSession={handleSelectSession}
-      />
+      ))}
     </section>
   )
 }
