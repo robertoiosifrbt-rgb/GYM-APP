@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useExercises, useFieldTypes } from '../exercises'
 import { useWorkoutLog } from './useWorkoutLog'
 import { useWorkoutSessions } from './useWorkoutSessions'
-import { SessionPicker } from './SessionPicker'
+import { SessionChips } from './SessionChips'
+import { SessionForm } from './SessionForm'
 import { ExerciseEntryForm } from './ExerciseEntryForm'
 import { WorkoutHistory } from './WorkoutHistory'
 import type { NewExerciseEntry } from './types'
@@ -15,6 +16,7 @@ export function WorkoutLogPage() {
   const { sessions, addSession, updateSession } = useWorkoutSessions()
   const { entries, addEntry, getLastEntry, backfillSessionIds, updateEntriesDate } = useWorkoutLog()
   const [currentSessionId, setCurrentSessionId] = useState('')
+  const [formMode, setFormMode] = useState<'none' | 'creating' | 'editing'>('none')
   const migrated = useRef(false)
   const autoSelected = useRef(false)
 
@@ -38,25 +40,29 @@ export function WorkoutLogPage() {
     if (todaysSession) {
       autoSelected.current = true
       setCurrentSessionId(todaysSession.id)
+    } else if (sessions.length === 0) {
+      setFormMode('creating')
     }
   }, [sessions, currentSessionId])
 
   const currentSession = sessions.find((s) => s.id === currentSessionId)
 
-  function handleCreateSession(session: Parameters<typeof addSession>[0]) {
-    autoSelected.current = true
-    const created = addSession(session)
-    setCurrentSessionId(created.id)
-  }
-
   function handleSelectSession(id: string) {
     autoSelected.current = true
     setCurrentSessionId(id)
+    setFormMode('none')
   }
 
-  function handleUpdateSession(id: string, date: string, name: string) {
-    updateSession(id, date, name)
-    updateEntriesDate(id, date)
+  function handleFormSubmit(date: string, name: string) {
+    if (formMode === 'editing' && currentSession) {
+      updateSession(currentSession.id, date, name)
+      updateEntriesDate(currentSession.id, date)
+    } else {
+      autoSelected.current = true
+      const created = addSession({ date, name })
+      setCurrentSessionId(created.id)
+    }
+    setFormMode('none')
   }
 
   function handleAddEntry(entry: NewExerciseEntry) {
@@ -67,14 +73,31 @@ export function WorkoutLogPage() {
   return (
     <section>
       <h2>Daily log</h2>
-      <SessionPicker
+
+      <SessionChips
         sessions={sessions}
-        currentSession={currentSession}
-        onCreate={handleCreateSession}
-        onUpdate={handleUpdateSession}
+        currentSessionId={currentSessionId}
+        onSelect={handleSelectSession}
+        onNew={() => setFormMode('creating')}
       />
 
-      {currentSession && (
+      {currentSession && formMode === 'none' && (
+        <p className="session-summary-line">
+          <button type="button" onClick={() => setFormMode('editing')}>
+            ✏️ Edit {currentSession.name || currentSession.date}
+          </button>
+        </p>
+      )}
+
+      {formMode !== 'none' && (
+        <SessionForm
+          initial={formMode === 'editing' ? currentSession : undefined}
+          onSubmit={handleFormSubmit}
+          onCancel={() => setFormMode('none')}
+        />
+      )}
+
+      {currentSession && formMode === 'none' && (
         <ExerciseEntryForm
           exercises={exercises}
           fieldTypes={fieldTypes}
