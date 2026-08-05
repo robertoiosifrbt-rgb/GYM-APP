@@ -8,12 +8,20 @@ interface WorkoutHistoryProps {
   fieldTypes: FieldType[]
 }
 
+// Entries logged before sessions existed have no sessionId — fall back to
+// grouping those by date, same as the old behaviour, instead of lumping them
+// all into one group.
+function groupKey(entry: WorkoutEntry): string {
+  return entry.sessionId ?? `legacy:${entry.date}`
+}
+
 function groupBySession(entries: WorkoutEntry[]): Array<[string, WorkoutEntry[]]> {
   const groups = new Map<string, WorkoutEntry[]>()
   for (const entry of entries) {
-    const group = groups.get(entry.sessionId) ?? []
+    const key = groupKey(entry)
+    const group = groups.get(key) ?? []
     group.push(entry)
-    groups.set(entry.sessionId, group)
+    groups.set(key, group)
   }
   return Array.from(groups.entries())
 }
