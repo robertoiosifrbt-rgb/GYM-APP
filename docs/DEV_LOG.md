@@ -15,3 +15,4 @@
 - Exerciții și sesiuni sunt acum **editabile** după creare (nu doar ștergere) — `ExerciseForm` reutilizabil pentru add/edit; editarea unei sesiuni sincronizează data pe intrările ei (`updateEntriesDate`), ca istoricul să rămână corect.
 - Scos butonul "Switch"/căutarea de sesiuni — ca să continui o sesiune veche, apeși direct pe titlul ei din istoric (`WorkoutHistory`), care o face sesiunea curentă.
 - Redesign navigare sesiuni: `SessionPicker` înlocuit cu **`SessionChips`** (bandă orizontală glisabilă cu ultimele 10 sesiuni + "+ New") și `SessionForm` (creare/editare extras separat, reutilizat de ambele).
+- Consolidare bottom nav de la 5 tab-uri la 3: **Body** (Measurements + Photos) și **Workout** (Log + Exercises), pe lângă Home. Modulele rămân separate în cod — doar `App.tsx` le grupează, fiecare cu propriul card.

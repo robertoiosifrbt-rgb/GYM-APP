@@ -7,10 +7,8 @@ interface NavProps {
 
 const pages: Array<{ key: Page; label: string; icon: string }> = [
   { key: 'home', label: 'Home', icon: '🏠' },
-  { key: 'measurements', label: 'Measure', icon: '📏' },
-  { key: 'photos', label: 'Photos', icon: '📸' },
-  { key: 'exercises', label: 'Exercises', icon: '🏋️' },
-  { key: 'log', label: 'Log', icon: '📝' },
+  { key: 'body', label: 'Body', icon: '📏' },
+  { key: 'workout', label: 'Workout', icon: '🏋️' },
 ]
 
 export function Nav({ current, onNavigate }: NavProps) {

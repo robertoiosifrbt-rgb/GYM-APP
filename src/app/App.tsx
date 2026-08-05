@@ -9,7 +9,7 @@ import { ErrorBoundary } from './ErrorBoundary'
 import { UpdateBanner } from './UpdateBanner'
 import { useVersionCheck } from './useVersionCheck'
 
-export type Page = 'home' | 'measurements' | 'photos' | 'exercises' | 'log'
+export type Page = 'home' | 'body' | 'workout'
 
 function App() {
   const [page, setPage] = useState<Page>('home')
@@ -26,10 +26,18 @@ function App() {
       <main className="app-content">
         <ErrorBoundary>
           {page === 'home' && <HomePage />}
-          {page === 'measurements' && <MeasurementsPage />}
-          {page === 'photos' && <ProgressPhotosPage />}
-          {page === 'exercises' && <ExercisesPage />}
-          {page === 'log' && <WorkoutLogPage />}
+          {page === 'body' && (
+            <>
+              <MeasurementsPage />
+              <ProgressPhotosPage />
+            </>
+          )}
+          {page === 'workout' && (
+            <>
+              <WorkoutLogPage />
+              <ExercisesPage />
+            </>
+          )}
         </ErrorBoundary>
       </main>
 
