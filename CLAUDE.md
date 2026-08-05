@@ -2,22 +2,26 @@
 
 Aplicație personalizată pentru sală, construită pas cu pas — o funcție/modul pe rând, ca proprietarul să înțeleagă fiecare piesă înainte să trecem la următoarea.
 
+Acest fișier e **punctul de intrare fix**: nu ține istoric și nu crește — doar regulile de lucru și trimiteri către celelalte documente. Istoricul și starea curentă stau în `docs/`.
+
 ## Cum lucrăm
 
 - Nu construim funcționalități în avans, nesolicitate. Adăugăm câte una, discutăm, apoi trecem la următoarea.
 - Fiecare funcționalitate nouă devine un modul propriu în `src/features/<nume>` (vezi `docs/ARCHITECTURE.md`).
 - La finalul fiecărei sesiuni de lucru relevante, se actualizează:
-  - `docs/DEV_LOG.md` — ce s-a făcut și ce decizii s-au luat
-  - `docs/ROADMAP.md` — ce e bifat, ce urmează
+  - `docs/DEV_LOG.md` — ce s-a făcut și ce decizii s-au luat (max. 5 intrări, restul în `docs/archive/dev-log/`)
+  - `docs/ROADMAP.md` — ce e bifat, ce urmează (se editează pe loc, nu se adaugă la nesfârșit)
 
 ## Stack
 
 React + TypeScript + Vite.
 
-## Documente de continuitate
+## Unde citești ce
 
-- `docs/ARCHITECTURE.md` — structura de foldere și convenția pentru module noi
-- `docs/ROADMAP.md` — lista de funcționalități, ce e făcut / planificat
-- `docs/DEV_LOG.md` — jurnal cronologic al sesiunilor de lucru
+| Document | Ce conține | Cum se schimbă |
+|---|---|---|
+| `docs/ARCHITECTURE.md` | Structura de foldere, convenția pentru module noi | Doar când se schimbă structura |
+| `docs/ROADMAP.md` | Stadiul curent: ce e făcut, ce urmează | Se editează în loc, mereu scurt |
+| `docs/DEV_LOG.md` | Ultimele 5 sesiuni de lucru | Append, cu rotație în `docs/archive/dev-log/` |
 
-Citește-le pe astea trei înainte să continui lucrul, mai ales într-o sesiune/cont nou.
+La începutul unei sesiuni noi (alt cont/context), citește acest fișier + `docs/ROADMAP.md`. Deschide `docs/DEV_LOG.md` sau `docs/ARCHITECTURE.md` doar dacă ai nevoie de detalii.
