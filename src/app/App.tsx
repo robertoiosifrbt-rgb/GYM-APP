@@ -3,6 +3,7 @@ import { MeasurementsPage } from '../features/measurements'
 import { ProgressPhotosPage } from '../features/progress-photos'
 import { ExercisesPage } from '../features/exercises'
 import { WorkoutLogPage } from '../features/workout-log'
+import { HomePage } from './HomePage'
 import { Nav } from './Nav'
 import { SubNav } from './SubNav'
 import { ErrorBoundary } from './ErrorBoundary'
@@ -19,6 +20,11 @@ function App() {
   const [workoutSubPage, setWorkoutSubPage] = useState<WorkoutSubPage>('log')
   const updateAvailable = useVersionCheck()
 
+  function handleStartWorkout() {
+    setPage('workout')
+    setWorkoutSubPage('log')
+  }
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -29,7 +35,7 @@ function App() {
 
       <main className="app-content">
         <ErrorBoundary>
-          {page === 'home' && <WorkoutLogPage />}
+          {page === 'home' && <HomePage onStartWorkout={handleStartWorkout} />}
 
           {page === 'body' && (
             <>
