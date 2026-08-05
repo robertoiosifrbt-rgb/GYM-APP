@@ -14,14 +14,30 @@ const emptyForm = {
   chestCm: '',
   waistCm: '',
   hipsCm: '',
-  armsCm: '',
-  thighsCm: '',
+  leftArmCm: '',
+  rightArmCm: '',
+  leftThighCm: '',
+  rightThighCm: '',
 }
+
+type FormField = keyof typeof emptyForm
+
+const numberFields: Array<{ key: FormField; label: string; required?: boolean }> = [
+  { key: 'weightKg', label: 'Weight (kg)', required: true },
+  { key: 'bodyFatPercent', label: 'Body fat (%)' },
+  { key: 'chestCm', label: 'Chest (cm)' },
+  { key: 'waistCm', label: 'Waist (cm)' },
+  { key: 'hipsCm', label: 'Hips (cm)' },
+  { key: 'leftArmCm', label: 'Left arm (cm)' },
+  { key: 'rightArmCm', label: 'Right arm (cm)' },
+  { key: 'leftThighCm', label: 'Left thigh (cm)' },
+  { key: 'rightThighCm', label: 'Right thigh (cm)' },
+]
 
 export function MeasurementForm({ onAdd }: MeasurementFormProps) {
   const [form, setForm] = useState(emptyForm)
 
-  function handleChange(field: keyof typeof emptyForm, value: string) {
+  function handleChange(field: FormField, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -29,16 +45,14 @@ export function MeasurementForm({ onAdd }: MeasurementFormProps) {
     event.preventDefault()
     if (!form.date || !form.weightKg) return
 
-    onAdd({
-      date: form.date,
-      weightKg: Number(form.weightKg),
-      bodyFatPercent: form.bodyFatPercent ? Number(form.bodyFatPercent) : undefined,
-      chestCm: form.chestCm ? Number(form.chestCm) : undefined,
-      waistCm: form.waistCm ? Number(form.waistCm) : undefined,
-      hipsCm: form.hipsCm ? Number(form.hipsCm) : undefined,
-      armsCm: form.armsCm ? Number(form.armsCm) : undefined,
-      thighsCm: form.thighsCm ? Number(form.thighsCm) : undefined,
-    })
+    const entry: NewMeasurement = { date: form.date, weightKg: Number(form.weightKg) }
+    for (const { key } of numberFields) {
+      if (key === 'weightKg') continue
+      const value = form[key]
+      if (value) (entry as unknown as Record<string, number>)[key] = Number(value)
+    }
+
+    onAdd(entry)
     setForm({ ...emptyForm, date: today() })
   }
 
@@ -55,83 +69,19 @@ export function MeasurementForm({ onAdd }: MeasurementFormProps) {
         />
       </div>
 
-      <div className="field">
-        <label htmlFor="weightKg">Weight (kg)</label>
-        <input
-          id="weightKg"
-          type="number"
-          step="0.1"
-          value={form.weightKg}
-          onChange={(e) => handleChange('weightKg', e.target.value)}
-          required
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor="bodyFatPercent">Body fat (%)</label>
-        <input
-          id="bodyFatPercent"
-          type="number"
-          step="0.1"
-          value={form.bodyFatPercent}
-          onChange={(e) => handleChange('bodyFatPercent', e.target.value)}
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor="chestCm">Chest (cm)</label>
-        <input
-          id="chestCm"
-          type="number"
-          step="0.1"
-          value={form.chestCm}
-          onChange={(e) => handleChange('chestCm', e.target.value)}
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor="waistCm">Waist (cm)</label>
-        <input
-          id="waistCm"
-          type="number"
-          step="0.1"
-          value={form.waistCm}
-          onChange={(e) => handleChange('waistCm', e.target.value)}
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor="hipsCm">Hips (cm)</label>
-        <input
-          id="hipsCm"
-          type="number"
-          step="0.1"
-          value={form.hipsCm}
-          onChange={(e) => handleChange('hipsCm', e.target.value)}
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor="armsCm">Arms (cm)</label>
-        <input
-          id="armsCm"
-          type="number"
-          step="0.1"
-          value={form.armsCm}
-          onChange={(e) => handleChange('armsCm', e.target.value)}
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor="thighsCm">Thighs (cm)</label>
-        <input
-          id="thighsCm"
-          type="number"
-          step="0.1"
-          value={form.thighsCm}
-          onChange={(e) => handleChange('thighsCm', e.target.value)}
-        />
-      </div>
+      {numberFields.map(({ key, label, required }) => (
+        <div className="field" key={key}>
+          <label htmlFor={key}>{label}</label>
+          <input
+            id={key}
+            type="number"
+            step="0.1"
+            value={form[key]}
+            onChange={(e) => handleChange(key, e.target.value)}
+            required={required}
+          />
+        </div>
+      ))}
 
       <button type="submit">Add measurement</button>
     </form>

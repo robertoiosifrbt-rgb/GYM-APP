@@ -13,3 +13,4 @@
 - Stabilit regula de rotație de mai sus, ca jurnalul să rămână scurt.
 - Construit primul modul: măsurători corporale (`src/features/measurements`) — formular + istoric, persistat în `localStorage`.
 - Interfața aplicației e în engleză de acum; documentele de continuitate rămân în română.
+- Arms și thighs împărțite pe stânga/dreapta (left/right), pentru a urmări simetria corpului. Formularul și tabelul de istoric au fost rescrise pe bază de config, ca să nu se repete cod la fiecare câmp nou.

@@ -4,6 +4,17 @@ interface MeasurementHistoryProps {
   measurements: Measurement[]
 }
 
+const columns: Array<{ key: keyof Measurement; label: string }> = [
+  { key: 'bodyFatPercent', label: 'Body fat (%)' },
+  { key: 'chestCm', label: 'Chest (cm)' },
+  { key: 'waistCm', label: 'Waist (cm)' },
+  { key: 'hipsCm', label: 'Hips (cm)' },
+  { key: 'leftArmCm', label: 'Left arm (cm)' },
+  { key: 'rightArmCm', label: 'Right arm (cm)' },
+  { key: 'leftThighCm', label: 'Left thigh (cm)' },
+  { key: 'rightThighCm', label: 'Right thigh (cm)' },
+]
+
 const dash = (value: number | undefined) => (value === undefined ? '—' : value)
 
 export function MeasurementHistory({ measurements }: MeasurementHistoryProps) {
@@ -17,12 +28,9 @@ export function MeasurementHistory({ measurements }: MeasurementHistoryProps) {
         <tr>
           <th>Date</th>
           <th>Weight (kg)</th>
-          <th>Body fat (%)</th>
-          <th>Chest (cm)</th>
-          <th>Waist (cm)</th>
-          <th>Hips (cm)</th>
-          <th>Arms (cm)</th>
-          <th>Thighs (cm)</th>
+          {columns.map(({ key, label }) => (
+            <th key={key}>{label}</th>
+          ))}
         </tr>
       </thead>
       <tbody>
@@ -30,12 +38,9 @@ export function MeasurementHistory({ measurements }: MeasurementHistoryProps) {
           <tr key={m.id}>
             <td>{m.date}</td>
             <td>{m.weightKg}</td>
-            <td>{dash(m.bodyFatPercent)}</td>
-            <td>{dash(m.chestCm)}</td>
-            <td>{dash(m.waistCm)}</td>
-            <td>{dash(m.hipsCm)}</td>
-            <td>{dash(m.armsCm)}</td>
-            <td>{dash(m.thighsCm)}</td>
+            {columns.map(({ key }) => (
+              <td key={key}>{dash(m[key] as number | undefined)}</td>
+            ))}
           </tr>
         ))}
       </tbody>

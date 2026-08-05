@@ -18,7 +18,7 @@ Când adăugăm o funcționalitate, creăm `src/features/<nume>/` cu, de regulă
 
 _(actualizat pe măsură ce le construim)_
 
-- `src/features/measurements/` — măsurători corporale (greutate, % grăsime, circumferințe). Persistență în `localStorage` prin hook-ul `useMeasurements`. Formular (`MeasurementForm`) + istoric (`MeasurementHistory`) combinate în `MeasurementsPage`.
+- `src/features/measurements/` — măsurători corporale: greutate, % grăsime, chest/waist/hips (o valoare), și arms/thighs separat pe stânga/dreapta (pentru simetrie). Persistență în `localStorage` prin hook-ul `useMeasurements`. Formular (`MeasurementForm`) + istoric (`MeasurementHistory`) combinate în `MeasurementsPage`.
 
 ## Limbă
 

@@ -6,8 +6,10 @@ export interface Measurement {
   chestCm?: number
   waistCm?: number
   hipsCm?: number
-  armsCm?: number
-  thighsCm?: number
+  leftArmCm?: number
+  rightArmCm?: number
+  leftThighCm?: number
+  rightThighCm?: number
 }
 
 export type NewMeasurement = Omit<Measurement, 'id'>
