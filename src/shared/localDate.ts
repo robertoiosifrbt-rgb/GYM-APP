@@ -1,0 +1,20 @@
+/**
+ * Calendar dates in this app are stored as `YYYY-MM-DD` strings and mean
+ * "the day the user was living through", not an instant in time.
+ *
+ * `new Date().toISOString().slice(0, 10)` gives the UTC day, which is the
+ * previous day between 00:00 and 00:59 local time in the UK during BST (and
+ * for every timezone ahead of UTC). A workout logged just after midnight
+ * would land on the day before. These helpers read the local calendar fields
+ * instead, so the default date always matches the phone's clock.
+ */
+export function toLocalDateString(date: Date): string {
+  const year = String(date.getFullYear()).padStart(4, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+export function todayLocal(now: Date = new Date()): string {
+  return toLocalDateString(now)
+}

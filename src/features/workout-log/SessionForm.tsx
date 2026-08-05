@@ -1,21 +1,31 @@
 import { useState } from 'react'
+import { todayLocal } from '../../shared/localDate'
+import { isCalendarDate } from '../../shared/validate'
 import type { WorkoutSession } from './types'
 
 interface SessionFormProps {
   initial?: WorkoutSession
-  onSubmit: (date: string, name: string) => void
+  /** Returns false when the session could not be saved; the form stays as it is. */
+  onSubmit: (date: string, name: string) => boolean
   onCancel: () => void
 }
 
-const today = () => new Date().toISOString().slice(0, 10)
-
 export function SessionForm({ initial, onSubmit, onCancel }: SessionFormProps) {
-  const [date, setDate] = useState(initial?.date ?? today())
+  const [date, setDate] = useState(initial?.date ?? todayLocal())
   const [name, setName] = useState(initial?.name ?? '')
+  const [error, setError] = useState<string | null>(null)
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
-    onSubmit(date, name.trim())
+    if (!isCalendarDate(date)) {
+      setError('Pick a valid date.')
+      return
+    }
+    if (!onSubmit(date, name.trim())) {
+      setError('Could not save — see the message above. What you typed is still here.')
+      return
+    }
+    setError(null)
   }
 
   return (
@@ -33,6 +43,11 @@ export function SessionForm({ initial, onSubmit, onCancel }: SessionFormProps) {
           placeholder="e.g. Push Day"
         />
       </div>
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
       <button type="submit">{initial ? 'Save changes' : 'Start session'}</button>
       <button type="button" onClick={onCancel}>
         Cancel

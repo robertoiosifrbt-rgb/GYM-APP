@@ -1,31 +1,39 @@
-import { useEffect, useState } from 'react'
-import type { NewWorkoutSession, WorkoutSession } from './types'
+import { recoverArray } from '../../shared/storage'
+import { usePersistedState } from '../../shared/usePersistedState'
+import {
+  bySessionRecencyDesc,
+  parseWorkoutSession,
+  type NewWorkoutSession,
+  type WorkoutSession,
+} from './types'
 
 const STORAGE_KEY = 'gym-app:workout-sessions'
 
-function loadSessions(): WorkoutSession[] {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  return raw ? JSON.parse(raw) : []
-}
-
-const byDateDesc = (a: WorkoutSession, b: WorkoutSession) => b.date.localeCompare(a.date)
+const recover = recoverArray(parseWorkoutSession)
 
 export function useWorkoutSessions() {
-  const [sessions, setSessions] = useState<WorkoutSession[]>(loadSessions)
+  const {
+    value: sessions,
+    update,
+    error,
+    dismissError,
+  } = usePersistedState<WorkoutSession[]>(STORAGE_KEY, [], recover)
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions))
-  }, [sessions])
-
-  function addSession(session: NewWorkoutSession): WorkoutSession {
-    const newSession: WorkoutSession = { ...session, id: crypto.randomUUID() }
-    setSessions((prev) => [...prev, newSession].sort(byDateDesc))
-    return newSession
+  /** Returns the new session, or null when storage refused the write. */
+  function addSession(session: NewWorkoutSession): WorkoutSession | null {
+    const newSession: WorkoutSession = {
+      ...session,
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+    }
+    return update((prev) => [...prev, newSession].sort(bySessionRecencyDesc)) ? newSession : null
   }
 
-  function updateSession(id: string, date: string, name: string) {
-    setSessions((prev) => prev.map((s) => (s.id === id ? { ...s, date, name } : s)).sort(byDateDesc))
+  function updateSession(id: string, date: string, name: string): boolean {
+    return update((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, date, name } : s)).sort(bySessionRecencyDesc),
+    )
   }
 
-  return { sessions, addSession, updateSession }
+  return { sessions, addSession, updateSession, error, dismissError }
 }

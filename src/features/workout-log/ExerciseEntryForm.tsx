@@ -1,18 +1,29 @@
 import { useState } from 'react'
 import type { Exercise, FieldType } from '../exercises'
-import type { NewExerciseEntry, SetValues, WorkoutEntry } from './types'
+import { parseBounded } from '../../shared/numbers'
+import { SET_VALUE_BOUNDS, type NewExerciseEntry, type SetValues, type WorkoutEntry } from './types'
 import { formatSet } from './formatSet'
 
 interface ExerciseEntryFormProps {
   exercises: Exercise[]
   fieldTypes: FieldType[]
   getLastEntry: (exerciseId: string) => WorkoutEntry | undefined
-  onAdd: (entry: NewExerciseEntry) => void
+  /** Returns false when the entry could not be saved; the sets stay on screen. */
+  onAdd: (entry: NewExerciseEntry) => boolean
 }
+
+/**
+ * Set values are held as the raw strings the user typed and only converted on
+ * submit. Converting on every keystroke let `Infinity` through (a pasted
+ * `1e999` is a finite-looking string but an infinite number) and stored `NaN`
+ * for anything else unparseable.
+ */
+type DraftSet = Record<string, string>
 
 export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }: ExerciseEntryFormProps) {
   const [exerciseId, setExerciseId] = useState('')
-  const [sets, setSets] = useState<SetValues[]>([{}])
+  const [sets, setSets] = useState<DraftSet[]>([{}])
+  const [error, setError] = useState<string | null>(null)
 
   const exercise = exercises.find((e) => e.id === exerciseId)
   const lastEntry = exerciseId ? getLastEntry(exerciseId) : undefined
@@ -23,7 +34,7 @@ export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }
         if (i !== index) return set
         const next = { ...set }
         if (value === '') delete next[fieldId]
-        else next[fieldId] = Number(value)
+        else next[fieldId] = value
         return next
       }),
     )
@@ -40,15 +51,43 @@ export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }
   function handleExerciseChange(id: string) {
     setExerciseId(id)
     setSets([{}])
+    setError(null)
+  }
+
+  function labelFor(fieldId: string) {
+    return fieldTypes.find((f) => f.id === fieldId)?.label ?? fieldId
   }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     if (!exercise) return
-    const nonEmptySets = sets.filter((set) => Object.keys(set).length > 0)
-    if (nonEmptySets.length === 0) return
+    setError(null)
 
-    onAdd({ exerciseId: exercise.id, exerciseName: exercise.name, sets: nonEmptySets })
+    const parsedSets: SetValues[] = []
+    for (const [index, draft] of sets.entries()) {
+      const set: SetValues = {}
+      for (const [fieldId, raw] of Object.entries(draft)) {
+        if (raw.trim() === '') continue
+        const parsed = parseBounded(raw, `Set ${index + 1} — ${labelFor(fieldId)}`, SET_VALUE_BOUNDS)
+        if (!parsed.ok) {
+          setError(parsed.error)
+          return
+        }
+        set[fieldId] = parsed.value
+      }
+      if (Object.keys(set).length > 0) parsedSets.push(set)
+    }
+
+    if (parsedSets.length === 0) {
+      setError('Fill in at least one set before logging.')
+      return
+    }
+
+    if (!onAdd({ exerciseId: exercise.id, exerciseName: exercise.name, sets: parsedSets })) {
+      setError('Could not save this exercise — see the message above. Your sets are still here.')
+      return
+    }
+
     setExerciseId('')
     setSets([{}])
   }
@@ -97,6 +136,8 @@ export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }
                     key={fieldId}
                     type="number"
                     step={0.1}
+                    min={SET_VALUE_BOUNDS.min}
+                    max={SET_VALUE_BOUNDS.max}
                     placeholder={field.label}
                     value={set[fieldId] ?? ''}
                     onChange={(e) => updateSetField(index, fieldId, e.target.value)}
@@ -114,6 +155,12 @@ export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }
             + Add set
           </button>
         </div>
+      )}
+
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
       )}
 
       <button type="submit" disabled={!exercise}>

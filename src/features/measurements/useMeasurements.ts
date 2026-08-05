@@ -1,26 +1,26 @@
-import { useEffect, useState } from 'react'
-import type { Measurement, NewMeasurement } from './types'
+import { recoverArray } from '../../shared/storage'
+import { usePersistedState } from '../../shared/usePersistedState'
+import { parseMeasurement, type Measurement, type NewMeasurement } from './types'
 
 const STORAGE_KEY = 'gym-app:measurements'
 
-function loadMeasurements(): Measurement[] {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  return raw ? JSON.parse(raw) : []
-}
+const recover = recoverArray(parseMeasurement)
+
+const byDateDesc = (a: Measurement, b: Measurement) => b.date.localeCompare(a.date)
 
 export function useMeasurements() {
-  const [measurements, setMeasurements] = useState<Measurement[]>(loadMeasurements)
+  const {
+    value: measurements,
+    update,
+    error,
+    dismissError,
+  } = usePersistedState<Measurement[]>(STORAGE_KEY, [], recover)
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(measurements))
-  }, [measurements])
-
-  function addMeasurement(entry: NewMeasurement) {
+  /** Returns false when storage refused the write, so the form can keep its values. */
+  function addMeasurement(entry: NewMeasurement): boolean {
     const measurement: Measurement = { ...entry, id: crypto.randomUUID() }
-    setMeasurements((prev) =>
-      [...prev, measurement].sort((a, b) => b.date.localeCompare(a.date)),
-    )
+    return update((prev) => [...prev, measurement].sort(byDateDesc))
   }
 
-  return { measurements, addMeasurement }
+  return { measurements, addMeasurement, error, dismissError }
 }

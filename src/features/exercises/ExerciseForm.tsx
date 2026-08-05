@@ -1,12 +1,24 @@
 import { useState } from 'react'
-import { useFieldTypes } from './useFieldTypes'
-import { DEFAULT_CATEGORIES, DIFFICULTIES, type Exercise, type ExerciseDetails } from './types'
+import {
+  DEFAULT_CATEGORIES,
+  DIFFICULTIES,
+  type Exercise,
+  type ExerciseDetails,
+  type FieldType,
+} from './types'
 
 interface ExerciseFormProps {
   exercises: Exercise[]
+  /**
+   * Passed in rather than read from `useFieldTypes` here: the page owns the one
+   * live copy, so a type added below shows up immediately in the list above.
+   */
+  fieldTypes: FieldType[]
+  onAddFieldType: (label: string, unit: string) => FieldType | null
   initial?: Exercise
   submitLabel: string
-  onSubmit: (name: string, fields: string[], details: ExerciseDetails) => void
+  /** Returns false when the exercise could not be saved; the form keeps its values. */
+  onSubmit: (name: string, fields: string[], details: ExerciseDetails) => boolean
   onCancel?: () => void
 }
 
@@ -19,8 +31,15 @@ const emptyDetails: ExerciseDetails = {
   instructions: '',
 }
 
-export function ExerciseForm({ exercises, initial, submitLabel, onSubmit, onCancel }: ExerciseFormProps) {
-  const { fieldTypes, addFieldType } = useFieldTypes()
+export function ExerciseForm({
+  exercises,
+  fieldTypes,
+  onAddFieldType,
+  initial,
+  submitLabel,
+  onSubmit,
+  onCancel,
+}: ExerciseFormProps) {
   const [name, setName] = useState(initial?.name ?? '')
   const [details, setDetails] = useState<ExerciseDetails>(
     initial
@@ -38,6 +57,7 @@ export function ExerciseForm({ exercises, initial, submitLabel, onSubmit, onCanc
   const [addingField, setAddingField] = useState(false)
   const [newFieldLabel, setNewFieldLabel] = useState('')
   const [newFieldUnit, setNewFieldUnit] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   const formId = initial?.id ?? 'new'
   const categorySuggestions = [
@@ -54,7 +74,13 @@ export function ExerciseForm({ exercises, initial, submitLabel, onSubmit, onCanc
 
   function handleAddFieldType() {
     if (!newFieldLabel.trim()) return
-    const created = addFieldType(newFieldLabel.trim(), newFieldUnit.trim())
+    const created = onAddFieldType(newFieldLabel.trim(), newFieldUnit.trim())
+    if (!created) {
+      // Storage refused the write; keep what was typed so it can be retried.
+      setError('Could not save the new type — see the message above.')
+      return
+    }
+    setError(null)
     setFields((prev) => [...prev, created.id])
     setNewFieldLabel('')
     setNewFieldUnit('')
@@ -64,7 +90,13 @@ export function ExerciseForm({ exercises, initial, submitLabel, onSubmit, onCanc
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     if (!name.trim() || fields.length === 0) return
-    onSubmit(name.trim(), fields, details)
+
+    if (!onSubmit(name.trim(), fields, details)) {
+      setError('Could not save this exercise — see the message above. Your entries are still here.')
+      return
+    }
+
+    setError(null)
     if (!initial) {
       setName('')
       setDetails(emptyDetails)
@@ -189,6 +221,12 @@ export function ExerciseForm({ exercises, initial, submitLabel, onSubmit, onCanc
           </div>
         )}
       </div>
+
+      {error && (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      )}
 
       <button type="submit" disabled={fields.length === 0}>
         {submitLabel}

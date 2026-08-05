@@ -13,8 +13,9 @@ interface SessionCardProps {
   fieldTypes: FieldType[]
   getLastEntry: (exerciseId: string) => WorkoutEntry | undefined
   onToggle: () => void
-  onUpdateSession: (date: string, name: string) => void
-  onAddEntry: (entry: NewExerciseEntry) => void
+  /** Both return false when storage refused the write, so forms keep their input. */
+  onUpdateSession: (date: string, name: string) => boolean
+  onAddEntry: (entry: NewExerciseEntry) => boolean
 }
 
 const sessionLabel = (s: WorkoutSession) => `${s.date}${s.name ? ` — ${s.name}` : ''}`
@@ -55,8 +56,9 @@ export function SessionCard({
             <SessionForm
               initial={session}
               onSubmit={(date, name) => {
-                onUpdateSession(date, name)
+                if (!onUpdateSession(date, name)) return false
                 setEditing(false)
+                return true
               }}
               onCancel={() => setEditing(false)}
             />

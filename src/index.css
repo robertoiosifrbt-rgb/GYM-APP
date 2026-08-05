@@ -242,6 +242,17 @@ button[type='button'] {
 
 /* Tables */
 
+/*
+ * The measurement history has 12 nowrap columns — far wider than a phone.
+ * Scrolling happens inside this container so the page body never scrolls
+ * sideways and the layout is not stretched out of shape.
+ */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 table {
   border-collapse: collapse;
   width: 100%;
@@ -309,6 +320,40 @@ th {
 .error-screen pre {
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+/* Storage / save failures — must be impossible to miss on a phone. */
+
+.storage-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.storage-notice button {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+}
+
+.form-error {
+  width: 100%;
+  margin: 0.25rem 0 0;
+  color: var(--color-danger);
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 .update-banner {

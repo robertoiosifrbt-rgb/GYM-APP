@@ -1,10 +1,15 @@
 name: Deploy to GitHub Pages
 
+# Publishing to the live site happens from `main` only.
+#
+# This used to also run for `claude/**`, which meant any push to a work branch
+# replaced the live app — an unfinished version could go out, and a verified
+# one could be overwritten by an experiment. Work branches now run `ci.yml`
+# (lint + test + build) and reach the live site only by being merged here.
 on:
   push:
     branches:
       - main
-      - 'claude/**'
   workflow_dispatch:
 
 permissions:
@@ -14,10 +19,15 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  # Never cancel a publish that is already running: an interrupted deployment
+  # decided by whichever run happens to finish first is exactly what we are
+  # trying to avoid.
+  cancel-in-progress: false
 
 jobs:
   build:
+    # Belt and braces for workflow_dispatch, which can be started from any ref.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,6 +35,12 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
+
+      # Every check runs before the artifact is produced, so a failure here
+      # means nothing is uploaded and the deploy job never gets its input.
+      - run: npm run lint
+      - run: npm test
+
       - id: version
         run: echo "sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
       - run: echo "${{ steps.version.outputs.sha }}" > public/version.txt

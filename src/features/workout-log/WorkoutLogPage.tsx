@@ -1,19 +1,34 @@
 import { useEffect, useRef, useState } from 'react'
 import { useExercises, useFieldTypes } from '../exercises'
+import { StorageNotice } from '../../shared/StorageNotice'
+import { todayLocal } from '../../shared/localDate'
 import { useWorkoutLog } from './useWorkoutLog'
 import { useWorkoutSessions } from './useWorkoutSessions'
 import { SessionCard } from './SessionCard'
 import { SessionForm } from './SessionForm'
 
-const today = () => new Date().toISOString().slice(0, 10)
-
 export function WorkoutLogPage() {
   const { exercises } = useExercises()
   const { fieldTypes } = useFieldTypes()
-  const { sessions, addSession, updateSession } = useWorkoutSessions()
-  const { entries, addEntry, getLastEntry, backfillSessionIds, updateEntriesDate } = useWorkoutLog()
+  const {
+    sessions,
+    addSession,
+    updateSession,
+    error: sessionsError,
+    dismissError: dismissSessionsError,
+  } = useWorkoutSessions()
+  const {
+    entries,
+    addEntry,
+    getLastEntry,
+    backfillSessionIds,
+    updateEntriesDate,
+    error: entriesError,
+    dismissError: dismissEntriesError,
+  } = useWorkoutLog()
   const [openSessionId, setOpenSessionId] = useState('')
   const [creating, setCreating] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
   const migrated = useRef(false)
   const autoOpened = useRef(false)
 
@@ -26,25 +41,39 @@ export function WorkoutLogPage() {
     const sessionIdByDate: Record<string, string> = {}
     for (const date of legacyDates) {
       const existing = sessions.find((s) => s.date === date && !s.name)
-      sessionIdByDate[date] = existing ? existing.id : addSession({ date, name: '' }).id
+      if (existing) {
+        sessionIdByDate[date] = existing.id
+        continue
+      }
+      const created = addSession({ date, name: '' })
+      if (!created) {
+        // Storage refused the write. Leave the remaining entries untouched and
+        // allow another attempt on the next mount rather than half-migrating.
+        migrated.current = false
+        return
+      }
+      sessionIdByDate[date] = created.id
     }
     backfillSessionIds(sessionIdByDate)
   }, [entries, sessions, addSession, backfillSessionIds])
 
   useEffect(() => {
     if (autoOpened.current || openSessionId) return
-    const todaysSession = sessions.find((s) => s.date === today())
+    const todaysSession = sessions.find((s) => s.date === todayLocal())
     if (todaysSession) {
       autoOpened.current = true
       setOpenSessionId(todaysSession.id)
     }
   }, [sessions, openSessionId])
 
-  function handleCreate(date: string, name: string) {
+  function handleCreate(date: string, name: string): boolean {
     autoOpened.current = true
     const created = addSession({ date, name })
+    if (!created) return false
+    setActionError(null)
     setOpenSessionId(created.id)
     setCreating(false)
+    return true
   }
 
   function handleToggle(id: string) {
@@ -52,9 +81,33 @@ export function WorkoutLogPage() {
     setOpenSessionId((prev) => (prev === id ? '' : id))
   }
 
+  function handleUpdateSession(sessionId: string, date: string, name: string): boolean {
+    if (!updateSession(sessionId, date, name)) return false
+    // The session's date is denormalised onto its entries so history stays
+    // consistent; if that second write fails the user has to know the two are
+    // now out of step.
+    if (!updateEntriesDate(sessionId, date)) {
+      setActionError(
+        'The session was renamed or moved, but its logged exercises kept the old date. ' +
+          'Free some storage space and edit the session again.',
+      )
+      return false
+    }
+    setActionError(null)
+    return true
+  }
+
+  function dismissAll() {
+    dismissSessionsError()
+    dismissEntriesError()
+    setActionError(null)
+  }
+
   return (
     <section>
       <h2>Daily log</h2>
+
+      <StorageNotice message={sessionsError ?? entriesError ?? actionError} onDismiss={dismissAll} />
 
       {creating ? (
         <SessionForm onSubmit={handleCreate} onCancel={() => setCreating(false)} />
@@ -76,10 +129,7 @@ export function WorkoutLogPage() {
           fieldTypes={fieldTypes}
           getLastEntry={getLastEntry}
           onToggle={() => handleToggle(session.id)}
-          onUpdateSession={(date, name) => {
-            updateSession(session.id, date, name)
-            updateEntriesDate(session.id, date)
-          }}
+          onUpdateSession={(date, name) => handleUpdateSession(session.id, date, name)}
           onAddEntry={(entry) => addEntry({ ...entry, sessionId: session.id, date: session.date })}
         />
       ))}

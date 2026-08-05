@@ -1,25 +1,32 @@
-import { useEffect, useState } from 'react'
-import { DEFAULT_FIELD_TYPES, type FieldType } from './types'
+import { recoverArray } from '../../shared/storage'
+import { usePersistedState } from '../../shared/usePersistedState'
+import { DEFAULT_FIELD_TYPES, parseFieldType, type FieldType } from './types'
 
 const STORAGE_KEY = 'gym-app:field-types'
 
-function loadFieldTypes(): FieldType[] {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  return raw ? JSON.parse(raw) : DEFAULT_FIELD_TYPES
-}
+const recover = recoverArray(parseFieldType)
 
+/**
+ * The available set-value types (Reps, Weight, …), including the ones the user
+ * adds themselves.
+ *
+ * Instantiate this once per page and pass the result down. Two live instances
+ * of this hook do not see each other's additions, which used to leave the
+ * exercise list showing a raw id where a freshly added type's label belonged.
+ */
 export function useFieldTypes() {
-  const [fieldTypes, setFieldTypes] = useState<FieldType[]>(loadFieldTypes)
+  const {
+    value: fieldTypes,
+    update,
+    error,
+    dismissError,
+  } = usePersistedState<FieldType[]>(STORAGE_KEY, DEFAULT_FIELD_TYPES, recover)
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(fieldTypes))
-  }, [fieldTypes])
-
-  function addFieldType(label: string, unit: string): FieldType {
+  /** Returns the new type, or null when storage refused the write. */
+  function addFieldType(label: string, unit: string): FieldType | null {
     const fieldType: FieldType = { id: crypto.randomUUID(), label, unit }
-    setFieldTypes((prev) => [...prev, fieldType])
-    return fieldType
+    return update((prev) => [...prev, fieldType]) ? fieldType : null
   }
 
-  return { fieldTypes, addFieldType }
+  return { fieldTypes, addFieldType, error, dismissError }
 }

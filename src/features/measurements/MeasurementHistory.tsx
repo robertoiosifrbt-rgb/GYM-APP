@@ -24,28 +24,32 @@ export function MeasurementHistory({ measurements }: MeasurementHistoryProps) {
     return <p>No measurements logged yet.</p>
   }
 
+  // 12 nowrap columns are far wider than a phone screen, so the table scrolls
+  // inside its own container instead of stretching the page sideways.
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Weight (kg)</th>
-          {columns.map(({ key, label }) => (
-            <th key={key}>{label}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {measurements.map((m) => (
-          <tr key={m.id}>
-            <td>{m.date}</td>
-            <td>{m.weightKg}</td>
-            {columns.map(({ key }) => (
-              <td key={key}>{dash(m[key] as number | undefined)}</td>
+    <div className="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Weight (kg)</th>
+            {columns.map(({ key, label }) => (
+              <th key={key}>{label}</th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {measurements.map((m) => (
+            <tr key={m.id}>
+              <td>{m.date}</td>
+              <td>{m.weightKg}</td>
+              {columns.map(({ key }) => (
+                <td key={key}>{dash(m[key] as number | undefined)}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }

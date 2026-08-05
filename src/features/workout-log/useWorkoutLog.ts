@@ -1,42 +1,46 @@
-import { useEffect, useState } from 'react'
-import type { WorkoutEntry } from './types'
+import { recoverArray } from '../../shared/storage'
+import { usePersistedState } from '../../shared/usePersistedState'
+import { byRecencyDesc, parseWorkoutEntry, type WorkoutEntry } from './types'
 
 const STORAGE_KEY = 'gym-app:workout-log'
 
-function loadEntries(): WorkoutEntry[] {
-  const raw = localStorage.getItem(STORAGE_KEY)
-  return raw ? JSON.parse(raw) : []
-}
-
-const byDateDesc = (a: WorkoutEntry, b: WorkoutEntry) => b.date.localeCompare(a.date)
+const recover = recoverArray(parseWorkoutEntry)
 
 export function useWorkoutLog() {
-  const [entries, setEntries] = useState<WorkoutEntry[]>(loadEntries)
+  const {
+    value: entries,
+    update,
+    error,
+    dismissError,
+  } = usePersistedState<WorkoutEntry[]>(STORAGE_KEY, [], recover)
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries))
-  }, [entries])
-
-  function addEntry(entry: Omit<WorkoutEntry, 'id'>) {
-    const newEntry: WorkoutEntry = { ...entry, id: crypto.randomUUID() }
-    setEntries((prev) => [...prev, newEntry].sort(byDateDesc))
+  /** Returns false when storage refused the write, so the form can keep its sets. */
+  function addEntry(entry: Omit<WorkoutEntry, 'id' | 'createdAt'>): boolean {
+    const newEntry: WorkoutEntry = {
+      ...entry,
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+    }
+    return update((prev) => [...prev, newEntry].sort(byRecencyDesc))
   }
 
   function getLastEntry(exerciseId: string): WorkoutEntry | undefined {
-    return entries.filter((e) => e.exerciseId === exerciseId).sort(byDateDesc)[0]
+    // Already stored sorted, but sorting the filtered copy keeps this correct
+    // regardless of how the array got here.
+    return entries.filter((e) => e.exerciseId === exerciseId).sort(byRecencyDesc)[0]
   }
 
-  function backfillSessionIds(sessionIdByDate: Record<string, string>) {
-    setEntries((prev) =>
+  function backfillSessionIds(sessionIdByDate: Record<string, string>): boolean {
+    return update((prev) =>
       prev.map((e) => (e.sessionId ? e : { ...e, sessionId: sessionIdByDate[e.date] ?? e.sessionId })),
     )
   }
 
-  function updateEntriesDate(sessionId: string, date: string) {
-    setEntries((prev) =>
-      prev.map((e) => (e.sessionId === sessionId ? { ...e, date } : e)).sort(byDateDesc),
+  function updateEntriesDate(sessionId: string, date: string): boolean {
+    return update((prev) =>
+      prev.map((e) => (e.sessionId === sessionId ? { ...e, date } : e)).sort(byRecencyDesc),
     )
   }
 
-  return { entries, addEntry, getLastEntry, backfillSessionIds, updateEntriesDate }
+  return { entries, addEntry, getLastEntry, backfillSessionIds, updateEntriesDate, error, dismissError }
 }

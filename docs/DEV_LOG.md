@@ -4,6 +4,20 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-05 — stabilizare după audit tehnic
+
+Nicio funcție nouă. Sesiune de reparații pe baza auditului (2 HIGH, 8 MEDIUM, 4 LOW), în ordinea recomandată acolo.
+
+- **Pozele nu se mai pierd** (HIGH 1): `PhotoUploadForm` chiar așteaptă salvarea (`await onAdd`), golește selecția **doar după** confirmare, blochează butonul cât salvează și afișează eroarea. Dacă IndexedDB refuză, pozele rămân selectate și se poate reîncerca fără să le alegi din nou.
+- **Publicarea live e închisă pe ramurile de lucru** (HIGH 2): `deploy.yml` rulează numai pe `main` (plus verificare explicită de ref pentru `workflow_dispatch`), cu `cancel-in-progress: false`. Ramurile `claude/**` și PR-urile rulează `ci.yml` (lint + test + build), fără deploy. Deploy-ul rulează lint + test **înainte** de build, deci o verificare picată nu urcă niciun artefact.
+- **Persistență apărată** (MEDIUM 1+2): tot `localStorage` trece prin `src/shared/storage.ts` + `usePersistedState`. Citire cu `try/catch` și validare per-intrare; scrierea se face **înainte** de a muta starea React, deci o scriere refuzată nu mai arată ca succes. Valoarea coruptă originală se copiază în `<cheie>:corrupt` și nu se șterge niciodată.
+- **Valori imposibile refuzate** (MEDIUM 3): limite per câmp (`MEASUREMENT_BOUNDS`, `SET_VALUE_BOUNDS`), validare în JS pe lângă `min`/`max` din HTML, respinge `NaN`/`Infinity` și tratează câmpul gol ca gol (nu ca 0).
+- **Data locală, nu UTC** (MEDIUM 4): `src/shared/localDate.ts`; `toISOString()` punea antrenamentele de după miezul nopții pe ziua precedentă în BST.
+- **Restul**: procesare poze per unghi cu `finally` (MEDIUM 5); o singură sursă de adevăr pentru tipurile de câmp, transmise ca props (MEDIUM 6); confirmare la ștergerea unui exercițiu, care spune explicit că istoricul se păstrează (MEDIUM 7); `createdAt` ca departajare pentru intrări din aceeași zi (LOW 2); container cu scroll orizontal la tabelul de măsurători (LOW 4).
+- **Teste** (MEDIUM 8): `vitest` + `@testing-library/react`, 99 de teste, `npm test`. Fiecare reparație a fost verificată prin reintroducerea defectului — toate 8 mutații testate au picat suita, deci testele chiar prind regresia, nu doar trec.
+- **Nereproductibil**: LOW 3 (favicon). Vite rescrie deja `/favicon.svg` → `/GYM-APP/favicon.svg` în `dist/index.html`, deci nu e 404 pe Pages. `index.html` a rămas neschimbat.
+- **Rămas de decis** (LOW 1 / etapa 6): `main` e încă gol. Codul verificat trebuie mutat pe ramura stabilă — decizie de proprietar, nu s-a atins nimic.
+
 ## 2026-08-05
 
 - Șters tot codul vechi (`main` + branch de lucru), repornit de la zero: scaffold React + TypeScript + Vite curat, plus documentele de continuitate (`CLAUDE.md`, `docs/ARCHITECTURE.md`, `docs/ROADMAP.md`, `docs/DEV_LOG.md` cu regula de rotație de mai sus).

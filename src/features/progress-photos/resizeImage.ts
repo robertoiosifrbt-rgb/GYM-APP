@@ -2,24 +2,32 @@ const MAX_DIMENSION = 1280
 const JPEG_QUALITY = 0.8
 
 export async function resizeImage(file: File): Promise<Blob> {
+  // Throws for files the browser cannot decode (a HEIC on an old browser, a
+  // truncated download). The caller reports which angle failed.
   const bitmap = await createImageBitmap(file)
-  const scale = Math.min(1, MAX_DIMENSION / Math.max(bitmap.width, bitmap.height))
-  const width = Math.round(bitmap.width * scale)
-  const height = Math.round(bitmap.height * scale)
 
-  const canvas = document.createElement('canvas')
-  canvas.width = width
-  canvas.height = height
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('Canvas is not supported')
-  ctx.drawImage(bitmap, 0, 0, width, height)
-  bitmap.close()
+  try {
+    const scale = Math.min(1, MAX_DIMENSION / Math.max(bitmap.width, bitmap.height))
+    const width = Math.round(bitmap.width * scale)
+    const height = Math.round(bitmap.height * scale)
 
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error('Failed to encode image'))),
-      'image/jpeg',
-      JPEG_QUALITY,
-    )
-  })
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    if (!ctx) throw new Error('Canvas is not supported')
+    ctx.drawImage(bitmap, 0, 0, width, height)
+
+    return await new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error('Failed to encode image'))),
+        'image/jpeg',
+        JPEG_QUALITY,
+      )
+    })
+  } finally {
+    // In `finally` so a failed decode or encode still frees the bitmap —
+    // phone photos are large enough that leaking a few can crash the tab.
+    bitmap.close()
+  }
 }
