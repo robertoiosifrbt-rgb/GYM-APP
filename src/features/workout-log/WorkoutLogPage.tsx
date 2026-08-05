@@ -70,7 +70,6 @@ export function WorkoutLogPage() {
       <SessionPicker
         sessions={sessions}
         currentSession={currentSession}
-        onSelect={handleSelectSession}
         onCreate={handleCreateSession}
         onUpdate={handleUpdateSession}
       />
@@ -85,7 +84,12 @@ export function WorkoutLogPage() {
       )}
 
       <h3>History</h3>
-      <WorkoutHistory entries={entries} sessions={sessions} fieldTypes={fieldTypes} />
+      <WorkoutHistory
+        entries={entries}
+        sessions={sessions}
+        fieldTypes={fieldTypes}
+        onSelectSession={handleSelectSession}
+      />
     </section>
   )
 }

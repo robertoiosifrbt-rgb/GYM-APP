@@ -374,6 +374,21 @@ select[size] {
   letter-spacing: 0.03em;
 }
 
+.workout-day-heading {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.workout-day-heading h3 {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
 .workout-day ul {
   margin: 0;
   padding-left: 1.2rem;

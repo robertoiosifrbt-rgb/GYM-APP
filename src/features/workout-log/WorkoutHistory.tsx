@@ -6,6 +6,7 @@ interface WorkoutHistoryProps {
   entries: WorkoutEntry[]
   sessions: WorkoutSession[]
   fieldTypes: FieldType[]
+  onSelectSession: (id: string) => void
 }
 
 // Entries logged before sessions existed have no sessionId — fall back to
@@ -26,7 +27,7 @@ function groupBySession(entries: WorkoutEntry[]): Array<[string, WorkoutEntry[]]
   return Array.from(groups.entries())
 }
 
-export function WorkoutHistory({ entries, sessions, fieldTypes }: WorkoutHistoryProps) {
+export function WorkoutHistory({ entries, sessions, fieldTypes, onSelectSession }: WorkoutHistoryProps) {
   if (entries.length === 0) {
     return <p>No workouts logged yet.</p>
   }
@@ -37,12 +38,16 @@ export function WorkoutHistory({ entries, sessions, fieldTypes }: WorkoutHistory
     <div className="workout-history">
       {groups.map(([sessionId, sessionEntries]) => {
         const session = sessions.find((s) => s.id === sessionId)
+        const heading = `${session?.date ?? sessionEntries[0].date}${session?.name ? ` — ${session.name}` : ''}`
         return (
           <div className="workout-day" key={sessionId}>
-            <h3>
-              {session?.date ?? sessionEntries[0].date}
-              {session?.name ? ` — ${session.name}` : ''}
-            </h3>
+            {session ? (
+              <button type="button" className="workout-day-heading" onClick={() => onSelectSession(session.id)}>
+                <h3>{heading}</h3>
+              </button>
+            ) : (
+              <h3>{heading}</h3>
+            )}
             <ul>
               {sessionEntries.map((entry) => (
                 <li key={entry.id}>
