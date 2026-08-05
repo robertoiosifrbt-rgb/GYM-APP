@@ -11,7 +11,7 @@
 - [x] Măsurători corporale (greutate, % grăsime, circumferințe) + istoric
 - [x] Poze de progres (set de 4 unghiuri pe dată, galerie)
 - [x] Lista de exerciții (biblioteca, câmpuri configurabile per exercițiu)
-- [x] Jurnal zilnic de antrenament (seturi structurate pe baza exercițiului + ultimul log)
+- [x] Jurnal de antrenament pe sesiuni (nume + dată, exerciții multiple per sesiune, ultimul log per exercițiu)
 - [ ] Planuri de antrenament
 
 _(lista se completează pe măsură ce decidem împreună următorii pași)_

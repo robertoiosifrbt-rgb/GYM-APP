@@ -1,19 +1,16 @@
 import { useState } from 'react'
 import type { Exercise, FieldType } from '../exercises'
-import type { NewWorkoutEntry, SetValues, WorkoutEntry } from './types'
+import type { NewExerciseEntry, SetValues, WorkoutEntry } from './types'
 import { formatSet } from './formatSet'
 
 interface ExerciseEntryFormProps {
   exercises: Exercise[]
   fieldTypes: FieldType[]
   getLastEntry: (exerciseId: string) => WorkoutEntry | undefined
-  onAdd: (entry: NewWorkoutEntry) => void
+  onAdd: (entry: NewExerciseEntry) => void
 }
 
-const today = () => new Date().toISOString().slice(0, 10)
-
 export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }: ExerciseEntryFormProps) {
-  const [date, setDate] = useState(today())
   const [exerciseId, setExerciseId] = useState('')
   const [sets, setSets] = useState<SetValues[]>([{}])
 
@@ -51,7 +48,7 @@ export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }
     const nonEmptySets = sets.filter((set) => Object.keys(set).length > 0)
     if (nonEmptySets.length === 0) return
 
-    onAdd({ date, exerciseId: exercise.id, exerciseName: exercise.name, sets: nonEmptySets })
+    onAdd({ exerciseId: exercise.id, exerciseName: exercise.name, sets: nonEmptySets })
     setExerciseId('')
     setSets([{}])
   }
@@ -62,11 +59,6 @@ export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="field">
-        <label htmlFor="workout-date">Date</label>
-        <input id="workout-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-      </div>
-
       <div className="field">
         <label htmlFor="exercise-select">Exercise</label>
         <select

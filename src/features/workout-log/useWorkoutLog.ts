@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { NewWorkoutEntry, WorkoutEntry } from './types'
+import type { WorkoutEntry } from './types'
 
 const STORAGE_KEY = 'gym-app:workout-log'
 
@@ -17,7 +17,7 @@ export function useWorkoutLog() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries))
   }, [entries])
 
-  function addEntry(entry: NewWorkoutEntry) {
+  function addEntry(entry: Omit<WorkoutEntry, 'id'>) {
     const newEntry: WorkoutEntry = { ...entry, id: crypto.randomUUID() }
     setEntries((prev) => [...prev, newEntry].sort(byDateDesc))
   }
