@@ -23,5 +23,9 @@ export function useWorkoutSessions() {
     return newSession
   }
 
-  return { sessions, addSession }
+  function updateSession(id: string, date: string, name: string) {
+    setSessions((prev) => prev.map((s) => (s.id === id ? { ...s, date, name } : s)).sort(byDateDesc))
+  }
+
+  return { sessions, addSession, updateSession }
 }

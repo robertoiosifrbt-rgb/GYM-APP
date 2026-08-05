@@ -32,5 +32,11 @@ export function useWorkoutLog() {
     )
   }
 
-  return { entries, addEntry, getLastEntry, backfillSessionIds }
+  function updateEntriesDate(sessionId: string, date: string) {
+    setEntries((prev) =>
+      prev.map((e) => (e.sessionId === sessionId ? { ...e, date } : e)).sort(byDateDesc),
+    )
+  }
+
+  return { entries, addEntry, getLastEntry, backfillSessionIds, updateEntriesDate }
 }

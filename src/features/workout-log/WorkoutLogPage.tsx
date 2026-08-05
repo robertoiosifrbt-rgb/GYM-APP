@@ -12,8 +12,8 @@ const today = () => new Date().toISOString().slice(0, 10)
 export function WorkoutLogPage() {
   const { exercises } = useExercises()
   const { fieldTypes } = useFieldTypes()
-  const { sessions, addSession } = useWorkoutSessions()
-  const { entries, addEntry, getLastEntry, backfillSessionIds } = useWorkoutLog()
+  const { sessions, addSession, updateSession } = useWorkoutSessions()
+  const { entries, addEntry, getLastEntry, backfillSessionIds, updateEntriesDate } = useWorkoutLog()
   const [currentSessionId, setCurrentSessionId] = useState('')
   const migrated = useRef(false)
   const autoSelected = useRef(false)
@@ -54,6 +54,11 @@ export function WorkoutLogPage() {
     setCurrentSessionId(id)
   }
 
+  function handleUpdateSession(id: string, date: string, name: string) {
+    updateSession(id, date, name)
+    updateEntriesDate(id, date)
+  }
+
   function handleAddEntry(entry: NewExerciseEntry) {
     if (!currentSession) return
     addEntry({ ...entry, sessionId: currentSession.id, date: currentSession.date })
@@ -67,6 +72,7 @@ export function WorkoutLogPage() {
         currentSession={currentSession}
         onSelect={handleSelectSession}
         onCreate={handleCreateSession}
+        onUpdate={handleUpdateSession}
       />
 
       {currentSession && (

@@ -6,14 +6,15 @@ interface SessionPickerProps {
   currentSession: WorkoutSession | undefined
   onSelect: (id: string) => void
   onCreate: (session: NewWorkoutSession) => void
+  onUpdate: (id: string, date: string, name: string) => void
 }
 
 const today = () => new Date().toISOString().slice(0, 10)
 
 const sessionLabel = (s: WorkoutSession) => `${s.date}${s.name ? ` — ${s.name}` : ''}`
 
-export function SessionPicker({ sessions, currentSession, onSelect, onCreate }: SessionPickerProps) {
-  const [mode, setMode] = useState<'current' | 'switching' | 'creating'>(
+export function SessionPicker({ sessions, currentSession, onSelect, onCreate, onUpdate }: SessionPickerProps) {
+  const [mode, setMode] = useState<'current' | 'switching' | 'creating' | 'editing'>(
     currentSession ? 'current' : 'creating',
   )
   const [search, setSearch] = useState('')
@@ -21,6 +22,13 @@ export function SessionPicker({ sessions, currentSession, onSelect, onCreate }: 
   const [name, setName] = useState('')
 
   const matches = sessions.filter((s) => sessionLabel(s).toLowerCase().includes(search.toLowerCase()))
+
+  function startEditing() {
+    if (!currentSession) return
+    setDate(currentSession.date)
+    setName(currentSession.name)
+    setMode('editing')
+  }
 
   function handleCreate(event: React.FormEvent) {
     event.preventDefault()
@@ -30,9 +38,17 @@ export function SessionPicker({ sessions, currentSession, onSelect, onCreate }: 
     setMode('current')
   }
 
-  if (mode === 'creating') {
+  function handleUpdate(event: React.FormEvent) {
+    event.preventDefault()
+    if (!currentSession) return
+    onUpdate(currentSession.id, date, name.trim())
+    setMode('current')
+  }
+
+  if (mode === 'creating' || mode === 'editing') {
+    const editing = mode === 'editing'
     return (
-      <form onSubmit={handleCreate}>
+      <form onSubmit={editing ? handleUpdate : handleCreate}>
         <div className="field">
           <label htmlFor="session-date">Date</label>
           <input id="session-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
@@ -46,8 +62,8 @@ export function SessionPicker({ sessions, currentSession, onSelect, onCreate }: 
             placeholder="e.g. Push Day"
           />
         </div>
-        <button type="submit">Start session</button>
-        {sessions.length > 0 && (
+        <button type="submit">{editing ? 'Save changes' : 'Start session'}</button>
+        {(editing || sessions.length > 0) && (
           <button type="button" onClick={() => setMode('current')}>
             Cancel
           </button>
@@ -98,9 +114,16 @@ export function SessionPicker({ sessions, currentSession, onSelect, onCreate }: 
   return (
     <div className="session-summary">
       <span>Session: {currentSession ? sessionLabel(currentSession) : '—'}</span>
-      <button type="button" onClick={() => setMode('switching')}>
-        Switch
-      </button>
+      <div className="session-picker-actions">
+        {currentSession && (
+          <button type="button" onClick={startEditing}>
+            Edit
+          </button>
+        )}
+        <button type="button" onClick={() => setMode('switching')}>
+          Switch
+        </button>
+      </div>
     </div>
   )
 }
