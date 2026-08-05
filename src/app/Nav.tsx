@@ -6,9 +6,9 @@ interface NavProps {
 }
 
 const pages: Array<{ key: Page; label: string; icon: string }> = [
-  { key: 'home', label: 'Home', icon: '🏠' },
+  { key: 'home', label: 'Log', icon: '📝' },
   { key: 'body', label: 'Body', icon: '📏' },
-  { key: 'workout', label: 'Workout', icon: '🏋️' },
+  { key: 'exercises', label: 'Exercises', icon: '🏋️' },
 ]
 
 export function Nav({ current, onNavigate }: NavProps) {

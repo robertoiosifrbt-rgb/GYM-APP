@@ -3,21 +3,18 @@ import { MeasurementsPage } from '../features/measurements'
 import { ProgressPhotosPage } from '../features/progress-photos'
 import { ExercisesPage } from '../features/exercises'
 import { WorkoutLogPage } from '../features/workout-log'
-import { HomePage } from './HomePage'
 import { Nav } from './Nav'
 import { SubNav } from './SubNav'
 import { ErrorBoundary } from './ErrorBoundary'
 import { UpdateBanner } from './UpdateBanner'
 import { useVersionCheck } from './useVersionCheck'
 
-export type Page = 'home' | 'body' | 'workout'
+export type Page = 'home' | 'body' | 'exercises'
 type BodySubPage = 'measurements' | 'photos'
-type WorkoutSubPage = 'log' | 'exercises'
 
 function App() {
   const [page, setPage] = useState<Page>('home')
   const [bodySubPage, setBodySubPage] = useState<BodySubPage>('measurements')
-  const [workoutSubPage, setWorkoutSubPage] = useState<WorkoutSubPage>('log')
   const updateAvailable = useVersionCheck()
 
   return (
@@ -30,7 +27,7 @@ function App() {
 
       <main className="app-content">
         <ErrorBoundary>
-          {page === 'home' && <HomePage />}
+          {page === 'home' && <WorkoutLogPage />}
 
           {page === 'body' && (
             <>
@@ -47,20 +44,7 @@ function App() {
             </>
           )}
 
-          {page === 'workout' && (
-            <>
-              <SubNav
-                tabs={[
-                  { key: 'log', label: 'Log' },
-                  { key: 'exercises', label: 'Exercises' },
-                ]}
-                current={workoutSubPage}
-                onChange={setWorkoutSubPage}
-              />
-              {workoutSubPage === 'log' && <WorkoutLogPage />}
-              {workoutSubPage === 'exercises' && <ExercisesPage />}
-            </>
-          )}
+          {page === 'exercises' && <ExercisesPage />}
         </ErrorBoundary>
       </main>
 
