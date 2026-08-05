@@ -21,3 +21,4 @@
 - Adăugat pagina Home (goală, placeholder) și un meniu de navigare (`src/app/Nav.tsx`) între Home / Measurements / Photos. Navigare simplă prin state React, fără router.
 - Poze de progres schimbate din "o poză per dată" la "un set de 4 poze per dată" (front/back/left/right), toate obligatorii într-un singur formular.
 - Bug real pe telefon: ecran negru la încărcarea celor 4 poze (crash de memorie — poze brute de 12MP+ ținute simultan). Fix: fiecare poză e redimensionată/comprimată (`resizeImage.ts`) imediat la selectare, înainte să ajungă în state sau storage.
+- Ecranul negru a persistat și doar la navigarea pe tab-ul Photos (fără nicio poză selectată) — cauza exactă nu e încă confirmată. Adăugat `ErrorBoundary` (`src/app/ErrorBoundary.tsx`) care afișează eroarea pe ecran în loc de gol/negru, plus tratare de eroare la încărcarea din IndexedDB în `usePhotos`. De verificat cu următoarea captură de ecran ce mesaj arată.
