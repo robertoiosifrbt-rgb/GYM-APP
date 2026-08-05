@@ -17,7 +17,19 @@ export function ExerciseList({ exercises, fieldTypes, onDelete }: ExerciseListPr
     <ul className="exercise-list">
       {exercises.map((exercise) => (
         <li key={exercise.id}>
-          <strong>{exercise.name}</strong> — {exercise.fields.map(labelFor).join(', ')}
+          <details>
+            <summary>
+              <strong>{exercise.name}</strong> — {exercise.fields.map(labelFor).join(', ')}
+            </summary>
+            <div className="exercise-details">
+              {exercise.category && <p>Category: {exercise.category}</p>}
+              {exercise.difficulty && <p>Difficulty: {exercise.difficulty}</p>}
+              {exercise.equipment && <p>Equipment: {exercise.equipment}</p>}
+              {exercise.primaryMuscles && <p>Primary muscles: {exercise.primaryMuscles}</p>}
+              {exercise.secondaryMuscles && <p>Secondary muscles: {exercise.secondaryMuscles}</p>}
+              {exercise.instructions && <p>Instructions: {exercise.instructions}</p>}
+            </div>
+          </details>
           <button type="button" onClick={() => onDelete(exercise.id)} aria-label={`Delete ${exercise.name}`}>
             ×
           </button>

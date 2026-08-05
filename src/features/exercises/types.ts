@@ -11,7 +11,20 @@ export const DEFAULT_FIELD_TYPES: FieldType[] = [
   { id: 'distance', label: 'Distance (m)', unit: 'm' },
 ]
 
-export interface Exercise {
+export type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced'
+
+export const DIFFICULTIES: Difficulty[] = ['Beginner', 'Intermediate', 'Advanced']
+
+export interface ExerciseDetails {
+  category: string
+  difficulty: Difficulty | ''
+  equipment: string
+  primaryMuscles: string
+  secondaryMuscles: string
+  instructions: string
+}
+
+export interface Exercise extends ExerciseDetails {
   id: string
   name: string
   fields: string[]
