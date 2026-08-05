@@ -8,6 +8,7 @@
 
 ## Funcționalități
 
+- [x] Măsurători corporale (greutate, % grăsime, circumferințe) + istoric
 - [ ] Lista de exerciții
 - [ ] Jurnal de antrenament
 - [ ] Planuri de antrenament

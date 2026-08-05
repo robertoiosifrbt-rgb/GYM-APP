@@ -7,3 +7,29 @@ body {
   margin: 0;
   padding: 2rem;
 }
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border: 1px solid #8884;
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}

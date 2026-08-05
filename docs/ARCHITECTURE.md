@@ -18,4 +18,9 @@ Când adăugăm o funcționalitate, creăm `src/features/<nume>/` cu, de regulă
 
 _(actualizat pe măsură ce le construim)_
 
-- Momentan niciun modul de funcționalitate — doar scaffold-ul de bază în `src/app/`.
+- `src/features/measurements/` — măsurători corporale (greutate, % grăsime, circumferințe). Persistență în `localStorage` prin hook-ul `useMeasurements`. Formular (`MeasurementForm`) + istoric (`MeasurementHistory`) combinate în `MeasurementsPage`.
+
+## Limbă
+
+- Documentele de continuitate (`CLAUDE.md`, `docs/*`) sunt în română.
+- Interfața aplicației (tot ce vede utilizatorul: texte, etichete, butoane) e în engleză.

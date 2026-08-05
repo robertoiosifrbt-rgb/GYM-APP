@@ -11,3 +11,5 @@
 - Reorganizat `src/App.tsx` → `src/app/App.tsx`, ca punct de start pentru convenția de module.
 - Adăugat documente de continuitate: `CLAUDE.md`, `docs/ARCHITECTURE.md`, `docs/ROADMAP.md`, `docs/DEV_LOG.md`.
 - Stabilit regula de rotație de mai sus, ca jurnalul să rămână scurt.
+- Construit primul modul: măsurători corporale (`src/features/measurements`) — formular + istoric, persistat în `localStorage`.
+- Interfața aplicației e în engleză de acum; documentele de continuitate rămân în română.
