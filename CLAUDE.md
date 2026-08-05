@@ -8,6 +8,7 @@ Acest fișier e **punctul de intrare fix**: nu ține istoric și nu crește — 
 
 - Nu construim funcționalități în avans, nesolicitate. Adăugăm câte una, discutăm, apoi trecem la următoarea.
 - Fiecare funcționalitate nouă devine un modul propriu în `src/features/<nume>` (vezi `docs/ARCHITECTURE.md`).
+- **Fără poze / screenshot-uri.** Nu trimite imagini cu aplicația și nu cere să te uiți la ele. Dacă trebuie verificat că ceva funcționează, verifică-l în text: `npm test`, `npm run lint`, `npm run build`, sau condu aplicația și raportează rezultatele ca text (ce s-a apăsat, ce s-a salvat, ce a rămas după reload, erorile din consolă).
 - La finalul fiecărei sesiuni de lucru relevante, se actualizează:
   - `docs/DEV_LOG.md` — ce s-a făcut și ce decizii s-au luat (max. 5 intrări, restul în `docs/archive/dev-log/`)
   - `docs/ROADMAP.md` — ce e bifat, ce urmează (se editează pe loc, nu se adaugă la nesfârșit)
