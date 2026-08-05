@@ -17,3 +17,4 @@
 - Adăugat deploy static pe GitHub Pages (`.github/workflows/deploy.yml` + `base: '/GYM-APP/'` în `vite.config.ts`), ca aplicația să fie accesibilă de pe telefon printr-un link permanent. Necesită un pas manual unic: în repo, Settings → Pages → Source → "GitHub Actions".
 - Repo-ul a fost făcut public (Pages gratuit nu funcționează pe repo privat), iar restricția de branch a environment-ului `github-pages` a fost setată pe "No restrictions". Deploy funcțional: https://robertoiosifrbt-rgb.github.io/GYM-APP/
 - Adăugat height și neck la măsurători corporale.
+- Construit modul nou: poze de progres (`src/features/progress-photos`) — o poză per dată, stocate în IndexedDB (nu localStorage, prea mic pentru fișiere).

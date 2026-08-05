@@ -33,3 +33,26 @@ td {
   padding: 0.4rem 0.6rem;
   text-align: left;
 }
+
+.photo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.photo-grid figure {
+  margin: 0;
+  width: 150px;
+}
+
+.photo-grid img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.photo-grid figcaption {
+  text-align: center;
+  font-size: 0.85rem;
+}

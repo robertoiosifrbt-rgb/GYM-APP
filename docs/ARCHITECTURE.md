@@ -18,7 +18,8 @@ Când adăugăm o funcționalitate, creăm `src/features/<nume>/` cu, de regulă
 
 _(actualizat pe măsură ce le construim)_
 
-- `src/features/measurements/` — măsurători corporale: greutate, % grăsime, chest/waist/hips (o valoare), și arms/thighs separat pe stânga/dreapta (pentru simetrie). Persistență în `localStorage` prin hook-ul `useMeasurements`. Formular (`MeasurementForm`) + istoric (`MeasurementHistory`) combinate în `MeasurementsPage`.
+- `src/features/measurements/` — măsurători corporale: height, greutate, % grăsime, neck/chest/waist/hips (o valoare), și arms/thighs separat pe stânga/dreapta (pentru simetrie). Persistență în `localStorage` prin hook-ul `useMeasurements`. Formular (`MeasurementForm`) + istoric (`MeasurementHistory`) combinate în `MeasurementsPage`.
+- `src/features/progress-photos/` — poze de progres, o poză per dată. Persistență în `IndexedDB` (nu `localStorage` — pozele sunt prea mari) prin `db.ts` + hook-ul `usePhotos`. Formular de upload (`PhotoUploadForm`) + galerie (`PhotoGallery`) combinate în `ProgressPhotosPage`.
 
 ## Limbă
 
