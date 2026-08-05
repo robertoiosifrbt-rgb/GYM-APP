@@ -22,12 +22,8 @@ export function useWorkoutLog() {
     setEntries((prev) => [...prev, newEntry].sort(byDateDesc))
   }
 
-  function getLastEntry(exerciseName: string): WorkoutEntry | undefined {
-    const name = exerciseName.trim().toLowerCase()
-    if (!name) return undefined
-    return entries
-      .filter((e) => e.exerciseName.trim().toLowerCase() === name)
-      .sort(byDateDesc)[0]
+  function getLastEntry(exerciseId: string): WorkoutEntry | undefined {
+    return entries.filter((e) => e.exerciseId === exerciseId).sort(byDateDesc)[0]
   }
 
   return { entries, addEntry, getLastEntry }

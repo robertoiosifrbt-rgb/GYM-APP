@@ -1,4 +1,5 @@
 import type { WorkoutEntry } from './types'
+import { formatSet } from './formatSet'
 
 interface WorkoutHistoryProps {
   entries: WorkoutEntry[]
@@ -27,7 +28,7 @@ export function WorkoutHistory({ entries }: WorkoutHistoryProps) {
           <ul>
             {dayEntries.map((entry) => (
               <li key={entry.id}>
-                <strong>{entry.exerciseName}</strong>: {entry.sets.join(', ')}
+                <strong>{entry.exerciseName}</strong>: {entry.sets.map(formatSet).join(', ')}
               </li>
             ))}
           </ul>
