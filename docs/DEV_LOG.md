@@ -14,3 +14,4 @@
 - Construit primul modul: măsurători corporale (`src/features/measurements`) — formular + istoric, persistat în `localStorage`.
 - Interfața aplicației e în engleză de acum; documentele de continuitate rămân în română.
 - Arms și thighs împărțite pe stânga/dreapta (left/right), pentru a urmări simetria corpului. Formularul și tabelul de istoric au fost rescrise pe bază de config, ca să nu se repete cod la fiecare câmp nou.
+- Adăugat deploy static pe GitHub Pages (`.github/workflows/deploy.yml` + `base: '/GYM-APP/'` în `vite.config.ts`), ca aplicația să fie accesibilă de pe telefon printr-un link permanent. Necesită un pas manual unic: în repo, Settings → Pages → Source → "GitHub Actions".
