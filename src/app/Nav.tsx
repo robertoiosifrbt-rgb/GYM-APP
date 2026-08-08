@@ -9,6 +9,7 @@ const pages: Array<{ key: Page; label: string; icon: string }> = [
   { key: 'home', label: 'Home', icon: '📝' },
   { key: 'body', label: 'Body', icon: '📏' },
   { key: 'workout', label: 'Workout', icon: '🏋️' },
+  { key: 'settings', label: 'Settings', icon: '⚙️' },
 ]
 
 export function Nav({ current, onNavigate }: NavProps) {

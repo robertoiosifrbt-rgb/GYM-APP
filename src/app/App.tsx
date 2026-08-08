@@ -3,6 +3,7 @@ import { MeasurementsPage } from '../features/measurements'
 import { ProgressPhotosPage } from '../features/progress-photos'
 import { ExercisesPage } from '../features/exercises'
 import { WorkoutLogPage } from '../features/workout-log'
+import { SettingsPage } from '../features/settings'
 import { HomePage } from './HomePage'
 import { Nav } from './Nav'
 import { SubNav } from './SubNav'
@@ -10,7 +11,7 @@ import { ErrorBoundary } from './ErrorBoundary'
 import { UpdateBanner } from './UpdateBanner'
 import { useVersionCheck } from './useVersionCheck'
 
-export type Page = 'home' | 'body' | 'workout'
+export type Page = 'home' | 'body' | 'workout' | 'settings'
 type BodySubPage = 'measurements' | 'photos'
 type WorkoutSubPage = 'log' | 'exercises'
 
@@ -66,6 +67,8 @@ function App() {
               {workoutSubPage === 'exercises' && <ExercisesPage />}
             </>
           )}
+
+          {page === 'settings' && <SettingsPage />}
         </ErrorBoundary>
       </main>
 
