@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { readJson, writeJson, type Recover } from './storage'
 
 /**
@@ -12,6 +12,9 @@ import { readJson, writeJson, type Recover } from './storage'
  *
  * `update` returns `false` when the write was refused, so callers can keep the
  * user's form filled in instead of clearing it.
+ *
+ * Cross-tab synchronization: Listens to `storage` events to stay in sync when
+ * another tab modifies the same key. Prevents lost updates.
  */
 export function usePersistedState<T>(key: string, fallback: T, recover: Recover<T>) {
   const [loaded] = useState(() => readJson(key, fallback, recover))
@@ -43,6 +46,30 @@ export function usePersistedState<T>(key: string, fallback: T, recover: Recover<
     setWriteError(null)
     setLoadError(null)
   }, [])
+
+  // Listen to storage events from other tabs to stay in sync.
+  useEffect(() => {
+    function handleStorageChange(event: StorageEvent) {
+      // Only react to changes for this key, and only if the change came from
+      // another tab (this tab's own writes do not trigger the event).
+      if (event.key !== key || event.storageArea !== localStorage) return
+
+      // Read the new value from storage. If it's invalid, keep the old value
+      // (the recovery function will validate on reload).
+      if (event.newValue === null) {
+        // Key was deleted.
+        latest.current = fallback
+        setValue(fallback)
+      } else {
+        const { value: newValue } = readJson(key, fallback, recover)
+        latest.current = newValue
+        setValue(newValue)
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [key, fallback, recover])
 
   return { value, update, error: writeError ?? loadError, dismissError }
 }
