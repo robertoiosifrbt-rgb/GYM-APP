@@ -89,14 +89,23 @@ export function PhotoUploadForm({ onAdd }: PhotoUploadFormProps) {
         setPhotos((prev) => ({ ...prev, [angle]: resized }))
       }
     } catch (err) {
-      // One unreadable or unsupported image must not take the other three with
-      // it, and the message has to name the angle that failed.
-      const reason = err instanceof Error && err.message ? err.message : String(err)
-      setAngleError(angle, `Could not process this image (${reason}). Try another one.`)
-      clearPhoto(angle)
+      // Only handle error for this request if it's still the current one.
+      // A newer request may have been selected while this was processing, and
+      // we must not clear a valid photo from the newer selection.
+      if (requestIds.current[angle] === requestId) {
+        // One unreadable or unsupported image must not take the other three with
+        // it, and the message has to name the angle that failed.
+        const reason = err instanceof Error && err.message ? err.message : String(err)
+        setAngleError(angle, `Could not process this image (${reason}). Try another one.`)
+        clearPhoto(angle)
+      }
     } finally {
-      // In `finally` so the label never stays stuck on "processing…".
-      setProcessingFor(angle, false)
+      // Only update processing state if this is still the current request.
+      // Prevents the label from showing "processing…" for the current request
+      // while an older request's finally block clears it.
+      if (requestIds.current[angle] === requestId) {
+        setProcessingFor(angle, false)
+      }
     }
   }
 

@@ -8,15 +8,21 @@ export function SettingsPage() {
       <h2>Settings</h2>
 
       <div className="field">
-        <h3>Data Backup & Export</h3>
+        <h3>Data Export</h3>
         <p>
-          Download all your data (exercises, sessions, workouts, measurements) as a JSON file. Use this as a backup
-          before clearing site data or switching devices.
+          Export your workout data (exercises, sessions, workouts, measurements) as a JSON file.
         </p>
         <button type="button" onClick={downloadAsJson}>
-          📥 Download Backup
+          📥 Download Export
         </button>
-        <p className="field-help">Creates a file like: gym-app-backup-2026-08-08.json</p>
+        <p className="field-help">
+          Creates a file like: gym-app-backup-2026-08-08.json
+          <br />
+          <strong>Note:</strong> Export does NOT include progress photos. Photos are stored in browser IndexedDB and
+          cannot be recovered once cleared. For full backup, manually save photo files before clearing site data.
+          <br />
+          <strong>Note:</strong> Import/restore from JSON is not yet available.
+        </p>
       </div>
     </section>
   )
