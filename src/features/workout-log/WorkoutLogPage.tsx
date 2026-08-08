@@ -82,14 +82,29 @@ export function WorkoutLogPage() {
   }
 
   function handleUpdateSession(sessionId: string, date: string, name: string): boolean {
+    // Find the session being updated to save old values for potential revert.
+    const session = sessions.find((s) => s.id === sessionId)
+    if (!session) return false
+
+    // Update session first.
     if (!updateSession(sessionId, date, name)) return false
+
     // The session's date is denormalised onto its entries so history stays
-    // consistent; if that second write fails the user has to know the two are
-    // now out of step.
+    // consistent. If the second write fails, revert the first to keep them in step.
     if (!updateEntriesDate(sessionId, date)) {
+      // Revert the session update to the old date and name.
+      if (!updateSession(sessionId, session.date, session.name)) {
+        // Revert itself failed — now we're in a bad state where neither could
+        // be fixed. Inform the user clearly and let them retry manually.
+        setActionError(
+          'ERROR: Session and entry dates are now out of sync and both revert attempts failed. ' +
+            'Free some storage space and edit the session again to fix.',
+        )
+        return false
+      }
+      // Revert succeeded. Report the original update failure.
       setActionError(
-        'The session was renamed or moved, but its logged exercises kept the old date. ' +
-          'Free some storage space and edit the session again.',
+        'The session was not saved — storage is full. Free some space and try again.',
       )
       return false
     }
