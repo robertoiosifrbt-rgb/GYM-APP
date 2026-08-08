@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { todayLocal } from '../../shared/localDate'
 import { isCalendarDate } from '../../shared/validate'
 import { PHOTO_ANGLES, type PhotoAngle } from './types'
@@ -34,6 +34,11 @@ export function PhotoUploadForm({ onAdd }: PhotoUploadFormProps) {
   const [angleErrors, setAngleErrors] = useState<Partial<Record<PhotoAngle, string>>>({})
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Per-angle request ID: prevents older async results from overwriting newer selections.
+  // When a photo is selected, a unique ID is assigned. Only the most recent ID for an
+  // angle is allowed to commit its result to state.
+  const requestIds = useRef<Partial<Record<PhotoAngle, string>>>({})
+  let idCounter = useRef(0)
 
   const allPhotosSelected = PHOTO_ANGLES.every((angle) => photos[angle])
   const anyProcessing = PHOTO_ANGLES.some((angle) => processing[angle])
@@ -71,10 +76,18 @@ export function PhotoUploadForm({ onAdd }: PhotoUploadFormProps) {
       return
     }
 
+    const requestId = `${angle}-${++idCounter.current}`
+    requestIds.current[angle] = requestId
+
     setProcessingFor(angle, true)
     try {
       const resized = await resizeImage(file)
-      setPhotos((prev) => ({ ...prev, [angle]: resized }))
+      // Only commit if this is still the most recent request for this angle.
+      // Prevents a race where rapid selections process in parallel and the
+      // older result overwrites the newer one.
+      if (requestIds.current[angle] === requestId) {
+        setPhotos((prev) => ({ ...prev, [angle]: resized }))
+      }
     } catch (err) {
       // One unreadable or unsupported image must not take the other three with
       // it, and the message has to name the angle that failed.
