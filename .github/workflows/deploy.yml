@@ -1,22 +1,17 @@
 name: Deploy to GitHub Pages
 
-# Publishing happens from `main` and from the `claude/**` work branches.
+# Publishing happens only from `main`.
 #
-# The audit asked for work branches to stop publishing, because an unfinished
-# version could reach the live app. Owner's decision was to keep publishing
-# from the branch being worked on — for a one-person app, needing a merge to
-# get the app onto a phone costs more than it protects.
+# The initial design allowed `claude/**` branches to publish, but after audit
+# review the risk is not justified: an in-progress branch could reach the live
+# app without passing through dev or main first.
 #
-# What replaces that protection: lint and the test suite run BEFORE the
-# artifact is built, so a broken push publishes nothing at all. That covers the
-# real risk (broken code going live). What it does not cover: two branches
-# pushed close together still publish in whatever order they finish, so treat
-# whichever branch you push as the live one.
+# `claude/**` branches still run lint, test, and build (in ci.yml) for
+# validation, but no artifact is deployed to GitHub Pages.
 on:
   push:
     branches:
       - main
-      - 'claude/**'
   workflow_dispatch:
 
 permissions:

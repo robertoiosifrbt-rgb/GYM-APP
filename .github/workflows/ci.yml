@@ -1,16 +1,15 @@
 name: CI
 
-# Checks for pull requests and for branches that do not publish.
+# Checks for pull requests and for branches that do not publish to GitHub Pages.
 #
-# `main` and `claude/**` are covered by deploy.yml, which runs the same lint +
-# test + build before it publishes — listing them here too would just run
-# everything twice per push.
+# `main` is covered by deploy.yml (which runs lint + test + build before
+# publishing). `claude/**` branches run here instead, to validate without
+# deploying.
 on:
   pull_request:
   push:
     branches-ignore:
       - main
-      - 'claude/**'
   workflow_dispatch:
 
 permissions:
