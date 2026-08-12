@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BodyPage } from '../features/measurements'
+import { BodyPage } from '../features/body'
 import { ProgressPhotosPage } from '../features/progress-photos'
 import { ExercisesPage } from '../features/exercises'
 import { WorkoutLogPage } from '../features/workout-log'
