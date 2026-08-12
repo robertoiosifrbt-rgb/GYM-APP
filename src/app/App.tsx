@@ -28,9 +28,9 @@ function App() {
   const updateAvailable = useVersionCheck()
   const heading = pageTitles[page]
 
-  function handleStartWorkout() {
+  function openWorkout(subPage: WorkoutSubPage = 'log') {
     setPage('workout')
-    setWorkoutSubPage('log')
+    setWorkoutSubPage(subPage)
   }
 
   return (
@@ -44,7 +44,14 @@ function App() {
 
       <main className="app-content">
         <ErrorBoundary>
-          {page === 'home' && <HomePage onStartWorkout={handleStartWorkout} />}
+          {page === 'home' && (
+            <HomePage
+              onStartWorkout={() => openWorkout('log')}
+              onOpenExercises={() => openWorkout('exercises')}
+              onOpenBody={() => setPage('body')}
+              onOpenProgress={() => setPage('progress')}
+            />
+          )}
           {page === 'body' && <MeasurementsPage />}
           {page === 'progress' && <ProgressPhotosPage />}
 
