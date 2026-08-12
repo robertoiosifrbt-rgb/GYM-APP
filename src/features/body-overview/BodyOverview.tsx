@@ -1,5 +1,4 @@
 import { useWorkoutLog } from '../workout-log/useWorkoutLog'
-import type { FieldType } from '../exercises'
 
 export function BodyOverview() {
   const { entries } = useWorkoutLog()
