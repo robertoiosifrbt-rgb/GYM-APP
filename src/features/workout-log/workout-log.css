@@ -102,3 +102,47 @@
   color: var(--color-text-secondary);
   font-size: 0.84rem;
 }
+
+/*
+ * Rândul de sesiune, închis.
+ *
+ * Mockup-ul cere pe el: dată, nume, `n exercises · durată`, volum, și o bară
+ * colorată la stânga pe sesiunea selectată. Arăta doar dată, nume și numărul
+ * de exerciții — deci nimic despre cât de greu a fost antrenamentul.
+ */
+
+.session-volume {
+  flex: 0 0 auto;
+  align-self: center;
+  color: var(--color-text-secondary);
+  font-size: .72rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/*
+ * Bara din stânga sesiunii deschise. Desenată cu un pseudo-element, nu cu
+ * `border-left`: un chenar ar muta conținutul cu 4px la fiecare deschidere,
+ * iar cardul ar tresări sub deget.
+ */
+.session-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.session-card-open::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: var(--color-accent);
+}
+
+/* Conținutul se ferește de bară doar cât ea există. */
+.session-card-open > .session-card-header,
+.session-card-open > .session-card-body {
+  padding-left: 18px;
+}

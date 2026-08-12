@@ -5,6 +5,8 @@ import { formatSet } from './formatSet'
 import { SessionForm } from './SessionForm'
 import { ExerciseEntryForm } from './ExerciseEntryForm'
 import { WorkoutTimer } from './WorkoutTimer'
+import { dayLabel } from '../../shared/localDate'
+import { formatDuration, formatVolume, sessionDurationSeconds, sessionVolume } from './sessionStats'
 
 interface SessionCardProps { session:WorkoutSession; entries:WorkoutEntry[]; isOpen:boolean; exercises:Exercise[]; fieldTypes:FieldType[]; historyFieldTypes:FieldType[]; getLastEntry:(exerciseId:string)=>WorkoutEntry|undefined; onToggle:()=>void; onUpdateSession:(date:string,name:string,durationSeconds?:number)=>boolean; onFinishSession?:()=>boolean; onDeleteSession?:()=>boolean; onAddEntry:(entry:NewExerciseEntry)=>boolean; onUpdateEntry:(entryId:string,entry:NewExerciseEntry)=>boolean; onDeleteEntry?:(entryId:string)=>boolean }
 
@@ -14,9 +16,18 @@ export function SessionCard({ session, entries, isOpen, exercises, fieldTypes, h
   const active=!session.endedAt
   const completedSets=entries.reduce((sum,entry)=>sum+entry.sets.length,0)
 
+  /*
+   * Ce scrie pe rândul închis. Mockup-ul cere „n exercises · durată" plus
+   * volumul — până acum era doar numărul de exerciții, deci rândul nu spunea
+   * nimic despre cât de greu a fost antrenamentul.
+   */
+  const exerciseCount=`${entries.length} ${entries.length===1?'exercise':'exercises'}`
+  const duration=active?'in progress':formatDuration(sessionDurationSeconds(session))
+  const volume=formatVolume(sessionVolume(entries,session.id))
+
   return <div className={`session-card ${isOpen?'session-card-open':''} ${active&&isOpen?'active-workout-card':''}`}>
     <button type="button" className="session-card-header" onClick={onToggle} aria-expanded={isOpen}>
-      <div className="session-card-title"><span className="session-date">{session.date}</span><h3>{session.name||'Workout session'}</h3><span className="session-meta">{entries.length} {entries.length===1?'exercise':'exercises'}</span></div><span className="session-chevron" aria-hidden="true">{isOpen?'−':'+'}</span>
+      <div className="session-card-title"><span className="session-date">{dayLabel(session.date)}</span><h3>{session.name||'Workout session'}</h3><span className="session-meta">{exerciseCount}{duration?` · ${duration}`:''}</span></div>{volume&&<span className="session-volume">{volume}</span>}<span className="session-chevron" aria-hidden="true">{isOpen?'−':'+'}</span>
     </button>
     {isOpen&&<div className="session-card-body">
       {active?<section className="active-workout-hero">

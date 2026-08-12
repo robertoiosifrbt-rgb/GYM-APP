@@ -82,7 +82,14 @@ Regula pentru fiecare etapă: nu se trece la următoarea până când `npm run l
   (chips-urile vechi, lista moartă `.exercise-list`, `.new-field-row` definit de
   două ori) și din `redesign.css` (formularul, selectorul de Tracks) au venit
   după el. Ownership-ul e blocat de teste, ca la Home.
-- [ ] **Etapa 5 — Body Stats**: tab-uri Measurements/Composition/History + „Key Measurements" cu delta față de măsurătoarea anterioară
+- [x] **Etapa 5 — Body Stats**: cele trei secțiuni s-au alăturat tab-ului
+  „Overview" existent, pe un singur rând de patru — imbricate, drumul s-ar fi
+  citit „Body › Measurements › Measurements". Cardul „Key Measurements" arată
+  ultima măsurătoare cu diferența față de cea dinainte; formularul de unsprezece
+  câmpuri a trecut în spatele butonului „+ Add Measurements", ca cifrele pe care
+  vii să le citești să nu înceapă sub un formular pe care nu-l completezi.
+- [x] **Rândul de sesiune din Workout Log**: dată citibilă, `n exercises ·
+  durată`, volum, bară colorată la stânga pe sesiunea deschisă.
 - [ ] **Etapa 6 — Settings**: avatar, Units, Import Data (Level/XP și Rest Timer depind de deciziile din `DESIGN_TARGET.md` → „Întrebări deschise")
 
 La fiecare etapă, pe lângă ecranul în sine:

@@ -78,3 +78,148 @@
     grid-template-columns: 1fr
   }
 }
+
+/* --- Body Stats: cardul „Key Measurements" --- */
+
+.key-measurements {
+  padding: 14px;
+  margin-bottom: 14px
+}
+
+.key-measurements-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 12px
+}
+
+.key-measurements-head h3 {
+  margin: 0;
+  font-size: .95rem
+}
+
+/* Data sub titlu, cum e în mockup: spune „a cui" e cifra de dedesubt. */
+.key-measurements-head span {
+  color: var(--color-text-secondary);
+  font-size: .7rem;
+  font-weight: 700
+}
+
+.key-measurements-empty {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: .8rem;
+  line-height: 1.5
+}
+
+.key-measurement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none
+}
+
+/*
+ * iconiță | nume | valoare | deltă. Numele e singurul care se micșorează, deci
+ * cifrele din dreapta rămân aliniate oricât de lung e „Right thigh".
+ */
+.key-measurement-list li {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--color-border)
+}
+
+.key-measurement-list li:last-child {
+  border-bottom: 0
+}
+
+.key-measurement-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+  font-size: .74rem;
+  font-weight: 800
+}
+
+.key-measurement-name {
+  overflow: hidden;
+  font-size: .82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap
+}
+
+.key-measurement-value {
+  font-size: .95rem;
+  font-variant-numeric: tabular-nums
+}
+
+.key-measurement-value small {
+  margin-left: 2px;
+  color: var(--color-text-secondary);
+  font-size: .66rem;
+  font-weight: 700
+}
+
+/*
+ * Pastila cu diferența. Aceeași culoare pentru ▲ și ▼ — vezi comentariul din
+ * KeyMeasurements.tsx: săgeata arată direcția, nu dă un verdict. La talie
+ * scăderea e de obicei ținta, la braț creșterea; un verde/roșu ar minți pe
+ * jumătate dintre rânduri.
+ */
+.key-measurement-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 62px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: .68rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  justify-content: center;
+  white-space: nowrap
+}
+
+.key-measurement-delta.is-first,
+.key-measurement-delta.is-flat {
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+  font-weight: 700
+}
+
+/* Butonul care deschide formularul — închis, ca în mockup. */
+.measurement-add-trigger {
+  width: 100%;
+  min-height: 46px;
+  border: 0!important;
+  border-radius: var(--radius-md)!important;
+  background: var(--color-surface-strong)!important;
+  color: #fff!important;
+  font-size: .84rem;
+  font-weight: 800
+}
+
+.measurement-add-panel {
+  margin-top: 14px
+}
+
+.measurement-form-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%
+}
+
+.measurement-form-actions .measurement-save {
+  flex: 1
+}

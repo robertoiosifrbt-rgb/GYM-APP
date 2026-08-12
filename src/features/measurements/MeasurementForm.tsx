@@ -8,6 +8,8 @@ import './measurements.css'
 interface MeasurementFormProps {
   /** Returns false when the entry could not be saved, so the form keeps its values. */
   onAdd: (entry: NewMeasurement) => boolean
+  /** Present when the form can be closed again — it opens from a button now. */
+  onCancel?: () => void
 }
 
 const emptyForm = {
@@ -41,7 +43,7 @@ const numberFields: Array<{ key: MeasurementNumberField; label: string; required
 
 const quickFields = new Set<MeasurementNumberField>(['heightCm', 'weightKg', 'bodyFatPercent', 'chestCm', 'waistCm'])
 
-export function MeasurementForm({ onAdd }: MeasurementFormProps) {
+export function MeasurementForm({ onAdd, onCancel }: MeasurementFormProps) {
   const [form, setForm] = useState({ ...emptyForm, date: todayLocal() })
   const [error, setError] = useState<string | null>(null)
 
@@ -121,7 +123,10 @@ export function MeasurementForm({ onAdd }: MeasurementFormProps) {
       </details>
 
       {error && <p className="form-error" role="alert">{error}</p>}
-      <button className="measurement-save" type="submit">Add measurement</button>
+      <div className="measurement-form-actions">
+        <button className="measurement-save" type="submit">Add measurement</button>
+        {onCancel && <button type="button" onClick={onCancel}>Cancel</button>}
+      </div>
     </form>
   )
 }

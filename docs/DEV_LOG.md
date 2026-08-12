@@ -4,6 +4,67 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-12 — etapa 5: Body Stats, plus rândul de sesiune. Design-ul e închis.
+
+Cu asta, opt din nouă ecrane din `DESIGN_TARGET.md` sunt făcute. Al nouălea
+(Settings) e cât se poate face fără deciziile proprietarului.
+
+### Rândul de sesiune din Workout Log
+
+Arăta `2026-08-12 | Legs | 6 exercises` — deci nimic despre cât de greu a fost
+antrenamentul. Acum poartă tot ce cere mockup-ul: data scrisă („12 August
+2026"), `6 exercises · 1h 10m`, volumul (`7,661 kg`), și o bară colorată la
+stânga pe sesiunea deschisă.
+
+- `sessionVolume` și `sessionDurationSeconds` erau în `HomePage.tsx`, unde le
+  folosea lista „Recent Workouts". S-au mutat în `features/workout-log/
+  sessionStats.ts`, lângă datele pe care le citesc. A doua copie ar fi însemnat
+  două definiții ale „volumului", care se pot despărți pe tăcute.
+- **Bara e un pseudo-element, nu un `border-left`**: un chenar ar fi mutat
+  conținutul cu 4px la fiecare deschidere, iar cardul ar fi tresărit sub deget.
+- **Efect secundar de accesibilitate, semnalat de un test care a picat**: de
+  când rândul scrie „15 July 2026", eticheta lui se potrivește cu a zilei din
+  calendar. Testul îl caută acum după numele sesiunii.
+
+### Body Stats
+
+- **Patru tab-uri pe un rând, nu două rânduri imbricate.** Ecranele 3 și 7 din
+  target trăiesc amândouă sub tab-ul Body. Cele trei tab-uri ale lui Body Stats
+  s-au alăturat lui „Overview": imbricate, drumul s-ar fi citit
+  „Body › Measurements › Measurements".
+- **Cardul „Key Measurements"**: ultima măsurătoare, cu diferența față de cea
+  dinainte. Asta e miezul — în tabelul de istoric diferența trebuia calculată în
+  cap, uitându-te de la un rând la altul.
+- **Delta nu e colorată în verde**, deși mockup-ul o arată așa. Săgeata arată
+  direcția, nu dă un verdict: la talie scăderea e de obicei ținta, la braț
+  creșterea. Verde pe tot ar spune că orice schimbare e progres; verde-sus /
+  roșu-jos ar face dintr-un centimetru pierdut în talie un eșec. **De răsturnat
+  dacă proprietarul vrea altfel** — e o alegere, nu o limitare.
+- **Rotunjire simetrică**, găsită de un test pe care îl scrisesem greșit:
+  `Math.round` rotunjește jumătățile mereu spre plus infinit, deci `+1.25` →
+  `+1.3` dar `−1.25` → `−1.2`. Aceeași schimbare, de mărime egală, afișată
+  diferit după cum ai crescut sau ai scăzut. Se rotunjește acum mărimea, apoi se
+  pune semnul înapoi.
+- **Fără delte inventate**: prima măsurătoare scrie „first", nu „0"; un câmp
+  lăsat gol data trecută n-are față de ce, deci apare fără deltă. Un câmp
+  necompletat acum nu apare deloc — un rând cu „—" ocupă loc și nu spune nimic.
+- **Ordonare după dată, nu după ordinea din storage**: se poate adăuga o
+  măsurătoare veche, uitată, iar „ultima" trebuie să rămână cea mai recentă din
+  calendar.
+- **Formularul a trecut în spatele butonului „+ Add Measurements".** Are
+  unsprezece câmpuri și era primul lucru pe ecran, deci cifrele pe care veneai
+  să le citești începeau sub un formular pe care nu-l completai.
+
+- **Teste**: +49 (14 pure pentru delte și ordonare, 7 pe cardul de sumar, 5 pe
+  rândul de sesiune, restul adaptate la noua structură), validate cu **7
+  mutații** — ordonare crescătoare, delta 0 la prima măsurătoare, rotunjire
+  asimetrică, formularul care nu se mai închide, un câmp scos din listă, rândul
+  fără volum, rândul revenit la data brută — toate au picat suita.
+- Verificat: `lint` ✅, **360 de teste** ✅, `build` ✅. Măsurat în browser la
+  430px: patru tab-uri pe un rând (102px fiecare), cardul cu „1 August 2026" și
+  rândurile `Waist 86cm ▼−2cm`, `Weight 77.1kg ▼−1.1kg`, `Height 181cm no
+  change`; zero derulare orizontală.
+
 ## 2026-08-12 — durata nu se putea modifica, iar selectorul de Tracks era rupt
 
 Două probleme raportate din capturi. A doua e o regresie a mea din tura de
@@ -199,16 +260,3 @@ scos, token fantomă reintrodus) — toate au picat suita.
 - **Teste**: +24 (14 pentru logica de grilă, 10 pentru pagină), validate cu **7 mutații** — săptămâna pornită duminica, grila fixată la 6 săptămâni, zilele lucrate nemarcate, lista care nu mai urmează luna, deschiderea forțată pe luna curentă, sesiunea mutată neurmărită, zilele din afara lunii devenite apăsabile — toate au picat suita.
 - **CSS**: `workout-log.css` lângă modul, fără `!important`. Calendarul randat local ca să-i verific așezarea.
 - Verificat: `lint` ✅, 227 de teste ✅, `build` ✅.
-
-## 2026-08-12 — etapa 2c: reparații pe Body Overview
-
-Patru probleme raportate de proprietar dintr-o singură poză a ecranului.
-
-- **Conținutul intra sub bara de status.** CSS-ul era corect (`env(safe-area-inset-top)` pe `.app-content`), dar valoarea ieșea ~0: `index.html` avea `apple-mobile-web-app-status-bar-style: black-translucent`, care îi spune explicit iOS-ului să deseneze pagina **sub** bara de status. Trecut pe `default`, plus `theme-color` schimbat din coral în fundalul paginii (`#f7f8fb`), ca zona barei să se contopească. Se vedea abia după etapa 1 — până atunci bara „Gym App" umplea spațiul din întâmplare.
-- **Silueta arăta ca niște pete lipite pe fundal.** Formele de mușchi se revărsau peste conturul brațelor și șoldurilor. Rezolvat cu un `clipPath` care decupează stratul de mușchi la silueta corpului, plus forme mai mici și mai spre interior. E schimbarea care contează cel mai mult pentru cum se citește desenul.
-- **„Arms 39 sets" era umflat.** Cardul Muscle Focus aduna și seturile secundare, iar un bench press trece tricepsul ca secundar — deci fiecare set de piept devenea și un set de brațe, iar brațele ieșeau pe primul loc în orice zi de împins. Focus numără acum **doar seturile primare**; munca secundară rămâne vizibilă pe hartă, în portocaliu.
-- **Numărul de seturi cădea pe rândul de sub bară**, din auto-plasarea în grid. Fixat explicit pe rândul numelui.
-- **Titlul apărea sub tab-uri**, iar ecranul avea două rânduri de tab-uri suprapuse. `BodyPage` deține acum titlul, care urmează tab-ul activ („Body Overview" / „Body Measurements"), iar copiii nu-și mai pun unul propriu — rămâne un singur `h1` per ecran.
-- **Teste**: +2, plus 3 mutații (decuparea scoasă, focus care numără iar secundarele, titlul care nu mai urmează tab-ul) — toate au picat suita. Un test existent a fost reancorat: verifica supraviețuirea la date corupte prin titlul care s-a mutat la părinte.
-- Verificat: `lint` ✅, 195 de teste ✅, `build` ✅.
-- **Neverificabil de aici**: dacă silueta arată acum a om. Tot pe ecran se vede.

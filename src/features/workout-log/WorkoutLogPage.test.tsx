@@ -136,7 +136,9 @@ describe('WorkoutLogPage', () => {
   it('moves a session and its logged exercises to the new date together', () => {
     seedSession({ date: '2026-07-15' })
     render(<WorkoutLogPage />)
-    fireEvent.click(screen.getByRole('button', { name: /2026-07-15/ }))
+    // Ancorat pe numele sesiunii: de când rândul scrie data ca „15 July 2026",
+    // eticheta lui se potrivește și cu a zilei din calendar.
+    fireEvent.click(screen.getByRole('button', { name: /Push Day/ }))
     logExercise('Bench Press', '8', '60')
 
     fireEvent.click(screen.getByRole('button', { name: /Edit session/ }))
@@ -302,5 +304,59 @@ describe('editing the workout duration', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument()
     expect(savedDurationSeconds()).toBe(before)
     expect(durationField()).toHaveValue('01:75:00')
+  })
+})
+
+/*
+ * The closed session row. The mockup asks it to carry date, name,
+ * `n exercises · duration` and the volume; it carried only the exercise count,
+ * so the row said nothing about how hard the session was.
+ */
+describe('what a session row shows', () => {
+  function renderRow(over: Parameters<typeof seedSession>[0] = {}) {
+    seedSession({ date: '2026-07-15', name: 'Push Day', createdAt: '2026-07-15T07:00:00.000Z', endedAt: '2026-07-15T08:10:00.000Z', ...over })
+    localStorage.setItem(LOG_KEY, JSON.stringify([
+      { id: 'e1', sessionId: 's1', date: '2026-07-15', exerciseId: BENCH.id, exerciseName: 'Bench Press', sets: [{ reps: 10, kg: 60 }, { reps: 10, kg: 60 }] },
+      { id: 'e2', sessionId: 's1', date: '2026-07-15', exerciseId: SQUAT.id, exerciseName: 'Squat', sets: [{ reps: 5, kg: 100 }] },
+    ]))
+    render(<WorkoutLogPage />)
+    return screen.getByRole('button', { name: /Push Day/ })
+  }
+
+  it('writes the date out instead of printing the stored form', () => {
+    const row = renderRow()
+
+    expect(row).toHaveTextContent('15 July 2026')
+    expect(row).not.toHaveTextContent('2026-07-15')
+  })
+
+  it('shows the exercise count and the duration together', () => {
+    expect(renderRow()).toHaveTextContent('2 exercises · 1h 10m')
+  })
+
+  it('shows the volume lifted', () => {
+    // 10×60 + 10×60 + 5×100 = 1700
+    expect(renderRow()).toHaveTextContent('1,700 kg')
+  })
+
+  it('says a session is in progress rather than giving it a duration', () => {
+    const row = renderRow({ endedAt: undefined })
+
+    expect(row).toHaveTextContent('in progress')
+    expect(row).not.toHaveTextContent('1h 10m')
+  })
+
+  /*
+   * A bodyweight session has no weight to multiply, and "0 kg" would read as a
+   * measurement rather than as an absence.
+   */
+  it('leaves the volume off when nothing was loaded', () => {
+    seedSession({ date: '2026-07-15', name: 'Push Day', endedAt: '2026-07-15T08:10:00.000Z' })
+    localStorage.setItem(LOG_KEY, JSON.stringify([
+      { id: 'e1', sessionId: 's1', date: '2026-07-15', exerciseId: BENCH.id, exerciseName: 'Pull Up', sets: [{ reps: 10 }] },
+    ]))
+    render(<WorkoutLogPage />)
+
+    expect(screen.getByRole('button', { name: /Push Day/ })).not.toHaveTextContent('kg')
   })
 })

@@ -108,7 +108,7 @@ după volum, de la grupa cea mai lucrată spre cea mai puțin lucrată.
 
 *Făcut în etapa 2 și 2c.*
 
-### 4. Workout Log — 🟡 aproape
+### 4. Workout Log — ✅ făcut
 
 Header cu `‹` și titlu centrat. **Calendar lunar** cu navigare `‹ May 2025 ›`,
 zilele pe rânduri Mon–Sun, zilele cu antrenament marcate (cerc plin pe ziua
@@ -116,9 +116,9 @@ selectată, cerc colorat pe zilele cu sesiune). Sub calendar, lista de sesiuni:
 dată, nume, `n exercises · durată`, volum, bară colorată la stânga pe sesiunea
 selectată.
 
-*Azi:* calendarul e făcut (etapa 3). **Rândul de sesiune e incomplet**: arată
-`2026-08-12 | Legs | 6 exercises`, deci fără durată, fără volum, cu data brută în
-loc de forma citibilă, și fără bara colorată la stânga pe sesiunea selectată.
+*Făcut în etapa 3 (calendarul) și completat după: rândul poartă acum
+`12 August 2026 | Legs | 6 exercises · 1h 10m` plus volumul, iar sesiunea
+deschisă are bara colorată la stânga.*
 
 ### 5. Exercises — ✅ făcut
 
@@ -139,14 +139,20 @@ Category · Equipment · Primary Muscles · Secondary Muscles. Tab-uri
 
 *Diferență acceptată:* fără fotografie (același punct ca la ecranul 2).
 
-### 7. Body Stats — ⬜ de făcut (singurul ecran neînceput)
+### 7. Body Stats — ✅ făcut
 
 Tab-uri **Measurements / Composition / History**. Card **Key Measurements** cu data
 sub titlu și rânduri: iconiță, nume, valoare + unitate, și **delta față de
 măsurătoarea anterioară** (săgeată sus/jos, verde). Buton închis
 „+ Add Measurements".
 
-*Azi:* formular + tabel de istoric. Lipsesc tab-urile, cardul de sumar și deltele.
+*Diferență acceptată:* cele trei tab-uri stau pe același rând cu „Overview" al
+ecranului 3, nu într-un al doilea rând sub el — altfel drumul s-ar citi
+„Body › Measurements › Measurements".
+
+*Diferență acceptată:* delta nu e colorată în verde. Săgeata arată direcția, nu
+dă un verdict: la talie scăderea e de obicei ținta, la braț creșterea, deci
+verde-sus/roșu-jos ar face dintr-un centimetru pierdut în talie un eșec.
 
 ### 8. Progress Photos — ✅ făcut
 

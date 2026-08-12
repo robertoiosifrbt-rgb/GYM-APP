@@ -1,5 +1,6 @@
 import { useWorkoutLog } from '../features/workout-log/useWorkoutLog'
 import { useWorkoutSessions } from '../features/workout-log/useWorkoutSessions'
+import { formatDuration, sessionDurationSeconds, sessionVolume } from '../features/workout-log/sessionStats'
 import { todayLocal } from '../shared/localDate'
 import './HomePage.css'
 
@@ -38,31 +39,6 @@ function getMonday(date = new Date()) {
   result.setDate(result.getDate() + diff)
   result.setHours(0, 0, 0, 0)
   return result
-}
-
-function sessionVolume(entries: ReturnType<typeof useWorkoutLog>['entries'], sessionId: string) {
-  return entries.filter((entry) => entry.sessionId === sessionId).reduce((total, entry) => total + entry.sets.reduce((setTotal, set) => {
-    const reps = set.reps ?? set.rep ?? 0
-    const weight = set.kg ?? set.weight ?? set.weightKg ?? 0
-    return setTotal + reps * weight
-  }, 0), 0)
-}
-
-function sessionDurationSeconds(session: { createdAt?: string; endedAt?: string }) {
-  if (!session.createdAt || !session.endedAt) return 0
-  const start = new Date(session.createdAt).getTime()
-  const end = new Date(session.endedAt).getTime()
-  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return 0
-  return Math.floor((end - start) / 1000)
-}
-
-function formatDuration(seconds: number) {
-  if (seconds <= 0) return '—'
-  const minutes = Math.max(1, Math.round(seconds / 60))
-  if (minutes < 60) return `${minutes} min`
-  const hours = Math.floor(minutes / 60)
-  const remaining = minutes % 60
-  return remaining ? `${hours}h ${remaining}m` : `${hours}h`
 }
 
 export function HomePage({ onStartWorkout, onOpenWorkoutLog, onOpenExercises, onOpenBody, onOpenPhotos }: HomePageProps) {

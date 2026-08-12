@@ -120,8 +120,10 @@ describe('WorkoutLogPage calendar', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save changes' }))
 
     expect(within(calendar()).getByText('September 2026')).toBeInTheDocument()
-    // The card is still on screen, now carrying its new date.
-    expect(screen.getByText('2026-09-02')).toBeInTheDocument()
+    // The card is still on screen, now carrying its new date — written out,
+    // the way the row shows it rather than the way it is stored.
+    expect(screen.getByText('2 September 2026')).toBeInTheDocument()
+    expect(screen.queryByText('2026-09-02')).not.toBeInTheDocument()
   })
 
   it('drops the day filter when the month changes', () => {

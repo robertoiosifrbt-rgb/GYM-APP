@@ -56,3 +56,20 @@
 .body-tab-content h2 {
   margin-top: 0;
 }
+
+/*
+ * Patru tab-uri în loc de două. „Measurements" și „Composition" sunt cuvinte
+ * lungi, iar la lățime de telefon nu încap la 0.95rem — se micșorează textul
+ * și spațiile, în loc să se rupă pe două rânduri sau să iasă din ecran.
+ */
+@media (max-width: 430px) {
+  .body-tabs button {
+    padding: 0.7rem 0.25rem;
+    font-size: 0.78rem;
+    letter-spacing: -0.01em;
+  }
+
+  .body-tab-content {
+    padding: 0.9rem;
+  }
+}
