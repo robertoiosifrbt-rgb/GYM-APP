@@ -24,6 +24,10 @@ export function ExercisesPage() {
     dismissError: dismissFieldTypesError,
   } = useFieldTypes()
   const [creatingExercise, setCreatingExercise] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+
+  const categories = Array.from(new Set(['all', ...exercises.map((e) => e.category).filter(Boolean)]))
+  const filteredExercises = selectedCategory === 'all' ? exercises : exercises.filter((e) => e.category === selectedCategory)
 
   function dismissAll() {
     dismissExercisesError()
@@ -73,9 +77,21 @@ export function ExercisesPage() {
 
       <div className="section-header">
         <h2>Your Exercises</h2>
+        <div className="exercise-category-filter">
+          {categories.map((category) => (
+            <button
+              key={category}
+              type="button"
+              className={selectedCategory === category ? 'active' : ''}
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category === 'all' ? 'All' : category}
+            </button>
+          ))}
+        </div>
       </div>
       <ExerciseList
-        exercises={exercises}
+        exercises={filteredExercises}
         fieldTypes={fieldTypes}
         onAddFieldType={addFieldType}
         onRemoveFieldType={removeFieldType}

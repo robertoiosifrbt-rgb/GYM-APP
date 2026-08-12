@@ -578,3 +578,32 @@ button.session-card-header { display: block; width: 100%; min-height: 60px; padd
   cursor: pointer;
   white-space: nowrap;
 }
+
+.exercise-category-filter {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.exercise-category-filter button {
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--color-text-secondary);
+}
+
+.exercise-category-filter button:hover {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+.exercise-category-filter button.active {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+  border-color: var(--color-accent);
+}
