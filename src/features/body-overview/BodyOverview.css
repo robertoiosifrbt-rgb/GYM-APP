@@ -1,5 +1,5 @@
 .body-overview-page {
-  padding: 1rem;
+  padding: 0;
 }
 
 .body-overview-header {
@@ -7,9 +7,10 @@
 }
 
 .body-overview-header h1 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
+  color: var(--color-text);
 }
 
 .body-view-tabs {
@@ -55,24 +56,30 @@
 
 .muscle-legend {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   justify-content: center;
   margin-bottom: 2rem;
   flex-wrap: wrap;
+  padding: 1rem;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  font-weight: 500;
 }
 
 .legend-item::before {
   content: '';
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
 }
 
 .legend-item.primary::before {
@@ -84,23 +91,24 @@
 }
 
 .legend-item.untargeted::before {
-  background: #E0E0E0;
+  background: #D0D0D0;
 }
 
 .muscle-focus-section {
-  margin-top: 2rem;
+  margin-top: 0;
 }
 
 .muscle-focus-section h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.3rem 0;
+  color: var(--color-text);
 }
 
 .muscle-focus-period {
   color: var(--color-text-secondary);
-  font-size: 0.9rem;
-  margin: 0 0 1rem 0;
+  font-size: 0.85rem;
+  margin: 0 0 1.5rem 0;
 }
 
 .muscle-bars {
@@ -111,33 +119,41 @@
 
 .muscle-bar-item {
   display: grid;
-  grid-template-columns: 80px 1fr 60px;
+  grid-template-columns: 90px 1fr 70px;
   gap: 1rem;
   align-items: center;
+  margin-bottom: 1.2rem;
+}
+
+.muscle-bar-item:last-child {
+  margin-bottom: 0;
 }
 
 .muscle-name {
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   text-align: right;
+  color: var(--color-text);
 }
 
 .muscle-bar-container {
-  height: 8px;
+  height: 10px;
   background: var(--color-border);
-  border-radius: 4px;
+  border-radius: 5px;
   overflow: hidden;
 }
 
 .muscle-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #FF6B6B, #FFA500);
-  border-radius: 4px;
-  transition: width 0.3s;
+  background: linear-gradient(90deg, #FF6B6B 0%, #FFA500 100%);
+  border-radius: 5px;
+  transition: width 0.4s ease-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .muscle-sets {
   text-align: right;
   font-size: 0.85rem;
+  font-weight: 700;
   color: var(--color-text-secondary);
 }
