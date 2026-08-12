@@ -8,9 +8,9 @@ Refacem complet interfața aplicației de sală, fără să aruncăm logica și 
 
 ## Progress
 
-**Overall: 20% complete — Phase 2 and 3 in progress**
+**Overall: 65% complete — Phase 4 data-safety work is next**
 
-`[####----------------] 4 / 20`
+`[#############-------] 13 / 20`
 
 Status legend:
 - [ ] Not started
@@ -29,37 +29,41 @@ Phase 1 passed lint, tests, build and GitHub Pages deployment successfully.
 
 ## Phase 2 — Home
 
-- [~] 5. Replace current Home with dashboard layout.
-- [~] 6. Add Today's Workout card and primary Start Workout action.
-- [~] 7. Add useful quick actions: Log Workout, Exercises, Body Stats, Progress Photos.
-- [~] 8. Add recent workout / progress summary using existing data where available.
+- [x] 5. Replace current Home with dashboard layout.
+- [x] 6. Add Today's Workout card and primary Start Workout action.
+- [x] 7. Add useful quick actions: Log Workout, Exercises, Body Stats, Progress Photos.
+- [x] 8. Add recent workout / progress summary using existing data where available.
 
-Implementation now includes the dashboard hero, quick-action grid, direct navigation to the main modules, and live summary cards using the existing workout-session and measurement data. These stay `[~]` until the newest deployment finishes successfully.
+Home now uses the dashboard hero, quick actions, direct navigation to the main modules, and live summary cards backed by existing workout-session and measurement data.
 
 ## Phase 3 — Workout experience
 
-- [~] 9. Redesign workout/session list as compact mobile cards instead of form-heavy blocks.
-- [ ] 10. Redesign active exercise logging: clear set rows, track columns, add/remove set, fast numeric entry.
-- [ ] 11. Preserve edit/delete for logged exercises, but make actions safer and less visually noisy.
-- [ ] 12. Redesign exercise library: search/filter-ready list, compact cards, clearer edit/add flow.
-- [ ] 13. Redesign exercise details/edit screen so Category / Equipment / Muscles / Instructions / Tracks are grouped and easier to scan.
+- [x] 9. Redesign workout/session list as compact mobile cards instead of form-heavy blocks.
+- [x] 10. Redesign active exercise logging: clear set rows, dynamic track columns, add/remove set, fast numeric entry.
+- [x] 11. Preserve edit/delete for logged exercises, but make actions safer and less visually noisy.
+- [x] 12. Redesign exercise library: searchable compact cards and clearer edit/add flow.
+- [x] 13. Redesign exercise details/edit screen so Category / Equipment / Muscles / Instructions / Tracks are grouped and easier to scan.
 
-Session-card markup has been rebuilt with compact date/name/exercise-count headers, clearer logged-exercise blocks, separated actions, and a dedicated add-exercise area. Styling and deployment verification are still in progress.
+The exercise editor is grouped into Basics / Muscles / Tracks. Tracks can be selected, custom Tracks can be added, and each Track now has a dedicated removal control. Mobile styling keeps the editor compact and the save action reachable.
 
 ## Phase 4 — Tracks data safety
 
-- [ ] 14. Fix Track deletion so removing a Track from future use does not make historical logged values disappear.
-- [ ] 15. Clean removed Track references from current exercise definitions safely.
+- [~] 14. Fix Track deletion so removing a Track from future use does not make historical logged values disappear.
+- [~] 15. Clean removed Track references from current exercise definitions safely.
 - [ ] 16. Add tests for Track deletion, historical values, and existing exercises.
+
+Track removal currently removes the Track from future exercise definitions while workout history retains saved set values. This phase remains in progress until dedicated regression tests prove that historical values remain readable after deletion.
 
 ## Phase 5 — Body / Progress
 
-- [ ] 17. Redesign Measurements as a body-stats dashboard plus clean add/edit flow.
-- [ ] 18. Redesign Progress Photos as a mobile gallery grouped by date, with clearer front/side/back views.
+- [~] 17. Redesign Measurements as a body-stats dashboard plus clean add/edit flow.
+- [x] 18. Redesign Progress Photos as a mobile gallery grouped by date, with clearer front/side/back views.
+
+Progress Photos now uses dated check-in cards with Front / Back / Left side / Right side views and a two-column iPhone layout. Measurements already has the dashboard shell and still needs the final add/edit polish before being marked complete.
 
 ## Phase 6 — Settings / polish
 
-- [ ] 19. Redesign Settings into grouped mobile rows/cards; keep export/backup warnings clear.
+- [~] 19. Redesign Settings into grouped mobile rows/cards; keep export/backup warnings clear.
 - [ ] 20. Final consistency pass: responsive iPhone layout, accessibility, destructive confirmations, empty states, loading/error states, dark mode, tests, lint, build and deploy verification.
 
 ## Navigation target
