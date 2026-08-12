@@ -1,3 +1,6 @@
+import { useMeasurements } from '../features/measurements/useMeasurements'
+import { useWorkoutSessions } from '../features/workout-log/useWorkoutSessions'
+
 interface HomePageProps {
   onStartWorkout: () => void
   onOpenExercises: () => void
@@ -6,6 +9,11 @@ interface HomePageProps {
 }
 
 export function HomePage({ onStartWorkout, onOpenExercises, onOpenBody, onOpenProgress }: HomePageProps) {
+  const { sessions } = useWorkoutSessions()
+  const { measurements } = useMeasurements()
+  const latestSession = sessions[0]
+  const latestMeasurement = measurements[0]
+
   return (
     <section className="home-dashboard">
       <div className="hero-card card">
@@ -47,12 +55,36 @@ export function HomePage({ onStartWorkout, onOpenExercises, onOpenBody, onOpenPr
         </button>
       </div>
 
-      <div className="home-summary-card card">
-        <div>
-          <span className="card-kicker">PROGRESS</span>
-          <h2>Your history stays connected</h2>
-        </div>
-        <p>Workout summaries and recent progress will live here next as we connect the existing data to the new dashboard.</p>
+      <div className="home-summary-grid">
+        <button type="button" className="home-stat-card card" onClick={onStartWorkout}>
+          <span className="card-kicker">LAST WORKOUT</span>
+          {latestSession ? (
+            <>
+              <strong>{latestSession.name || 'Workout session'}</strong>
+              <span>{latestSession.date}</span>
+            </>
+          ) : (
+            <>
+              <strong>No sessions yet</strong>
+              <span>Start your first workout</span>
+            </>
+          )}
+        </button>
+
+        <button type="button" className="home-stat-card card" onClick={onOpenBody}>
+          <span className="card-kicker">LATEST WEIGHT</span>
+          {latestMeasurement ? (
+            <>
+              <strong>{latestMeasurement.weightKg} kg</strong>
+              <span>{latestMeasurement.date}</span>
+            </>
+          ) : (
+            <>
+              <strong>No measurement yet</strong>
+              <span>Add your first body check-in</span>
+            </>
+          )}
+        </button>
       </div>
     </section>
   )
