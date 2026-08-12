@@ -36,11 +36,15 @@ function seedLog(date = todayLocal()) {
   )
 }
 
-/** Every shape drawn for a muscle, across both figures. */
+/**
+ * The level every polygon of a muscle is drawn at, deduplicated. A muscle can
+ * be several polygons — left and right, and the calf is split into calf and
+ * soleus — so this asserts what they agree on rather than how many there are.
+ */
 function levelsOf(container: HTMLElement, muscle: string) {
-  return [...container.querySelectorAll(`[data-muscle="${muscle}"]`)].map((node) =>
-    node.getAttribute('data-level'),
-  )
+  const nodes = [...container.querySelectorAll(`[data-muscle="${muscle}"]`)]
+  expect(nodes.length).toBeGreaterThan(0)
+  return [...new Set(nodes.map((node) => node.getAttribute('data-level')))]
 }
 
 beforeEach(() => {
@@ -69,12 +73,12 @@ describe('BodyOverview', () => {
     seedLog()
     const { container } = render(<BodyOverview />)
 
-    expect(levelsOf(container, 'chest')).toEqual(['primary', 'primary'])
-    expect(levelsOf(container, 'triceps')).toEqual(['secondary', 'secondary'])
+    expect(levelsOf(container, 'chest')).toEqual(['primary'])
+    expect(levelsOf(container, 'triceps')).toEqual(['secondary'])
     // Named by the library but not trained this week.
-    expect(levelsOf(container, 'quads')).toEqual(['untargeted', 'untargeted'])
+    expect(levelsOf(container, 'quads')).toEqual(['untargeted'])
     // No exercise in the library mentions it at all.
-    expect(levelsOf(container, 'hamstrings')).toEqual(['notInvolved', 'notInvolved'])
+    expect(levelsOf(container, 'hamstrings')).toEqual(['notInvolved'])
   })
 
   it('lists the worked body parts with their set counts', () => {
@@ -100,18 +104,16 @@ describe('BodyOverview', () => {
   })
 
   /*
-   * Without the clip the muscle shapes spill past the arms and hips and the
-   * figure reads as blobs stuck onto a background rather than a body.
+   * The body is drawn entirely from anatomical polygons, so parts of it that
+   * are not muscles we track — head, neck, knees — still have to be drawn, or
+   * the figure comes out with holes in it.
    */
-  it('clips the muscle shapes to the body outline', () => {
+  it('draws the structural parts of the body too', () => {
     const { container } = render(<BodyOverview />)
 
-    const clipped = [...container.querySelectorAll('[clip-path]')]
-    expect(clipped).toHaveLength(2)
-    for (const group of clipped) {
-      const id = group.getAttribute('clip-path')?.replace(/^url\(#|\)$/g, '')
-      expect(container.querySelector(`clipPath#${id}`)).not.toBeNull()
-    }
+    const all = container.querySelectorAll('polygon')
+    const muscles = container.querySelectorAll('polygon[data-muscle]')
+    expect(all.length).toBeGreaterThan(muscles.length)
   })
 
   /*
@@ -123,12 +125,12 @@ describe('BodyOverview', () => {
     seedLog()
     const { container } = render(<BodyOverview />)
 
-    expect(levelsOf(container, 'biceps')).toEqual(['notInvolved', 'notInvolved'])
+    expect(levelsOf(container, 'biceps')).toEqual(['notInvolved'])
 
     fireEvent.click(screen.getByRole('tab', { name: 'Body Parts' }))
 
-    expect(levelsOf(container, 'biceps')).toEqual(['secondary', 'secondary'])
-    expect(levelsOf(container, 'triceps')).toEqual(['secondary', 'secondary'])
+    expect(levelsOf(container, 'biceps')).toEqual(['secondary'])
+    expect(levelsOf(container, 'triceps')).toEqual(['secondary'])
   })
 
   it('starts on the Muscles view', () => {
@@ -142,12 +144,12 @@ describe('BodyOverview', () => {
     seedLog('2020-01-06')
     const { container } = render(<BodyOverview />)
 
-    expect(levelsOf(container, 'chest')).toEqual(['untargeted', 'untargeted'])
+    expect(levelsOf(container, 'chest')).toEqual(['untargeted'])
     expect(screen.getByText(/No sets logged for this period/)).toBeInTheDocument()
 
     fireEvent.change(screen.getByLabelText('Period'), { target: { value: 'all' } })
 
-    expect(levelsOf(container, 'chest')).toEqual(['primary', 'primary'])
+    expect(levelsOf(container, 'chest')).toEqual(['primary'])
     expect(screen.queryByText(/No sets logged for this period/)).not.toBeInTheDocument()
   })
 
