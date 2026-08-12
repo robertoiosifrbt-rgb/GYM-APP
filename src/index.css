@@ -267,7 +267,7 @@ button.session-card-header { display: block; width: 100%; min-height: 60px; padd
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: conic-gradient(from 0deg, #4a90e2 var(--progress, 0deg), #e7e9ee 0deg);
+  background: conic-gradient(from -90deg, #5b9fee 0deg, #5b9fee var(--progress, 0deg), #d1dce6 var(--progress), #d1dce6 360deg);
   display: flex;
   align-items: center;
   justify-content: center;
