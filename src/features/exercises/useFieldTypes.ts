@@ -3,34 +3,21 @@ import { usePersistedState } from '../../shared/usePersistedState'
 import { DEFAULT_FIELD_TYPES, parseFieldType, type FieldType } from './types'
 
 const STORAGE_KEY = 'gym-app:field-types'
-
 const recover = recoverArray(parseFieldType)
 
-/**
- * The available set-value types (Reps, Weight, …), including the ones the user
- * adds themselves.
- *
- * Instantiate this once per page and pass the result down. Two live instances
- * of this hook do not see each other's additions, which used to leave the
- * exercise list showing a raw id where a freshly added type's label belonged.
- */
 export function useFieldTypes() {
-  const {
-    value: fieldTypes,
-    update,
-    error,
-    dismissError,
-  } = usePersistedState<FieldType[]>(STORAGE_KEY, DEFAULT_FIELD_TYPES, recover)
+  const { value: storedFieldTypes, update, error, dismissError } = usePersistedState<FieldType[]>(STORAGE_KEY, DEFAULT_FIELD_TYPES, recover)
+  const fieldTypes = storedFieldTypes.filter((fieldType) => !fieldType.archived)
+  const allFieldTypes = storedFieldTypes
 
-  /** Returns the new type, or null when storage refused the write. */
   function addFieldType(label: string, unit: string): FieldType | null {
     const fieldType: FieldType = { id: crypto.randomUUID(), label, unit }
     return update((prev) => [...prev, fieldType]) ? fieldType : null
   }
 
   function removeFieldType(id: string): boolean {
-    return update((prev) => prev.filter((fieldType) => fieldType.id !== id))
+    return update((prev) => prev.map((fieldType) => fieldType.id === id ? { ...fieldType, archived: true } : fieldType))
   }
 
-  return { fieldTypes, addFieldType, removeFieldType, error, dismissError }
+  return { fieldTypes, allFieldTypes, addFieldType, removeFieldType, error, dismissError }
 }
