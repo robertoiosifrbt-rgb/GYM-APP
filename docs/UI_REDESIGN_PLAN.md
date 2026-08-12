@@ -8,9 +8,9 @@ Refacem complet interfața aplicației de sală, fără să aruncăm logica și 
 
 ## Progress
 
-**Overall: 0% — Phase 1 in progress**
+**Overall: 20% complete — Phase 2 and 3 in progress**
 
-`[--------------------] 0 / 20`
+`[####----------------] 4 / 20`
 
 Status legend:
 - [ ] Not started
@@ -20,27 +20,31 @@ Status legend:
 
 ## Phase 1 — Design foundation
 
-- [~] 1. Define new visual system: spacing, typography, radii, shadows, buttons, inputs, cards, states.
-- [~] 2. Rebuild global mobile shell: safe areas, sticky/fixed navigation, scroll behaviour, page padding.
-- [~] 3. Replace current top header with contextual page headers.
-- [~] 4. Redesign bottom navigation for Home / Body / Workout / Progress / Settings.
+- [x] 1. Define new visual system: spacing, typography, radii, shadows, buttons, inputs, cards, states.
+- [x] 2. Rebuild global mobile shell: safe areas, sticky/fixed navigation, scroll behaviour, page padding.
+- [x] 3. Replace current top header with contextual page headers.
+- [x] 4. Redesign bottom navigation for Home / Body / Workout / Progress / Settings.
 
-Implementation started on `main` with the new five-tab navigation, contextual headers and the first global visual-system pass. These four items stay `[~]` until lint, tests, build and deploy finish successfully.
+Phase 1 passed lint, tests, build and GitHub Pages deployment successfully.
 
 ## Phase 2 — Home
 
-- [ ] 5. Replace current Home with dashboard layout.
-- [ ] 6. Add Today's Workout card and primary Start Workout action.
-- [ ] 7. Add useful quick actions: Log Workout, Exercises, Body Stats, Progress Photos.
-- [ ] 8. Add recent workout / progress summary using existing data where available.
+- [~] 5. Replace current Home with dashboard layout.
+- [~] 6. Add Today's Workout card and primary Start Workout action.
+- [~] 7. Add useful quick actions: Log Workout, Exercises, Body Stats, Progress Photos.
+- [~] 8. Add recent workout / progress summary using existing data where available.
+
+Implementation now includes the dashboard hero, quick-action grid, direct navigation to the main modules, and live summary cards using the existing workout-session and measurement data. These stay `[~]` until the newest deployment finishes successfully.
 
 ## Phase 3 — Workout experience
 
-- [ ] 9. Redesign workout/session list as compact mobile cards instead of form-heavy blocks.
+- [~] 9. Redesign workout/session list as compact mobile cards instead of form-heavy blocks.
 - [ ] 10. Redesign active exercise logging: clear set rows, track columns, add/remove set, fast numeric entry.
 - [ ] 11. Preserve edit/delete for logged exercises, but make actions safer and less visually noisy.
 - [ ] 12. Redesign exercise library: search/filter-ready list, compact cards, clearer edit/add flow.
 - [ ] 13. Redesign exercise details/edit screen so Category / Equipment / Muscles / Instructions / Tracks are grouped and easier to scan.
+
+Session-card markup has been rebuilt with compact date/name/exercise-count headers, clearer logged-exercise blocks, separated actions, and a dedicated add-exercise area. Styling and deployment verification are still in progress.
 
 ## Phase 4 — Tracks data safety
 
