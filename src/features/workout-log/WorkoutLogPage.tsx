@@ -21,6 +21,7 @@ export function WorkoutLogPage() {
     entries,
     addEntry,
     updateEntry,
+    deleteEntry,
     getLastEntry,
     backfillSessionIds,
     updateEntriesDate,
@@ -138,6 +139,7 @@ export function WorkoutLogPage() {
           onUpdateSession={(date, name) => handleUpdateSession(session.id, date, name)}
           onAddEntry={(entry) => addEntry({ ...entry, sessionId: session.id, date: session.date })}
           onUpdateEntry={updateEntry}
+          onDeleteEntry={deleteEntry}
         />
       ))}
     </section>
