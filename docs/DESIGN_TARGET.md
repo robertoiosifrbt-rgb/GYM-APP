@@ -102,7 +102,9 @@ perioada selectată — deci toate se schimbă odată cu perioada:
 **Untargeted** (i-ai lucrat zona, dar pe el nu) · **Not Involved** (nimic din ce ai
 făcut n-a atins zona aia). Card **Muscle Focus** cu
 selector de perioadă („This Week") și bare orizontale per grupă, cu numărul de
-seturi la dreapta.
+seturi la dreapta. Barele **nu** copiază culorile de pe siluetă (în mockup,
+umerii sunt roșii pe corp dar bara „Shoulders" e galbenă) — sunt un gradient
+după volum, de la grupa cea mai lucrată spre cea mai puțin lucrată.
 
 *Azi:* există barele, dar fără siluetă, fără tab-uri și fără selector de perioadă.
 

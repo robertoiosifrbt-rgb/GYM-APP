@@ -163,14 +163,9 @@
   background: var(--color-accent);
 }
 
-/* Each body part keeps one colour across the screen, so a bar and its share of
-   the map read as the same thing. */
-.muscle-focus-bar[data-part="Chest"] { background: #f4564a; }
-.muscle-focus-bar[data-part="Back"] { background: #f5a524; }
-.muscle-focus-bar[data-part="Shoulders"] { background: #f0b429; }
-.muscle-focus-bar[data-part="Arms"] { background: #5fc98a; }
-.muscle-focus-bar[data-part="Core"] { background: #9b8afb; }
-.muscle-focus-bar[data-part="Legs"] { background: #7fb2e5; }
+/* The bar's colour is set inline, from how big that group is against your
+   biggest one — see `shadeForShare`. A fixed colour per body part used to sit
+   here, which meant chest came out red in a week you never trained it. */
 
 .muscle-focus-empty {
   margin: 0;

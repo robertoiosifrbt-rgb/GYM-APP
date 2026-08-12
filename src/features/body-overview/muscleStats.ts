@@ -39,6 +39,21 @@ export const LEVEL_LABELS: Record<MuscleLevel, string> = {
   notInvolved: 'Not Involved',
 }
 
+/**
+ * How warm a Muscle Focus bar is drawn: the four map colours reused as a
+ * scale, from the group you trained most down to the one you barely touched.
+ *
+ * The share is against your biggest group that period, not an absolute number
+ * of sets — the question the card answers is how lopsided the week was, and
+ * that is the same question whether you did 40 sets or 4.
+ */
+export function shadeForShare(share: number): MuscleLevel {
+  if (share >= 0.75) return 'primary'
+  if (share >= 0.5) return 'secondary'
+  if (share >= 0.25) return 'untargeted'
+  return 'notInvolved'
+}
+
 export interface MuscleStat {
   id: MuscleId
   label: string

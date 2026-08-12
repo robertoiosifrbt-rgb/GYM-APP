@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeMuscleStats, periodStart } from './muscleStats'
+import { computeMuscleStats, periodStart, shadeForShare } from './muscleStats'
 import type { Exercise } from '../exercises'
 import type { WorkoutEntry } from '../workout-log/types'
 
@@ -147,5 +147,34 @@ describe('computeMuscleStats', () => {
     expect(stats.focus).toEqual([])
     expect(stats.totalSets).toBe(0)
     expect(stats.byMuscle.chest.level).toBe('notInvolved')
+  })
+})
+
+/*
+ * The bars used to carry a fixed colour per body part, so chest came out red in
+ * a week you never trained chest — warm enough to read as "you did a lot" while
+ * meaning nothing. The scale is relative to your biggest group that period: the
+ * card is about how lopsided the week was, and that reads the same at 40 sets
+ * as at 4.
+ */
+describe('shadeForShare', () => {
+  it('gives your biggest group the warmest colour', () => {
+    expect(shadeForShare(1)).toBe('primary')
+  })
+
+  it('cools off as a group falls behind the biggest one', () => {
+    expect(shadeForShare(0.8)).toBe('primary')
+    expect(shadeForShare(0.6)).toBe('secondary')
+    expect(shadeForShare(0.3)).toBe('untargeted')
+    expect(shadeForShare(0.1)).toBe('notInvolved')
+  })
+
+  it('holds the same shades whatever the totals are', () => {
+    // Half of 40 sets and half of 4 sets are the same story.
+    expect(shadeForShare(20 / 40)).toBe(shadeForShare(2 / 4))
+  })
+
+  it('does not fall over on an empty period', () => {
+    expect(shadeForShare(0)).toBe('notInvolved')
   })
 })

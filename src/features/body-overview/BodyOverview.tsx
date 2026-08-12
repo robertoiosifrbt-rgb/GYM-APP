@@ -3,7 +3,15 @@ import { useExercises } from '../exercises'
 import { useWorkoutLog } from '../workout-log/useWorkoutLog'
 import { BodyMap } from './BodyMap'
 import { BODY_PARTS, MUSCLES, MUSCLE_IDS, musclesByPart, type BodyPart, type MuscleId } from './muscles'
-import { computeMuscleStats, LEVEL_COLORS, LEVEL_LABELS, PERIODS, type MuscleLevel, type Period } from './muscleStats'
+import {
+  computeMuscleStats,
+  LEVEL_COLORS,
+  LEVEL_LABELS,
+  PERIODS,
+  shadeForShare,
+  type MuscleLevel,
+  type Period,
+} from './muscleStats'
 import './BodyOverview.css'
 
 type MapMode = 'muscles' | 'parts'
@@ -113,7 +121,11 @@ export function BodyOverview() {
                   <span
                     className="muscle-focus-bar"
                     data-part={part}
-                    style={{ width: `${maxFocus ? Math.round((sets / maxFocus) * 100) : 0}%` }}
+                    data-shade={shadeForShare(maxFocus ? sets / maxFocus : 0)}
+                    style={{
+                      width: `${maxFocus ? Math.round((sets / maxFocus) * 100) : 0}%`,
+                      background: LEVEL_COLORS[shadeForShare(maxFocus ? sets / maxFocus : 0)],
+                    }}
                   />
                 </span>
                 <span className="muscle-focus-sets">

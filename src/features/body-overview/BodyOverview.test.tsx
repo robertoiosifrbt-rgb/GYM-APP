@@ -82,6 +82,25 @@ describe('BodyOverview', () => {
     expect(levelsOf(container, 'hamstrings')).toEqual(['notInvolved'])
   })
 
+  /*
+   * Two groups, 4 sets against 1. The smaller one is a quarter of the bigger,
+   * so it steps down the scale instead of coming out red like everything else.
+   */
+  it('cools the bar of a group you barely touched', () => {
+    localStorage.setItem(
+      LOG_KEY,
+      JSON.stringify([
+        { id: 'a', sessionId: 's1', date: todayLocal(), exerciseId: BENCH.id, exerciseName: BENCH.name, sets: [{ reps: 8 }, { reps: 8 }, { reps: 8 }, { reps: 8 }] },
+        { id: 'b', sessionId: 's1', date: todayLocal(), exerciseId: SQUAT.id, exerciseName: SQUAT.name, sets: [{ reps: 5 }] },
+      ]),
+    )
+    const { container } = render(<BodyOverview />)
+
+    const bars = [...container.querySelectorAll('.muscle-focus-bar')]
+    expect(bars.map((bar) => bar.getAttribute('data-part'))).toEqual(['Chest', 'Legs'])
+    expect(bars.map((bar) => bar.getAttribute('data-shade'))).toEqual(['primary', 'untargeted'])
+  })
+
   it('lists the worked body parts with their set counts', () => {
     seedLog()
     render(<BodyOverview />)
