@@ -561,7 +561,10 @@
 
 .track-option>label>span strong {
   font-size: .8rem;
-  overflow-wrap: anywhere
+  /* `break-word`, nu `anywhere`: rupe doar un cuvânt care chiar nu încape, nu
+     orice cuvânt de îndată ce spațiul se strânge. Cu `anywhere`, un container
+     strivit ducea la o literă pe rând, pe verticală. */
+  overflow-wrap: break-word
 }
 
 .track-option>label>span small {

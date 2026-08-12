@@ -248,11 +248,24 @@ describe('form fields', () => {
     expect(rule?.[1]).toContain('min-width: 0')
   })
 
-  it('caps native controls at the width of their container', () => {
-    // `input, select, textarea` appears twice in index.css — the reset near the
-    // top and the real styling further down. Match the block that sizes them.
-    const blocks = [...read('src/index.css').matchAll(/^input,\nselect,\ntextarea \{([^}]*)\}/gm)]
+  /** The block that sizes text fields, as opposed to the `font: inherit` reset. */
+  const sizingBlock = () =>
+    read('src/index.css').match(/^input[^{]*,\nselect,\ntextarea \{([^}]*width: 100%[^}]*)\}/m)?.[1] ?? ''
 
-    expect(blocks.map((b) => b[1]).join()).toContain('max-width: 100%')
+  it('caps native controls at the width of their container', () => {
+    expect(sizingBlock()).toContain('max-width: 100%')
+  })
+
+  /*
+   * `width: 100%` on a bare `input` selector hits checkboxes too. In the Tracks
+   * selector the checkbox came out 246px wide and left 27px for its label, so
+   * "Weight (kg)" broke one letter per line down the side of the row. Valid
+   * CSS, applied to the wrong controls.
+   */
+  it('does not stretch checkboxes and radios to the full row', () => {
+    const selector = read('src/index.css').match(/^(input[^{]*,\nselect,\ntextarea) \{[^}]*width: 100%/m)?.[1] ?? ''
+
+    expect(selector).toContain("not([type='checkbox'])")
+    expect(selector).toContain("not([type='radio'])")
   })
 })

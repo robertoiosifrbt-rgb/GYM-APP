@@ -4,6 +4,54 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-12 — durata nu se putea modifica, iar selectorul de Tracks era rupt
+
+Două probleme raportate din capturi. A doua e o regresie a mea din tura de
+reparații de mai devreme.
+
+### „Nu mă lasă să modific timpul" — două defecte suprapuse
+
+- **Formatul cerut era imposibil de tastat.** Câmpul cerea `HH:MM:SS` și avea
+  `inputMode="numeric"` — iar keypad-ul numeric al iOS-ului **nu are două
+  puncte**. Nu era o validare prea strictă, era o validare pe care n-aveai cum
+  s-o treci pe singurul dispozitiv pe care rulează aplicația. Acum separatoarele
+  le pune câmpul, în timp ce tastezi: cifrele se grupează de la dreapta
+  (`011023` → `01:10:23`), ca la introducerea unei ore pe bancomat. Sub câmp
+  scrie ce s-a înțeles, în cuvinte — „1h 10m 23s" nu se poate citi greșit cum se
+  poate `01:10:23`.
+- **Sub asta, pagina arunca valoarea.** `onUpdateSession={(date, name) => …}`
+  ignora al treilea argument, deci chiar și o durată scrisă corect nu ajungea
+  nicăieri. `updateSession` din hook știa de mult s-o aplice. **Dacă reparam
+  doar tastatura, ar fi ieșit un câmp care acceptă ce scrii și tot nu schimbă
+  nimic** — de-asta merită spus că erau două, nu unul.
+- **Revenirea la eroare era și ea incompletă.** Dacă a doua scriere (datele de
+  pe intrări) eșuează, prima se anula cu `updateSession(id, date, name)` — care,
+  fără `durationSeconds`, lasă pe loc noul `endedAt`. Adică revenea data și
+  numele, dar păstra durata nouă. Hook-ul are acum `restoreSession(original)`,
+  care pune sesiunea înapoi întreagă.
+
+### Selectorul de Tracks, rupt pe verticală
+
+- Checkbox-ul ieșea **246px lățime**, iar etichetei („Weight (kg)") îi rămâneau
+  27 — deci se rupea literă cu literă, pe verticală, pe marginea rândului.
+  Cauza: regula globală `input { width: 100% }` se aplică și checkbox-urilor.
+  Erau excluse acum explicit, plus o dimensiune proprie de 22px.
+- **Partea care e greșeala mea**: fixul de acum două ture (`min-width: 0` pe
+  span, `overflow-wrap: anywhere` pe nume) n-a cauzat lățimea greșită, dar a
+  transformat simptomul din „textul iese din chenar" în „textul se rupe pe
+  verticală". `anywhere` rupe orice cuvânt de îndată ce spațiul se strânge;
+  acum e `break-word`, care rupe doar ce chiar nu încape. Reparasem simptomul
+  fără să văd că lățimea în sine era absurdă.
+
+- **Teste**: +30 (16 pure pentru parsarea și formatarea duratei, 6 pe ecran
+  pentru salvare, restul gărzi), validate cu **5 mutații** — pagina care aruncă
+  iar durata, câmpul fără separatoare, parserul fără cifre lipite, limita de 59
+  scoasă, checkbox-urile întoarse la `width: 100%` — toate au picat suita.
+- Verificat: `lint` ✅, **333 de teste** ✅, `build` ✅. Măsurat în browser,
+  tastând cifră cu cifră ca pe keypad: câmpul ajunge la `01:10:23`, ajutorul
+  spune „1h 10m 23s", iar după salvare cardul arată `01:10:23` în loc de
+  `14:05:00`. Etichetele Tracks: fiecare pe un rând, checkbox 22px.
+
 ## 2026-08-12 — etapa 4: Exercises
 
 - **Căutare care caută unde trebuie.** `searchExercises.ts`, funcții pure.
@@ -164,14 +212,3 @@ Patru probleme raportate de proprietar dintr-o singură poză a ecranului.
 - **Teste**: +2, plus 3 mutații (decuparea scoasă, focus care numără iar secundarele, titlul care nu mai urmează tab-ul) — toate au picat suita. Un test existent a fost reancorat: verifica supraviețuirea la date corupte prin titlul care s-a mutat la părinte.
 - Verificat: `lint` ✅, 195 de teste ✅, `build` ✅.
 - **Neverificabil de aici**: dacă silueta arată acum a om. Tot pe ecran se vede.
-
-## 2026-08-12 — etapa 2b: Home, o singură foaie de stil
-
-Semnalat de proprietar: Home nu arăta ca în mockup. Cauza s-a dovedit a fi exact tiparul pe care etapa 0 îl lăsase pentru mai târziu.
-
-- **Dalele Quick Actions erau stivuite** (iconiță deasupra etichetei) în loc de rând (iconiță lângă etichetă). Cauza: `index.css` punea `flex-direction: column` pe `.target-quick-grid button`, iar `redesign.css` seta doar `display: flex` — nu și direcția. Coloana supraviețuia. Nimic nu era invalid, doar arăta greșit.
-- **Home are acum o singură foaie proprie**, `src/app/HomePage.css`. Am șters **96 de reguli** din `index.css` și `redesign.css` (44 + 52). Fiecare selector al Home-ului are exact o definiție; zero `!important`. Numărătoarea globală de `!important` a scăzut de la 232 la **187**, iar CSS-ul total de la 72 KB la 68 KB.
-- **Test nou de proprietate** (`HomePage.styles.test.ts`): fiecare clasă a Home-ului trebuie stilizată **într-un singur fișier**, foaia nu are voie să conțină `!important`, iar dalele trebuie să fie `flex-direction: row`. Verificat cu 3 mutații — o regulă Home readăugată în `index.css`, dalele întoarse pe coloană, un `!important` strecurat înapoi — toate au picat suita. Ăsta e modelul de urmat la fiecare ecran refăcut.
-- **Aliniat la mockup**: butonul „Start Workout" are acum triunghiul de play, nu ganterele; inelul, spațierile și înălțimile dalelor urmează valorile din `DESIGN_TARGET.md`.
-- **Rămas nerezolvat, de decis**: „Duration 14h 5m" pe Home. Durata e `endedAt − createdAt`, deci e reală — o sesiune deschisă dimineața și încheiată seara. Nu e un calcul greșit, dar nu e nici o durată de antrenament utilă. Variantă: să numărăm până la ultimul set logat, nu până când apeși „finish".
-- Verificat: `lint` ✅, 193 de teste ✅, `build` ✅.

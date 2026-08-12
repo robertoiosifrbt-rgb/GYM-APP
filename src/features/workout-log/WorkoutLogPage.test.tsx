@@ -230,3 +230,77 @@ describe('WorkoutLogPage', () => {
     expect(screen.getByText(/unreadable/i)).toBeInTheDocument()
   })
 })
+
+/*
+ * Editing a session's duration.
+ *
+ * Two separate faults met here. The field asked for HH:MM:SS while carrying
+ * `inputMode="numeric"`, and the iOS numeric keypad has no colon — so the
+ * format could not be typed on the phone at all. And underneath that, the page
+ * dropped the value: `onUpdateSession={(date, name) => …}` ignored the third
+ * argument, so even a correctly typed duration went nowhere. Fixing only the
+ * keyboard would have produced a field that accepted input and still changed
+ * nothing.
+ */
+describe('editing the workout duration', () => {
+  function openSessionEditor() {
+    seedSession({ createdAt: '2026-07-15T07:00:00.000Z', endedAt: '2026-07-15T21:05:00.000Z' })
+    render(<WorkoutLogPage />)
+    fireEvent.click(screen.getByRole('button', { name: 'Edit session' }))
+  }
+
+  const durationField = () => screen.getByLabelText('Workout duration')
+  const savedDurationSeconds = () => {
+    const [session] = storedSessions()
+    return (new Date(session.endedAt!).getTime() - new Date(session.createdAt!).getTime()) / 1000
+  }
+
+  it('saves a duration typed as bare digits', () => {
+    openSessionEditor()
+    fireEvent.change(durationField(), { target: { value: '011023' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+
+    expect(savedDurationSeconds()).toBe(4223)
+  })
+
+  it('puts the colons in as digits arrive, since the keypad cannot', () => {
+    openSessionEditor()
+    fireEvent.change(durationField(), { target: { value: '011023' } })
+
+    expect(durationField()).toHaveValue('01:10:23')
+  })
+
+  it('says what it understood, in words', () => {
+    openSessionEditor()
+    fireEvent.change(durationField(), { target: { value: '011023' } })
+
+    expect(screen.getByText(/1h 10m 23s/)).toBeInTheDocument()
+  })
+
+  it('still accepts a duration pasted with colons', () => {
+    openSessionEditor()
+    fireEvent.change(durationField(), { target: { value: '00:45:30' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+
+    expect(savedDurationSeconds()).toBe(2730)
+  })
+
+  it('leaves the rest of the session alone', () => {
+    openSessionEditor()
+    fireEvent.change(durationField(), { target: { value: '011023' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+
+    expect(storedSessions()[0]).toMatchObject({ name: 'Push Day', date: todayLocal() })
+  })
+
+  it('refuses minutes past 59 and keeps what was typed', () => {
+    openSessionEditor()
+    const before = savedDurationSeconds()
+    fireEvent.change(durationField(), { target: { value: '01:75:00' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+
+    expect(screen.getByRole('alert')).toBeInTheDocument()
+    expect(savedDurationSeconds()).toBe(before)
+    expect(durationField()).toHaveValue('01:75:00')
+  })
+})

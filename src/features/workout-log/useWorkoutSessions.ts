@@ -39,5 +39,16 @@ export function useWorkoutSessions() {
     return update((prev) => prev.filter((session) => session.id !== id))
   }
 
-  return { sessions, addSession, updateSession, setSessionPlan, finishSession, deleteSession, error, dismissError }
+  /**
+   * Puts a session back exactly as it was, for undoing a half-applied edit.
+   *
+   * `updateSession` cannot do this: called without `durationSeconds` it leaves
+   * `createdAt` and `endedAt` alone, so a revert after a duration change would
+   * restore the date and the name and keep the new duration.
+   */
+  function restoreSession(original: WorkoutSession): boolean {
+    return update((prev) => prev.map((s) => (s.id === original.id ? original : s)).sort(bySessionRecencyDesc))
+  }
+
+  return { sessions, addSession, updateSession, restoreSession, setSessionPlan, finishSession, deleteSession, error, dismissError }
 }

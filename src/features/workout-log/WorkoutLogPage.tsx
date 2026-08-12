@@ -18,6 +18,7 @@ export function WorkoutLogPage() {
     sessions,
     addSession,
     updateSession,
+    restoreSession,
     finishSession,
     deleteSession,
     error: sessionsError,
@@ -107,19 +108,25 @@ export function WorkoutLogPage() {
     setOpenSessionId((prev) => (prev === id ? '' : id))
   }
 
-  function handleUpdateSession(sessionId: string, date: string, name: string): boolean {
+  /*
+   * `durationSeconds` used to be missing from this signature, and the callsite
+   * below dropped it: the edit form collected a duration, validated it, handed
+   * it up — and it went nowhere. The field could never change anything.
+   */
+  function handleUpdateSession(sessionId: string, date: string, name: string, durationSeconds?: number): boolean {
     // Find the session being updated to save old values for potential revert.
     const session = sessions.find((s) => s.id === sessionId)
     if (!session) return false
 
     // Update session first.
-    if (!updateSession(sessionId, date, name)) return false
+    if (!updateSession(sessionId, date, name, durationSeconds)) return false
 
     // The session's date is denormalised onto its entries so history stays
     // consistent. If the second write fails, revert the first to keep them in step.
     if (!updateEntriesDate(sessionId, date)) {
-      // Revert the session update to the old date and name.
-      if (!updateSession(sessionId, session.date, session.name)) {
+      // Put the whole session back, not just its date and name — a partial
+      // revert after a duration change would keep the new duration.
+      if (!restoreSession(session)) {
         // Revert itself failed — now we're in a bad state where neither could
         // be fixed. Inform the user clearly and let them retry manually.
         setActionError(
@@ -229,7 +236,7 @@ export function WorkoutLogPage() {
           historyFieldTypes={allFieldTypes}
           getLastEntry={getLastEntry}
           onToggle={() => handleToggle(session.id)}
-          onUpdateSession={(date, name) => handleUpdateSession(session.id, date, name)}
+          onUpdateSession={(date, name, durationSeconds) => handleUpdateSession(session.id, date, name, durationSeconds)}
           onFinishSession={() => handleFinishSession(session.id)}
           onDeleteSession={() => handleDeleteSession(session.id)}
           onAddEntry={(entry) => addEntry({ ...entry, sessionId: session.id, date: session.date })}

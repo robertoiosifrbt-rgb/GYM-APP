@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { todayLocal } from '../../shared/localDate'
 import { isCalendarDate } from '../../shared/validate'
 import type { WorkoutSession } from './types'
+import { describeDuration, formatDurationInput, formatDurationValue, parseDuration } from './duration'
 
 interface SessionFormProps {
   initial?: WorkoutSession
@@ -15,22 +16,7 @@ function initialDuration(session?: WorkoutSession) {
   const start = new Date(session.createdAt).getTime()
   const end = new Date(session.endedAt).getTime()
   if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return ''
-  const total = Math.floor((end - start) / 1000)
-  const hours = Math.floor(total / 3600)
-  const minutes = Math.floor((total % 3600) / 60)
-  const seconds = total % 60
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-}
-
-function parseDuration(value: string): number | null {
-  const trimmed = value.trim()
-  if (!trimmed) return 0
-  const parts = trimmed.split(':')
-  if (parts.length < 2 || parts.length > 3 || parts.some((part) => !/^\d+$/.test(part))) return null
-  const numbers = parts.map(Number)
-  const [hours, minutes, seconds] = parts.length === 3 ? numbers : [0, numbers[0], numbers[1]]
-  if (minutes > 59 || seconds > 59) return null
-  return hours * 3600 + minutes * 60 + seconds
+  return formatDurationValue(Math.floor((end - start) / 1000))
 }
 
 export function SessionForm({ initial, onSubmit, onCancel }: SessionFormProps) {
@@ -38,6 +24,14 @@ export function SessionForm({ initial, onSubmit, onCancel }: SessionFormProps) {
   const [name, setName] = useState(initial?.name ?? '')
   const [duration, setDuration] = useState(initialDuration(initial))
   const [error, setError] = useState<string | null>(null)
+
+  /*
+   * Ce a înțeles câmpul din cifrele de până acum, în cuvinte. Cu separatoarele
+   * puse automat, `01:10:23` poate fi citit greșit la o privire rapidă; „1h 10m
+   * 23s" nu poate. Se vede în timp ce tastezi, nu abia după ce salvezi.
+   */
+  const parsedDuration = parseDuration(duration)
+  const durationPreview = duration.trim() && parsedDuration !== null ? describeDuration(parsedDuration) : ''
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -49,7 +43,7 @@ export function SessionForm({ initial, onSubmit, onCancel }: SessionFormProps) {
     if (initial && duration.trim()) {
       const parsed = parseDuration(duration)
       if (parsed === null) {
-        setError('Duration must be HH:MM:SS or MM:SS.')
+        setError('Enter the duration as digits, e.g. 11023 for 1h 10m 23s.')
         return
       }
       durationSeconds = parsed
@@ -73,8 +67,24 @@ export function SessionForm({ initial, onSubmit, onCancel }: SessionFormProps) {
       </div>
       {initial && <div className="field">
         <label htmlFor="session-duration">Workout duration</label>
-        <input id="session-duration" inputMode="numeric" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="01:08:24" aria-describedby="session-duration-help" />
-        <small id="session-duration-help">HH:MM:SS — use this to correct older sessions.</small>
+        {/*
+          * Separatoarele le pune câmpul, nu tastatura: `inputMode="numeric"`
+          * deschide pe iOS un keypad fără două puncte, deci formatul cerut
+          * înainte era imposibil de tastat pe telefon.
+          */}
+        <input
+          id="session-duration"
+          inputMode="numeric"
+          value={duration}
+          onChange={(e) => setDuration(formatDurationInput(e.target.value))}
+          placeholder="01:08:24"
+          aria-describedby="session-duration-help"
+        />
+        <small id="session-duration-help">
+          {durationPreview
+            ? `${durationPreview} — type the digits, the colons appear on their own.`
+            : 'Type the digits — 11023 becomes 1:10:23. Leave empty to clear.'}
+        </small>
       </div>}
       {error && <p className="form-error" role="alert">{error}</p>}
       <button type="submit">{initial ? 'Save changes' : 'Start session'}</button>

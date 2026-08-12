@@ -340,7 +340,14 @@ form {
   width: 100%;
 }
 
-input,
+/*
+ * Câmpurile de text. Checkbox-urile și radio-urile sunt scoase explicit: sunt
+ * controale de dimensiune fixă, iar `width: 100%` le întindea peste tot rândul.
+ * Se vedea la selectorul de Tracks — checkbox-ul ieșea 246px, iar etichetei
+ * („Weight (kg)") îi rămâneau 27, deci se rupea literă cu literă pe verticală.
+ * Nimic nu semnala nimic: regula era validă, doar se aplica unde nu trebuia.
+ */
+input:not([type='checkbox']):not([type='radio']),
 select,
 textarea {
   width: 100%;
@@ -353,6 +360,15 @@ textarea {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
+}
+
+/* Dimensiune de atins cu degetul, fără să ia lățimea rândului. */
+input[type='checkbox'],
+input[type='radio'] {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  accent-color: var(--color-accent)
 }
 
 input:focus,
