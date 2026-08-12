@@ -54,7 +54,7 @@ export function ExercisesPage() {
           <>
             <h2>Add New Exercise</h2>
             <button type="button" className="add-button" onClick={() => setCreatingExercise(true)}>
-              + New exercise
+              Add exercise
             </button>
           </>
         )}
