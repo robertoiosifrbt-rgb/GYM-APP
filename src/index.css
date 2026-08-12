@@ -291,7 +291,9 @@ button.session-card-header { display: block; width: 100%; min-height: 60px; padd
   stroke: #5b9fee;
   stroke-width: 8;
   stroke-linecap: butt;
-  stroke-dasharray: inherit;
+  /* No `stroke-dasharray` here on purpose: a CSS rule beats the presentation
+     attribute the component sets, and `inherit` resolved to `none` — which
+     drew a full circle whatever the percentage was. */
   transition: stroke-dashoffset 0.3s ease;
 }
 
