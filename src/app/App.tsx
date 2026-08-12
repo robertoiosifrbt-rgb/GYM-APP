@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MeasurementsPage } from '../features/measurements'
+import { BodyPage } from '../features/measurements'
 import { ProgressPhotosPage } from '../features/progress-photos'
 import { ExercisesPage } from '../features/exercises'
 import { WorkoutLogPage } from '../features/workout-log'
@@ -42,7 +42,7 @@ function App() {
               onOpenProgress={() => navigate('progress')}
             />
           )}
-          {page === 'body' && <MeasurementsPage />}
+          {page === 'body' && <BodyPage />}
           {page === 'progress' && <ProgressPhotosPage />}
           {page === 'workout' && workoutView === 'log' && <WorkoutLogPage />}
           {page === 'workout' && workoutView === 'exercises' && <ExercisesPage />}
