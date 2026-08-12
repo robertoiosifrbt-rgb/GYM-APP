@@ -14,19 +14,10 @@ import { useVersionCheck } from './useVersionCheck'
 export type Page = 'home' | 'body' | 'workout' | 'progress' | 'settings'
 type WorkoutSubPage = 'log' | 'exercises'
 
-const pageTitles: Record<Page, { eyebrow?: string; title: string }> = {
-  home: { eyebrow: 'TRAIN SMARTER', title: 'Your training' },
-  body: { eyebrow: 'BODY', title: 'Body stats' },
-  workout: { eyebrow: 'WORKOUT', title: 'Training' },
-  progress: { eyebrow: 'PROGRESS', title: 'Progress photos' },
-  settings: { eyebrow: 'APP', title: 'Settings' },
-}
-
 function App() {
   const [page, setPage] = useState<Page>('home')
   const [workoutSubPage, setWorkoutSubPage] = useState<WorkoutSubPage>('log')
   const updateAvailable = useVersionCheck()
-  const heading = pageTitles[page]
 
   function openWorkout(subPage: WorkoutSubPage = 'log') {
     setPage('workout')
@@ -34,12 +25,7 @@ function App() {
   }
 
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        {heading.eyebrow && <span className="page-eyebrow">{heading.eyebrow}</span>}
-        <h1 className="app-title">{heading.title}</h1>
-      </header>
-
+    <div className={`app-shell page-${page}`}>
       {updateAvailable && <UpdateBanner />}
 
       <main className="app-content">
