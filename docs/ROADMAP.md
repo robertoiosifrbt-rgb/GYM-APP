@@ -47,7 +47,10 @@ Regula pentru fiecare etapă: nu se trece la următoarea până când `npm run l
   Deci `!important`-urile și selectorii dubli se curăță **per ecran**, în etapele
   de mai jos, unde ștergerea e verificabilă. A le forța acum ar însemna schimbări
   de aspect pe care nu le pot dovedi.
-- [ ] **Etapa 1 — shell**: scos header-ul global „Gym App" (nu există în mockup), titluri per ecran
+- [x] **Etapa 1 — shell**: scos header-ul global „Gym App" (nu există în niciun ecran din mockup) și
+  `src/shared/PageHeader.tsx` ca titlu unic pentru toate ecranele — înlocuiește trei headere
+  aproape identice care ajunseseră la trei mărimi de titlu diferite (1.8rem / 1.34rem / 1.28rem).
+  Bara veche avea și `env(safe-area-inset-top)` propriu, care se aduna cu cel al conținutului.
 - [ ] **Etapa 2 — Body Overview**: siluetă anatomică față/spate cu mușchii colorați, tab-uri Muscles/Body Parts, selector de perioadă
 - [ ] **Etapa 3 — Workout Log**: calendar lunar cu zilele de antrenament marcate
 - [ ] **Etapa 4 — Exercises**: căutare, thumbnail-uri, favorite, FAB

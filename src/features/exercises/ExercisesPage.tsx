@@ -4,6 +4,7 @@ import { useExercises } from './useExercises'
 import { useFieldTypes } from './useFieldTypes'
 import { ExerciseForm } from './ExerciseForm'
 import { ExerciseList } from './ExerciseList'
+import { PageHeader } from '../../shared/PageHeader'
 
 export function ExercisesPage() {
   const {
@@ -42,12 +43,11 @@ export function ExercisesPage() {
 
   return (
     <section>
-      <div className="page-header">
-        <div>
-          <h1>Exercises</h1>
-          <p>{exercises.length} {exercises.length === 1 ? 'exercise' : 'exercises'} in your library</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Exercises"
+        align="left"
+        subtitle={`${exercises.length} ${exercises.length === 1 ? 'exercise' : 'exercises'} in your library`}
+      />
 
       <StorageNotice message={exercisesError ?? fieldTypesError} onDismiss={dismissAll} />
 

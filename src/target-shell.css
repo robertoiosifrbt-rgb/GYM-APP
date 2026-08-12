@@ -24,10 +24,6 @@ body {
   padding: calc(env(safe-area-inset-top) + 10px) var(--page-gutter) calc(env(safe-area-inset-bottom) + 82px)
 }
 
-.app-shell.page-home .app-content {
-  padding-top: calc(env(safe-area-inset-top) + 8px)
-}
-
 .app-content>section {
   margin-bottom: 0
 }

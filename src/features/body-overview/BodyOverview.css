@@ -6,20 +6,7 @@
    belonged to a duplicate, never-rendered Body page. Deleting that file left
    this header restyled, so its winning values were moved here to keep the
    screen looking exactly as it did. Etapa 2 redesigns this header. */
-.body-overview-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 1.5rem;
-}
 
-.body-overview-header h1 {
-  font-size: 1.28rem;
-  font-weight: 700;
-  margin: 0;
-  color: var(--color-text);
-}
 
 .body-view-tabs {
   display: flex;

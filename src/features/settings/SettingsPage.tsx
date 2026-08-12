@@ -1,4 +1,5 @@
 import { useDataExport } from './useDataExport'
+import { PageHeader } from '../../shared/PageHeader'
 
 function Chevron() {
   return <span className="settings-chevron" aria-hidden="true">›</span>
@@ -9,7 +10,7 @@ export function SettingsPage() {
 
   return (
     <section className="settings-page target-settings-page">
-      <header className="target-settings-header"><h1>Settings</h1></header>
+      <PageHeader title="Settings" align="left" />
 
       <section className="settings-profile-card">
         <div className="settings-avatar" aria-hidden="true">R</div>

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useWorkoutLog } from '../workout-log/useWorkoutLog'
 import './BodyOverview.css'
+import { PageHeader } from '../../shared/PageHeader'
 
 const MUSCLE_GROUPS = {
   chest: { label: 'Chest', color: '#FF6B6B' },
@@ -41,9 +42,7 @@ export function BodyOverview() {
 
   return (
     <section className="body-overview-page">
-      <div className="body-overview-header">
-        <h1>Body Overview</h1>
-      </div>
+      <PageHeader title="Body Overview" />
 
       <div className="muscle-legend">
         <div className="legend-item primary">

@@ -2,18 +2,17 @@ import { StorageNotice } from '../../shared/StorageNotice'
 import { useMeasurements } from './useMeasurements'
 import { MeasurementForm } from './MeasurementForm'
 import { MeasurementHistory } from './MeasurementHistory'
+import { PageHeader } from '../../shared/PageHeader'
 
 export function MeasurementsPage() {
   const { measurements, addMeasurement, error, dismissError } = useMeasurements()
 
   return (
     <section>
-      <div className="page-header">
-        <div>
-          <h1>Body Measurements</h1>
-          <p>{measurements.length} {measurements.length === 1 ? 'measurement' : 'measurements'} recorded</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Body Measurements"
+        subtitle={`${measurements.length} ${measurements.length === 1 ? 'measurement' : 'measurements'} recorded`}
+      />
 
       <StorageNotice message={error} onDismiss={dismissError} />
 

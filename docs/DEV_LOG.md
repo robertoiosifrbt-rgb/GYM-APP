@@ -4,6 +4,15 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-12 — etapa 1: shell fără header global
+
+- **Scos header-ul global „Gym App"** din `App.tsx`. Niciun ecran din mockup nu are așa ceva — fiecare își poartă propriul titlu. Bara avea și `env(safe-area-inset-top)` propriu, care se aduna cu cel al lui `.app-content`, deci conținutul era împins în jos de două ori.
+- **`src/shared/PageHeader.tsx`** — un singur titlu de ecran pentru toate paginile. Înlocuiește `.page-header` (index.css), `.target-settings-header` (settings-target.css) și `.body-overview-header` (BodyOverview.css): trei headere aproape identice, ajunse la trei mărimi diferite — 1.8rem, 1.34rem, 1.28rem. Acum 1.15rem centrat (norma din mockup) și 1.5rem la stânga pentru Exercises și Settings, singurele două ecrane cu titlu mare acolo. Are subtitlu opțional și o acțiune la dreapta (butonul `+` de la Progress Photos).
+- **Șters CSS-ul rămas fără stăpân**: `.app-header`, `.app-title` (+ suprascrierea din `@media`), `.page-eyebrow` și `.app-shell.page-home .app-content` — ultimele două erau deja moarte, definite în CSS și nefolosite în niciun `.tsx`.
+- **Aici aspectul se schimbă intenționat**, spre deosebire de etapa 0: titluri uniforme și mai mici, subtitluri de la 0.95rem la 0.75rem, tot conținutul urcă pe ecran. Deci plasa de siguranță nu mai e diff-ul de cascadă (aspectul *trebuie* să se schimbe), ci testele. Cascada a fost folosită doar ca să confirme că ștergerile au scos exact regulile moarte — printre ele un `justify-content: space-between` din `index.css` care încă se aplica peste noul header.
+- **Teste**: +10 (5 pentru `PageHeader`, 5 pentru shell, inclusiv „un singur `h1` per ecran" — forma în care markup-ul vechi tot aluneca). Verificate cu 4 mutații: header-ul global readus, un ecran fără titlu, subtitlul randat când lipsește, `align` ignorat — toate au picat suita.
+- Verificat: `lint` ✅, 134 de teste ✅, `build` ✅.
+
 ## 2026-08-12 — etapa 0: fundația CSS
 
 Prima etapă din drumul spre target-ul vizual. Fără nicio schimbare de aspect în light mode — și, important, **dovedită**, nu presupusă.
@@ -55,17 +64,3 @@ UI overhaul complete pentru a moderniza aplicația cu o interfață atractivă, 
 - **CSS system**: comprehensive styling pentru cards, progress ring, grids, tabs, headers. CSS variables pentru light/dark theming, responsive mobile layout, proper spacing și visual hierarchy.
 - **Tests fixed**: updated 3 tests to match new heading names (Workout Log, Body Measurements).
 - **Branch**: `claude/chat-gpt-review-jlmm9c` — complete redesign, ready for review and merge to main.
-
-## 2026-08-05 — stabilizare după audit tehnic
-
-Nicio funcție nouă. Sesiune de reparații pe baza auditului (2 HIGH, 8 MEDIUM, 4 LOW), în ordinea recomandată acolo.
-
-- **Pozele nu se mai pierd** (HIGH 1): `PhotoUploadForm` chiar așteaptă salvarea (`await onAdd`), golește selecția **doar după** confirmare, blochează butonul cât salvează și afișează eroarea. Dacă IndexedDB refuză, pozele rămân selectate și se poate reîncerca fără să le alegi din nou.
-- **Publicarea e pusă pe o poartă, nu închisă** (HIGH 2): `deploy.yml` rulează lint + test **înainte** de build, deci un push cu teste picate nu publică nimic; `cancel-in-progress: false`, ca două publicări să nu se anuleze reciproc. Am închis mai întâi publicarea din `claude/**`, cum cerea auditul — dar asta a lăsat aplicația nepublicabilă, pentru că `main` e gol. Decizie de proprietar: se publică din ramura de lucru, cu poarta de verificări. Ramura pe care faci push e ramura live.
-- **Persistență apărată** (MEDIUM 1+2): tot `localStorage` trece prin `src/shared/storage.ts` + `usePersistedState`. Citire cu `try/catch` și validare per-intrare; scrierea se face **înainte** de a muta starea React, deci o scriere refuzată nu mai arată ca succes. Valoarea coruptă originală se copiază în `<cheie>:corrupt` și nu se șterge niciodată.
-- **Valori imposibile refuzate** (MEDIUM 3): limite per câmp (`MEASUREMENT_BOUNDS`, `SET_VALUE_BOUNDS`), validare în JS pe lângă `min`/`max` din HTML, respinge `NaN`/`Infinity` și tratează câmpul gol ca gol (nu ca 0).
-- **Data locală, nu UTC** (MEDIUM 4): `src/shared/localDate.ts`; `toISOString()` punea antrenamentele de după miezul nopții pe ziua precedentă în BST.
-- **Restul**: procesare poze per unghi cu `finally` (MEDIUM 5); o singură sursă de adevăr pentru tipurile de câmp, transmise ca props (MEDIUM 6); confirmare la ștergerea unui exercițiu, care spune explicit că istoricul se păstrează (MEDIUM 7); `createdAt` ca departajare pentru intrări din aceeași zi (LOW 2); container cu scroll orizontal la tabelul de măsurători (LOW 4).
-- **Teste** (MEDIUM 8): `vitest` + `@testing-library/react`, 99 de teste, `npm test`. Fiecare reparație a fost verificată prin reintroducerea defectului — toate 8 mutații testate au picat suita, deci testele chiar prind regresia, nu doar trec.
-- **Nereproductibil**: LOW 3 (favicon). Vite rescrie deja `/favicon.svg` → `/GYM-APP/favicon.svg` în `dist/index.html`, deci nu e 404 pe Pages. `index.html` a rămas neschimbat.
-- **Rămas de decis** (LOW 1 / etapa 6): `main` e încă gol. Codul verificat trebuie mutat pe ramura stabilă — decizie de proprietar, nu s-a atins nimic.

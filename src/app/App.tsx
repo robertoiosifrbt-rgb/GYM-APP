@@ -45,10 +45,8 @@ function App() {
 
   return (
     <div className="app-shell">
-      <header className="app-header">
-        <span className="app-title">Gym App</span>
-      </header>
-
+      {/* No global title bar: every screen in the visual target carries its own
+          header, so the app name is not repeated above them. See PageHeader. */}
       {updateAvailable && <UpdateBanner />}
 
       <main className="app-content">

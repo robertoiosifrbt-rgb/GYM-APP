@@ -61,31 +61,6 @@ p {
   background: var(--color-bg);
 }
 
-.app-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  padding: calc(env(safe-area-inset-top) + 12px) var(--page-gutter) 10px;
-  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
-
-.page-eyebrow {
-  display: block;
-  margin-bottom: 3px;
-  color: var(--color-accent);
-  font-size: .67rem;
-  font-weight: 800;
-  letter-spacing: .12em;
-}
-
-.app-title {
-  margin: 0;
-  font-size: 1.65rem;
-  font-weight: 800;
-}
-
 .app-content {
   padding: 8px var(--page-gutter) calc(env(safe-area-inset-bottom) + 92px);
 }
@@ -711,10 +686,6 @@ button.session-card-header {
     --page-gutter: 12px;
   }
 
-  .app-title {
-    font-size: 1.5rem;
-  }
-
   .app-content {
     padding-top: 4px;
   }
@@ -1099,31 +1070,6 @@ button.session-card-header {
 }
 
 /* Page headers */
-
-.page-header {
-  margin-bottom: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.page-header > div {
-  flex: 1;
-}
-
-.page-header h1 {
-  font-size: 1.8rem;
-  margin: 0 0 0.25rem;
-  font-weight: 800;
-  color: var(--color-text);
-}
-
-.page-header p {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: 0.95rem;
-}
 
 .section-header {
   margin-bottom: 1.25rem;

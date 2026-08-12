@@ -3,15 +3,6 @@
   padding-bottom: 14px
 }
 
-.target-settings-header {
-  padding: 2px 2px 0
-}
-
-.target-settings-header h1 {
-  margin: 0;
-  font-size: 1.34rem
-}
-
 .settings-profile-card {
   display: grid;
   grid-template-columns: 50px minmax(0,1fr) auto;

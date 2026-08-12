@@ -6,6 +6,7 @@ import { useWorkoutLog } from './useWorkoutLog'
 import { useWorkoutSessions } from './useWorkoutSessions'
 import { SessionCard } from './SessionCard'
 import { SessionForm } from './SessionForm'
+import { PageHeader } from '../../shared/PageHeader'
 
 export function WorkoutLogPage() {
   const { exercises } = useExercises()
@@ -143,12 +144,10 @@ export function WorkoutLogPage() {
 
   return (
     <section>
-      <div className="page-header">
-        <div>
-          <h1>Workout Log</h1>
-          <p>{sessions.length} {sessions.length === 1 ? 'session' : 'sessions'} recorded</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Workout Log"
+        subtitle={`${sessions.length} ${sessions.length === 1 ? 'session' : 'sessions'} recorded`}
+      />
 
       <StorageNotice message={sessionsError ?? entriesError ?? actionError} onDismiss={dismissAll} />
 

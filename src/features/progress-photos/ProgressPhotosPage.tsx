@@ -3,6 +3,7 @@ import { StorageNotice } from '../../shared/StorageNotice'
 import { usePhotos } from './usePhotos'
 import { PhotoUploadForm } from './PhotoUploadForm'
 import { PhotoGallery } from './PhotoGallery'
+import { PageHeader } from '../../shared/PageHeader'
 
 export function ProgressPhotosPage() {
   const { photoSets, addPhotoSet, error, dismissError } = usePhotos()
@@ -24,12 +25,19 @@ export function ProgressPhotosPage() {
 
   return (
     <section>
-      <div className="page-header">
-        <div>
-          <h1>Progress Photos</h1>
-        </div>
-        <button type="button" className="header-action-button" onClick={() => setShowUploadForm(!showUploadForm)}>+</button>
-      </div>
+      <PageHeader
+        title="Progress Photos"
+        action={
+          <button
+            type="button"
+            className="header-action-button"
+            aria-label={showUploadForm ? 'Close photo upload' : 'Add photos'}
+            onClick={() => setShowUploadForm(!showUploadForm)}
+          >
+            +
+          </button>
+        }
+      />
 
       <StorageNotice message={error} onDismiss={dismissError} />
 
