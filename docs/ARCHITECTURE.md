@@ -47,12 +47,12 @@ Un test nou ar trebui să pice dacă reintroduci defectul pe care îl păzește.
 
 ## Publicare
 
-- `.github/workflows/deploy.yml` — `main` **și** `claude/**`: rulează `lint` + `test`, apoi `build`, apoi publică pe GitHub Pages. Verificările rulează **înaintea** artefactului, deci un push cu teste picate nu publică absolut nimic. `cancel-in-progress: false`, ca două publicări să nu se anuleze reciproc.
-- `.github/workflows/ci.yml` — PR-uri și ramuri care nu publică: aceleași `lint` + `test` + `build`, fără deploy. `main` și `claude/**` sunt excluse aici ca să nu ruleze totul de două ori la fiecare push.
+- `.github/workflows/deploy.yml` — **doar `main`**: rulează `lint` + `test`, apoi `build`, apoi publică pe GitHub Pages. Verificările rulează **înaintea** artefactului, deci un push cu teste picate nu publică absolut nimic. `cancel-in-progress: false`, ca două publicări să nu se anuleze reciproc.
+- `.github/workflows/ci.yml` — tot ce nu e `main` (inclusiv `dev`) plus PR-urile: aceleași `lint` + `test` + `build`, fără deploy. `main` e exclus aici ca să nu ruleze totul de două ori la fiecare push.
 
-**Decizie de proprietar**, contrar recomandării auditului: auditul cerea ca `claude/**` să nu mai publice (o versiune neterminată putea ajunge live). S-a păstrat publicarea din ramura de lucru — pentru o aplicație de o persoană, să ai nevoie de merge ca să ajungă aplicația pe telefon costă mai mult decât protejează.
+Deci: **`main` e ramura live**. Pe `dev` se lucrează și se verifică; aplicația de pe telefon se schimbă abia la merge în `main`.
 
-Ce înlocuiește protecția: poarta de `lint` + `test` de dinaintea build-ului. Acoperă riscul real — cod stricat care ajunge live. Ce **nu** acoperă: două ramuri împinse aproape simultan publică în ordinea în care termină, deci ramura pe care faci push e ramura live.
+_(Istoric: la un moment dat `claude/**` publica direct, ca să nu fie nevoie de merge pentru fiecare schimbare ajunsă pe telefon. S-a revenit la recomandarea auditului — o versiune neterminată putea ajunge live — și fluxul e din nou `dev` → `main`.)_
 
 ## Limbă
 

@@ -16,7 +16,7 @@ Primul pas din target-ul vizual complet (mockup-ul cu 9 ecrane). S-a construit e
 - **Decizii de comportament**: exercițiu necompletat = „Skip Exercise", nu intrare goală; exercițiu deja logat se redeschide cu seturile lui și se actualizează, nu se duplică; reluarea sare la primul exercițiu nelogat; exercițiile șterse din bibliotecă ies din coadă, dar seturile logate rămân în jurnal.
 - **`formatClock` mutat în `src/shared/`**, folosit și de `WorkoutTimer` (era duplicat).
 - **Teste**: +18 (14 pentru runner, 4 pentru parser). Verificate prin **7 mutații** — endedAt aruncat, plan cu gunoi acceptat, ordine inversată, duplicat la reeditare, Skip pierdut, reluare de la zero, exercițiu gol salvat — toate au picat suita.
-- **Ramură**: `claude/ajutor-80fxuy` (decizie de proprietar: se lucrează aici, `dev` se șterge).
+- **Ramură**: construit pe `claude/ajutor-80fxuy`, mutat apoi pe **`dev`** — decizie de proprietar: se revine la fluxul `dev` → `main`. Corectat și `docs/ARCHITECTURE.md`, care descria o regulă de publicare care nu mai era adevărată: `deploy.yml` publică **doar din `main`**, nu și din `claude/**`.
 
 ## 2026-08-12 — redesign UI: home, body overview, tabbed interface, consistent headers
 
