@@ -11,15 +11,22 @@ import { ErrorBoundary } from './ErrorBoundary'
 import { UpdateBanner } from './UpdateBanner'
 import { useVersionCheck } from './useVersionCheck'
 
-export type Page = 'home' | 'body' | 'workout' | 'settings'
-type BodySubPage = 'measurements' | 'photos'
+export type Page = 'home' | 'body' | 'workout' | 'progress' | 'settings'
 type WorkoutSubPage = 'log' | 'exercises'
+
+const pageTitles: Record<Page, { eyebrow?: string; title: string }> = {
+  home: { eyebrow: 'TRAIN SMARTER', title: 'Your training' },
+  body: { eyebrow: 'BODY', title: 'Body stats' },
+  workout: { eyebrow: 'WORKOUT', title: 'Training' },
+  progress: { eyebrow: 'PROGRESS', title: 'Progress photos' },
+  settings: { eyebrow: 'APP', title: 'Settings' },
+}
 
 function App() {
   const [page, setPage] = useState<Page>('home')
-  const [bodySubPage, setBodySubPage] = useState<BodySubPage>('measurements')
   const [workoutSubPage, setWorkoutSubPage] = useState<WorkoutSubPage>('log')
   const updateAvailable = useVersionCheck()
+  const heading = pageTitles[page]
 
   function handleStartWorkout() {
     setPage('workout')
@@ -29,7 +36,8 @@ function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <span className="app-title">Gym App</span>
+        {heading.eyebrow && <span className="page-eyebrow">{heading.eyebrow}</span>}
+        <h1 className="app-title">{heading.title}</h1>
       </header>
 
       {updateAvailable && <UpdateBanner />}
@@ -37,21 +45,8 @@ function App() {
       <main className="app-content">
         <ErrorBoundary>
           {page === 'home' && <HomePage onStartWorkout={handleStartWorkout} />}
-
-          {page === 'body' && (
-            <>
-              <SubNav
-                tabs={[
-                  { key: 'measurements', label: 'Measurements' },
-                  { key: 'photos', label: 'Photos' },
-                ]}
-                current={bodySubPage}
-                onChange={setBodySubPage}
-              />
-              {bodySubPage === 'measurements' && <MeasurementsPage />}
-              {bodySubPage === 'photos' && <ProgressPhotosPage />}
-            </>
-          )}
+          {page === 'body' && <MeasurementsPage />}
+          {page === 'progress' && <ProgressPhotosPage />}
 
           {page === 'workout' && (
             <>
