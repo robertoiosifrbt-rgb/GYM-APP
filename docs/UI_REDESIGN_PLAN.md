@@ -8,7 +8,7 @@ Refacem complet interfața aplicației de sală, fără să aruncăm logica și 
 
 ## Progress
 
-**Overall: 0%**
+**Overall: 0% — Phase 1 in progress**
 
 `[--------------------] 0 / 20`
 
@@ -20,10 +20,12 @@ Status legend:
 
 ## Phase 1 — Design foundation
 
-- [ ] 1. Define new visual system: spacing, typography, radii, shadows, buttons, inputs, cards, states.
-- [ ] 2. Rebuild global mobile shell: safe areas, sticky/fixed navigation, scroll behaviour, page padding.
-- [ ] 3. Replace current top header with contextual page headers.
-- [ ] 4. Redesign bottom navigation for Home / Body / Workout / Progress / Settings.
+- [~] 1. Define new visual system: spacing, typography, radii, shadows, buttons, inputs, cards, states.
+- [~] 2. Rebuild global mobile shell: safe areas, sticky/fixed navigation, scroll behaviour, page padding.
+- [~] 3. Replace current top header with contextual page headers.
+- [~] 4. Redesign bottom navigation for Home / Body / Workout / Progress / Settings.
+
+Implementation started on `main` with the new five-tab navigation, contextual headers and the first global visual-system pass. These four items stay `[~]` until lint, tests, build and deploy finish successfully.
 
 ## Phase 2 — Home
 
