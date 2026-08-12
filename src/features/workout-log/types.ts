@@ -33,18 +33,47 @@ export function bySessionRecencyDesc(a: WorkoutSession, b: WorkoutSession): numb
 function parseSet(entry: unknown): { set: SetValues; lossy: boolean } | null {
   if (!isRecord(entry)) return null
   const set: SetValues = {}; let lossy = false
-  for (const [fieldId, value] of Object.entries(entry)) { if (withinBounds(value, SET_VALUE_BOUNDS)) set[fieldId] = value; else lossy = true }
+  for (const [fieldId, value] of Object.entries(entry)) {
+    if (withinBounds(value, SET_VALUE_BOUNDS)) set[fieldId] = value
+    else lossy = true
+  }
   return { set, lossy }
 }
 
 export function parseWorkoutEntry(value: unknown): ParsedEntry<WorkoutEntry> | null {
-  if (!isRecord(value) || !isNonEmptyString(value.id) || !isCalendarDate(value.date) || !isNonEmptyString(value.exerciseId) || !Array.isArray(value.sets)) return null
-  const parsedSets = value.sets.map(parseSet).filter((set): set is { set: SetValues; lossy: boolean } => set !== null)
-  if (parsedSets.length === 0 && value.sets.length > 0) return null
+  if (
+    !isRecord(value) ||
+    !isNonEmptyString(value.id) ||
+    !isCalendarDate(value.date) ||
+    !isNonEmptyString(value.exerciseId) ||
+    !isNonEmptyString(value.exerciseName) ||
+    !Array.isArray(value.sets) ||
+    value.sets.length === 0
+  ) return null
+
+  const parsedSets = value.sets
+    .map(parseSet)
+    .filter((set): set is { set: SetValues; lossy: boolean } => set !== null)
+
+  const usableSets = parsedSets.filter(({ set }) => Object.keys(set).length > 0)
+  if (usableSets.length === 0) return null
+
   const sessionId = asString(value.sessionId)
-  const exerciseName = asString(value.exerciseName)
   const createdAt = asString(value.createdAt)
-  return { value: { id: value.id, sessionId, date: value.date, exerciseId: value.exerciseId, exerciseName, sets: parsedSets.map((s) => s.set), ...(createdAt ? { createdAt } : {}) }, lossy: parsedSets.some((s) => s.lossy) || parsedSets.length !== value.sets.length || !sessionId || !exerciseName }
+  const droppedSets = usableSets.length !== value.sets.length
+
+  return {
+    value: {
+      id: value.id,
+      sessionId,
+      date: value.date,
+      exerciseId: value.exerciseId,
+      exerciseName: value.exerciseName,
+      sets: usableSets.map((s) => s.set),
+      ...(createdAt ? { createdAt } : {}),
+    },
+    lossy: usableSets.some((s) => s.lossy) || droppedSets || !sessionId,
+  }
 }
 
 export function parseWorkoutSession(value: unknown): ParsedEntry<WorkoutSession> | null {
