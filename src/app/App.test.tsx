@@ -20,9 +20,38 @@ describe('App shell', () => {
   })
 
   it('starts on Home, which opens with the greeting rather than a page title', () => {
+    localStorage.setItem('gym-app:profile', JSON.stringify({ name: 'Roberto' }))
     render(<App />)
 
     expect(screen.getByRole('heading', { name: /Hey Roberto/ })).toBeInTheDocument()
+  })
+
+  /* Fără nume salvat, salutul nu inventează unul — era „Hey Roberto" în cod. */
+  it('greets without a name until one is set in Settings', () => {
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: /Hey there/ })).toBeInTheDocument()
+  })
+
+  /*
+   * Sistemul de unități e ales într-un ecran și citit în celelalte. Cu un hook
+   * per ecran în loc de context, ecranele montate ar fi rămas pe kilograme
+   * până la o reîncărcare — de aici testul ăsta, care traversează ecranele.
+   */
+  it('carries the unit choice from Settings to the other screens', () => {
+    localStorage.setItem(
+      'gym-app:measurements',
+      JSON.stringify([{ id: 'm1', date: '2026-07-15', weightKg: 80, waistCm: 90 }]),
+    )
+    render(<App />)
+
+    goTo('Settings')
+    fireEvent.click(screen.getByRole('button', { name: 'Imperial' }))
+
+    goTo('Body')
+    fireEvent.click(screen.getByRole('tab', { name: 'Composition' }))
+    expect(screen.getByText('176.4')).toBeInTheDocument()
+    expect(screen.getAllByText('lb').length).toBeGreaterThan(0)
   })
 
   it('gives every other tab exactly one top-level heading', () => {

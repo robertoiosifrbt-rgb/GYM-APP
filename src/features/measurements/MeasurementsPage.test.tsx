@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { MeasurementsPage } from './MeasurementsPage'
 import { CORRUPT_SUFFIX } from '../../shared/storage'
+import { UnitsProvider } from '../../shared/UnitsProvider'
 
 const STORAGE_KEY = 'gym-app:measurements'
 
@@ -270,5 +271,90 @@ describe('Key Measurements', () => {
 
     expect(screen.getByText(/No circumferences recorded yet/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '+ Add Measurements' })).toBeInTheDocument()
+  })
+})
+
+/*
+ * Ce se salvează rămâne în kilograme și centimetri, oricare ar fi setarea din
+ * Settings. Conversia trăiește la marginea ecranului: la afișare și la citirea
+ * din formular. Testele de aici trec prin ecran, nu prin funcțiile de conversie
+ * (alea au testele lor în `shared/units.test.ts`) — aici se verifică drumul
+ * complet: tastezi în livre, se salvează în kilograme, se citește iar în livre.
+ */
+describe('MeasurementsPage in imperial units', () => {
+  function renderImperial(section: 'measurements' | 'composition' | 'history') {
+    localStorage.setItem('gym-app:units', JSON.stringify('imperial'))
+    return render(
+      <UnitsProvider>
+        <MeasurementsPage section={section} />
+      </UnitsProvider>,
+    )
+  }
+
+  it('labels the fields in pounds and inches', () => {
+    renderImperial('measurements')
+    fireEvent.click(screen.getByRole('button', { name: '+ Add Measurements' }))
+
+    expect(screen.getByLabelText('Weight (lb)')).toBeInTheDocument()
+    expect(screen.getByLabelText('Waist (in)')).toBeInTheDocument()
+    // Un procent e un procent în orice sistem.
+    expect(screen.getByLabelText('Body fat (%)')).toBeInTheDocument()
+  })
+
+  it('stores what you typed in pounds as kilograms', () => {
+    renderImperial('measurements')
+    fireEvent.click(screen.getByRole('button', { name: '+ Add Measurements' }))
+
+    fireEvent.change(screen.getByLabelText('Date'), { target: { value: '2026-07-15' } })
+    fireEvent.change(screen.getByLabelText('Weight (lb)'), { target: { value: '176.4' } })
+    fireEvent.change(screen.getByLabelText('Waist (in)'), { target: { value: '35.4' } })
+    submit()
+
+    expect(stored()[0].weightKg).toBeCloseTo(80, 1)
+    expect(stored()[0].waistCm).toBeCloseTo(89.9, 1)
+  })
+
+  it('shows a stored measurement back in the unit you are using', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([{ id: 'm1', date: '2026-07-15', weightKg: 80 }]))
+    renderImperial('composition')
+
+    expect(screen.getByText('176.4')).toBeInTheDocument()
+    expect(screen.queryByText('80')).not.toBeInTheDocument()
+  })
+
+  /* Diferența e tot o mărime cu unitate: în livre trebuie să fie în livre. */
+  it('converts the delta as well as the value', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([
+        { id: 'm2', date: '2026-08-01', weightKg: 80 },
+        { id: 'm1', date: '2026-07-01', weightKg: 81 },
+      ]),
+    )
+    renderImperial('composition')
+
+    // −1 kg e −2.2 lb, nu −1 lb.
+    expect(screen.getByText(/2\.2/)).toBeInTheDocument()
+  })
+
+  /*
+   * Limita afișată trebuie să fie una acceptată: rotunjită în afară, greutatea
+   * minimă de 1 kg ar apărea ca 2.2 lb, iar 2.2 lb salvat înapoi e 0.998 kg —
+   * sub limită, deci măsurătoarea ar fi aruncată la următoarea citire.
+   */
+  it('offers bounds that survive the round trip into storage', () => {
+    renderImperial('measurements')
+    fireEvent.click(screen.getByRole('button', { name: '+ Add Measurements' }))
+
+    const weight = screen.getByLabelText('Weight (lb)')
+    expect(weight).toHaveAttribute('min', '2.3')
+    expect(weight).toHaveAttribute('max', '1543.2')
+
+    fireEvent.change(screen.getByLabelText('Date'), { target: { value: '2026-07-15' } })
+    fireEvent.change(weight, { target: { value: '2.3' } })
+    submit()
+
+    expect(stored()).toHaveLength(1)
+    expect(stored()[0].weightKg).toBeGreaterThanOrEqual(1)
   })
 })

@@ -4,6 +4,84 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-12 — etapa 6: Settings. Unitățile sunt reale, importul există.
+
+Ultimul dintre cele 9 ecrane. Rândurile care doar arătau a setări au devenit
+setări; ce nu se poate face fără o decizie a proprietarului a rămas afară, nu
+prefăcut.
+
+### Units: metric / imperial, prin toată aplicația
+
+- **Ce se salvează nu se schimbă niciodată.** În `localStorage` greutatea rămâne
+  în kg și circumferința în cm, oricare ar fi setarea; conversia trăiește la
+  marginea ecranului — la afișare și la citirea din formular. Altfel o apăsare
+  pe „Imperial" ar trebui să rescrie tot istoricul, iar rotunjirea făcută acolo
+  s-ar aduna la fiecare comutare.
+- **Context, nu un hook per ecran** (`shared/UnitsProvider.tsx`). Cu
+  `usePersistedState` chemat în fiecare ecran, fiecare ar fi avut copia lui:
+  apeși „Imperial" în Settings, treci la Body și tot kg scrie, pentru că
+  evenimentul `storage` al browserului se trimite doar **între file**. Testul
+  care traversează ecranele (`App.test.tsx`) e acolo exact pentru asta.
+- **Limitele afișate se strâng, nu se lărgesc.** `1 kg` convertit în afară ar fi
+  `2.2 lb`, iar `2.2 lb` scris înapoi e `0.998 kg` — sub minim. Formularul ar fi
+  acceptat valoarea, iar `parseMeasurement` ar fi aruncat măsurătoarea la
+  următoarea citire: dispărea după reîncărcare. Minimul urcă, maximul coboară.
+- **Ce nu se convertește**: track-ul „Weight (kg)" din antrenamente. E o coloană
+  definită de utilizator, cu eticheta și unitatea alese de el — aplicația nu i-o
+  poate rescrie. Volumul calculat din ea, în schimb, se convertește peste tot
+  (Home, Workout Log), fiindcă acolo unitatea o punem noi.
+- Două liste de câmpuri au devenit una: formularul și tabelul de istoric aveau
+  fiecare copia lor, cu unitatea lipită în etichetă („Neck (cm)") — ar fi rămas
+  în centimetri pentru totdeauna.
+
+### Import Data
+
+- **Doi pași, cu o confirmare la mijloc**: întâi citește fișierul și spune ce e
+  în el, abia apoi scrie. Importul **înlocuiește**, nu adaugă — scris pe ecran
+  înainte de apăsare, nu după.
+- Fișierul trece prin **aceleași** funcții de parsare ca datele din storage: ce
+  n-ar fi acceptat la citire nu intră nici pe ușa asta, iar câte intrări au fost
+  refuzate se spune înainte de scriere.
+- **Ori toate secțiunile, ori niciuna.** `localStorage` n-are tranzacții și o
+  scriere poate fi refuzată la mijloc (memoria plină, cazul real pe telefon).
+  Fără revenire, ar fi rămas exercițiile din fișierul nou lângă antrenamentele
+  vechi — o bază de date pe care n-a avut-o nimeni. Revenirea e ea însăși
+  best-effort, în `try`: dacă tocmai o scriere refuzată ne-a adus acolo, poate
+  fi refuzată și repunerea, iar o excepție aruncată de acolo ar ieși din import
+  exact când datele sunt la jumătate.
+- Un JSON care nu conține **niciuna** din secțiunile cunoscute e refuzat. Altfel
+  importul unui fișier străin ar fi „reușit" scriind liste goale peste tot.
+
+### Profil
+
+Numele și avatarul erau scrise în cod. Acum se editează, iar salutul de pe Home
+citește același nume — fără el, îți schimbai numele în Settings și Home tot
+„Hey Roberto" spunea. Poza se redimensionează la 192px înainte de salvare:
+avatarul stă în `localStorage`, unde tot spațiul e câteva megabyte pentru toată
+aplicația. Un avatar care nu e `data:` URL e ignorat la citire — un `http://…`
+pus de altcineva ar fi o cerere către un server străin la fiecare deschidere.
+
+### Rânduri care nu mai mint
+
+- **„Appearance — System default" a dispărut.** Aplicația e light-only din etapa
+  0, deci rândul spunea ceva neadevărat și nu ducea nicăieri.
+- **Chevronul promite un ecran.** „Storage", „Progress photos" și „GYM APP" nu
+  au unul, deci l-au pierdut. Un test blochează revenirea: orice chevron de pe
+  ecran trebuie să fie într-un buton.
+- Singurul „Soon" rămas e Workout Reminders — chiar nu e construit (întrebarea
+  deschisă 4). Level/XP și Rest Timer nu apar deloc: sunt decizii, nu muncă.
+
+### Curățenie
+
+- `settings-target.css` a plecat din `main.tsx` în `features/settings/
+  settings.css`, al treilea ecran cu foaie proprie după Home și Exercises.
+  Regulile moarte din `index.css` și `redesign.css` au dispărut cu tot cu cele
+  6 `!important` ale lor; pe ecran au rămas 3, toate resetând stilul general de
+  buton, și un test le numără.
+- `.visually-hidden` s-a mutat din `BodyOverview.css` în `index.css`: de când o
+  folosesc două module, e unealtă comună.
+- Verificat: `lint` ✅, 419 de teste ✅ (+46), `build` ✅.
+
 ## 2026-08-12 — etapa 5: Body Stats, plus rândul de sesiune. Design-ul e închis.
 
 Cu asta, opt din nouă ecrane din `DESIGN_TARGET.md` sunt făcute. Al nouălea
@@ -249,14 +327,3 @@ scos, token fantomă reintrodus) — toate au picat suita.
   (376px din 376px, față de ~60% înainte); `details` e sub secțiunea principală
   (top 656 vs 642), pe aceeași lățime, iar câmpurile secundare se desfac în
   două coloane.
-
-## 2026-08-12 — etapa 3: calendar în Workout Log
-
-- **`calendarMonth.ts`** — logica pură a grilei, deci complet testabilă. O lună e un șir `YYYY-MM`, o zi `YYYY-MM-DD`: aceeași formă în care sunt salvate sesiunile, deci potrivirea e egalitate de șiruri, fără `Date` și fără fus orar la mijloc. Săptămâna începe **luni** (`getDay()` numără de duminică — e off-by-one-ul clasic al calendarelor scrise de mână, acoperit de test: o lună care începe duminica are nevoie de șase zile de umplutură în față, nu de zero). Grila are doar câte săptămâni atinge luna, nu șase fixe.
-- **`WorkoutCalendar.tsx`** — zilele antrenate pline cu accent, azi cu inel, ziua selectată închisă. Zilele din lunile vecine sunt afișate dar **nu se pot apăsa**: ar muta luna de sub deget.
-- **Lista urmează calendarul.** Altfel cele două ar arăta lucruri diferite. Apăsarea unei zile restrânge la ea, reapăsarea revine la lună.
-- **Două comportamente descoperite prin teste, nu prin gândire**: pagina se deschidea pe luna curentă, deci o sesiune veche nu se vedea deloc (acum se deschide pe luna ultimului antrenament); iar dacă schimbai data unei sesiuni în altă lună, ea dispărea în clipa salvării (acum vederea o urmează). Primul a fost semnalat de un test existent care a picat.
-- **Etichete de zi citibile** (`15 July 2026`, nu `2026-07-15`): mai bune pentru cititorul de ecran și, în plus, nu se mai ciocnesc cu datele brute de pe cardurile de sesiune.
-- **Teste**: +24 (14 pentru logica de grilă, 10 pentru pagină), validate cu **7 mutații** — săptămâna pornită duminica, grila fixată la 6 săptămâni, zilele lucrate nemarcate, lista care nu mai urmează luna, deschiderea forțată pe luna curentă, sesiunea mutată neurmărită, zilele din afara lunii devenite apăsabile — toate au picat suita.
-- **CSS**: `workout-log.css` lângă modul, fără `!important`. Calendarul randat local ca să-i verific așezarea.
-- Verificat: `lint` ✅, 227 de teste ✅, `build` ✅.

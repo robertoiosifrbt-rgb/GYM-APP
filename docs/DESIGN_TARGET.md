@@ -161,7 +161,7 @@ grupată pe dată, cu data sub fiecare grup.
 
 *Data citibilă a fost rezolvată — se afișează „15 July 2026".*
 
-### 9. Settings — 🟡 cât se poate fără decizii
+### 9. Settings — ✅ cât se poate fără decizii
 
 Card de profil: avatar, nume, **Level** și **bară de XP** (`2,450 / 5,000 XP`).
 Secțiunea **Preferences**: Units (`kg, cm`), Workout Reminders (`On`),
@@ -169,11 +169,18 @@ Rest Timer (`60 sec`), Default Rest Time (`90 sec`) — fiecare rând cu iconiț
 valoare la dreapta și chevron. Secțiunea **Data**: Export Data, Import Data.
 Secțiunea **About**.
 
-*Azi:* cardul de profil există, cu avatar, nume și „Level 1"; sunt și
-Preferences (Appearance, Units), Data (Export, Restore from JSON) și About.
-**Ce lipsește e blocat de „Întrebări deschise", nu de muncă**: bara de XP
-(punctul 2), Rest Timer și Default Rest Time (punctul 3), Workout Reminders
-(punctul 4, marcat „Soon" în ecran).
+*Făcut în etapa 6:* cardul de profil e editabil (nume + poză, sau inițialele
+numelui cât timp nu e nicio poză), Units comută metric/imperial în toată
+aplicația, iar Data are Export și Import.
+
+*Diferență acceptată:* nu există **Level și bară de XP** (punctul 2 din
+„Întrebări deschise") și nici **Rest Timer / Default Rest Time** (punctul 3).
+Nu sunt afișate deloc, nici măcar gri: un „Level 1" fără sistem de puncte în
+spate arată ca o funcționalitate, nu ca o decizie neluată. **Workout
+Reminders** apare, marcat „Soon" (punctul 4).
+
+*Diferență acceptată:* rândul „Appearance" a dispărut — aplicația e light-only
+din etapa 0, deci „System default" spunea ceva neadevărat.
 
 ---
 

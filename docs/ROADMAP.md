@@ -90,15 +90,26 @@ Regula pentru fiecare etapă: nu se trece la următoarea până când `npm run l
   vii să le citești să nu înceapă sub un formular pe care nu-l completezi.
 - [x] **Rândul de sesiune din Workout Log**: dată citibilă, `n exercises ·
   durată`, volum, bară colorată la stânga pe sesiunea deschisă.
-- [ ] **Etapa 6 — Settings**: avatar, Units, Import Data (Level/XP și Rest Timer depind de deciziile din `DESIGN_TARGET.md` → „Întrebări deschise")
+- [x] **Etapa 6 — Settings**: profil editabil (nume + poză), **Units** metric/imperial
+  aplicat în toată aplicația, și **Import Data**. Unitățile se convertesc doar la
+  afișare și la citirea din formular — ce se salvează rămâne în kg și cm, altfel
+  fiecare comutare ar rescrie istoricul. Importul cere confirmare, spune ce e în
+  fișier înainte să scrie și pune totul la loc dacă o scriere e refuzată la
+  mijloc. Au dispărut rândurile care nu duceau nicăieri („Appearance" —
+  aplicația e light-only din etapa 0). Level/XP, Rest Timer și Workout Reminders
+  rămân blocate de „Întrebări deschise" din `DESIGN_TARGET.md`, punctele 2–4.
+
+**Cele 9 ecrane din target sunt făcute.** Ce urmează nu mai e o etapă de
+redesign, ci fie deciziile de mai jos, fie funcționalități noi.
 
 La fiecare etapă, pe lângă ecranul în sine:
 
 - se șterg regulile vechi care îl vizau din `index.css` / `*-target.css` /
   `redesign.css`, iar `!important`-urile rămase fără concurent dispar odată cu
   ele — fiecare etapă scade numărătoarea (232 la început, 187 acum);
-- se rescrie componenta atinsă ca să fie lizibilă (7 componente sunt încă scrise
-  pe rânduri de până la 1168 de caractere).
+- se rescrie componenta atinsă ca să fie lizibilă (6 componente sunt încă scrise
+  pe rânduri de până la 1168 de caractere — `SessionCard.tsx` și `HomePage.tsx`
+  sunt cele mai dese).
 
 Stratul de date (`src/shared/`, hooks, `types.ts`, parsere) și testele **nu** se
 rescriu: sunt partea verificată prin audit și prin teste de mutație.

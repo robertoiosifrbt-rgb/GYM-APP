@@ -1,25 +1,23 @@
+import { displayUnit, toDisplay, type StoredUnit } from '../../shared/units'
+import { useUnits } from '../../shared/unitsContext'
 import type { Measurement } from './types'
+import { CIRCUMFERENCE_FIELDS, COMPOSITION_FIELDS } from './measurementStats'
 
 interface MeasurementHistoryProps {
   measurements: Measurement[]
 }
 
-const columns: Array<{ key: keyof Measurement; label: string }> = [
-  { key: 'heightCm', label: 'Height (cm)' },
-  { key: 'bodyFatPercent', label: 'Body fat (%)' },
-  { key: 'neckCm', label: 'Neck (cm)' },
-  { key: 'chestCm', label: 'Chest (cm)' },
-  { key: 'waistCm', label: 'Waist (cm)' },
-  { key: 'hipsCm', label: 'Hips (cm)' },
-  { key: 'leftArmCm', label: 'Left arm (cm)' },
-  { key: 'rightArmCm', label: 'Right arm (cm)' },
-  { key: 'leftThighCm', label: 'Left thigh (cm)' },
-  { key: 'rightThighCm', label: 'Right thigh (cm)' },
-]
-
-const dash = (value: number | undefined) => (value === undefined ? '—' : value)
+/*
+ * Coloanele vin din aceleași liste care desenează cardul „Key Measurements".
+ * Erau scrise a doua oară aici, cu unitatea lipită în etichetă („Neck (cm)"),
+ * deci un câmp adăugat într-un loc lipsea din celălalt — iar acum, cu unități
+ * comutabile, a doua listă ar fi rămas în centimetri pentru totdeauna.
+ */
+const columns = [...COMPOSITION_FIELDS, ...CIRCUMFERENCE_FIELDS]
 
 export function MeasurementHistory({ measurements }: MeasurementHistoryProps) {
+  const { system } = useUnits()
+
   if (measurements.length === 0) {
     return <p>No measurements logged yet.</p>
   }
@@ -32,20 +30,19 @@ export function MeasurementHistory({ measurements }: MeasurementHistoryProps) {
         <thead>
           <tr>
             <th>Date</th>
-            <th>Weight (kg)</th>
-            {columns.map(({ key, label }) => (
-              <th key={key}>{label}</th>
+            {columns.map(({ key, label, unit }) => (
+              <th key={key}>{`${label} (${displayUnit(unit as StoredUnit, system)})`}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {measurements.map((m) => (
-            <tr key={m.id}>
-              <td>{m.date}</td>
-              <td>{m.weightKg}</td>
-              {columns.map(({ key }) => (
-                <td key={key}>{dash(m[key] as number | undefined)}</td>
-              ))}
+          {measurements.map((measurement) => (
+            <tr key={measurement.id}>
+              <td>{measurement.date}</td>
+              {columns.map(({ key, unit }) => {
+                const value = measurement[key]
+                return <td key={key}>{typeof value === 'number' ? toDisplay(value, unit as StoredUnit, system).value : '—'}</td>
+              })}
             </tr>
           ))}
         </tbody>

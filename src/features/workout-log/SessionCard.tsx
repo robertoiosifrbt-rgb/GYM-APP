@@ -6,13 +6,16 @@ import { SessionForm } from './SessionForm'
 import { ExerciseEntryForm } from './ExerciseEntryForm'
 import { WorkoutTimer } from './WorkoutTimer'
 import { dayLabel } from '../../shared/localDate'
-import { formatDuration, formatVolume, sessionDurationSeconds, sessionVolume } from './sessionStats'
+import { formatVolume } from '../../shared/units'
+import { useUnits } from '../../shared/unitsContext'
+import { formatDuration, sessionDurationSeconds, sessionVolume } from './sessionStats'
 
 interface SessionCardProps { session:WorkoutSession; entries:WorkoutEntry[]; isOpen:boolean; exercises:Exercise[]; fieldTypes:FieldType[]; historyFieldTypes:FieldType[]; getLastEntry:(exerciseId:string)=>WorkoutEntry|undefined; onToggle:()=>void; onUpdateSession:(date:string,name:string,durationSeconds?:number)=>boolean; onFinishSession?:()=>boolean; onDeleteSession?:()=>boolean; onAddEntry:(entry:NewExerciseEntry)=>boolean; onUpdateEntry:(entryId:string,entry:NewExerciseEntry)=>boolean; onDeleteEntry?:(entryId:string)=>boolean }
 
 export function SessionCard({ session, entries, isOpen, exercises, fieldTypes, historyFieldTypes, getLastEntry, onToggle, onUpdateSession, onFinishSession, onDeleteSession, onAddEntry, onUpdateEntry, onDeleteEntry }: SessionCardProps) {
   const [editing,setEditing]=useState(false)
   const [editingEntryId,setEditingEntryId]=useState('')
+  const { system }=useUnits()
   const active=!session.endedAt
   const completedSets=entries.reduce((sum,entry)=>sum+entry.sets.length,0)
 
@@ -23,7 +26,7 @@ export function SessionCard({ session, entries, isOpen, exercises, fieldTypes, h
    */
   const exerciseCount=`${entries.length} ${entries.length===1?'exercise':'exercises'}`
   const duration=active?'in progress':formatDuration(sessionDurationSeconds(session))
-  const volume=formatVolume(sessionVolume(entries,session.id))
+  const volume=formatVolume(sessionVolume(entries,session.id),system)
 
   return <div className={`session-card ${isOpen?'session-card-open':''} ${active&&isOpen?'active-workout-card':''}`}>
     <button type="button" className="session-card-header" onClick={onToggle} aria-expanded={isOpen}>

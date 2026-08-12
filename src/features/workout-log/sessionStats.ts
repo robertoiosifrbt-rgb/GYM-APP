@@ -55,8 +55,9 @@ export function formatDuration(seconds: number): string {
   return remaining ? `${hours}h ${remaining}m` : `${hours}h`
 }
 
-/** `1240` → `1,240 kg`. Gol când nu s-a ridicat nimic, ca să nu apară „0 kg". */
-export function formatVolume(kg: number): string {
-  if (kg <= 0) return ''
-  return `${Math.round(kg).toLocaleString('en-GB')} kg`
-}
+/*
+ * `formatVolume` a plecat în `shared/units.ts`: de când Settings poate cere
+ * livre, formatarea are nevoie de sistemul de unități, iar acela e citit din
+ * context, nu din datele antrenamentului. Volumul de aici rămâne în kg —
+ * unitatea în care sunt salvate seturile.
+ */

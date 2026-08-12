@@ -173,14 +173,8 @@
   font-size: 0.82rem;
 }
 
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
+/* `.visually-hidden` s-a mutat în `index.css`: de când Settings ascunde câmpul
+   de fișier cu ea, e o unealtă comună, nu ceva al acestui ecran. */
 
 /* --- compact: the same figure inside an exercise card -------------------- */
 

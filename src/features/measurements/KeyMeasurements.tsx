@@ -1,4 +1,6 @@
 import { dayLabel } from '../../shared/localDate'
+import { toDisplay, type StoredUnit } from '../../shared/units'
+import { useUnits } from '../../shared/unitsContext'
 import type { Measurement } from './types'
 import { formatDelta, latestDate, measurementRows, type FieldSpec } from './measurementStats'
 
@@ -35,6 +37,7 @@ function RowIcon({ label }: { label: string }) {
 export function KeyMeasurements({ measurements, fields, title, emptyHint }: KeyMeasurementsProps) {
   const rows = measurementRows(measurements, fields)
   const date = latestDate(measurements)
+  const { system } = useUnits()
 
   return (
     <section className="key-measurements card">
@@ -47,27 +50,35 @@ export function KeyMeasurements({ measurements, fields, title, emptyHint }: KeyM
         <p className="key-measurements-empty">{emptyHint}</p>
       ) : (
         <ul className="key-measurement-list">
-          {rows.map((row) => (
-            <li key={row.key}>
-              <RowIcon label={row.label} />
-              <span className="key-measurement-name">{row.label}</span>
-              <strong className="key-measurement-value">
-                {row.value}
-                <small>{row.unit}</small>
-              </strong>
-              {row.delta === null ? (
-                <span className="key-measurement-delta is-first">first</span>
-              ) : row.delta === 0 ? (
-                <span className="key-measurement-delta is-flat">no change</span>
-              ) : (
-                <span className="key-measurement-delta">
-                  <span aria-hidden="true">{row.delta > 0 ? '▲' : '▼'}</span>
-                  {formatDelta(row.delta)}
-                  {row.unit}
-                </span>
-              )}
-            </li>
-          ))}
+          {rows.map((row) => {
+            const shown = toDisplay(row.value, row.unit as StoredUnit, system)
+            // Diferența se poate converti ca orice altă valoare: kg→lb și
+            // cm→in sunt înmulțiri simple, fără termen liber, deci diferența
+            // convertită e diferența valorilor convertite.
+            const shownDelta = row.delta === null ? null : toDisplay(row.delta, row.unit as StoredUnit, system)
+
+            return (
+              <li key={row.key}>
+                <RowIcon label={row.label} />
+                <span className="key-measurement-name">{row.label}</span>
+                <strong className="key-measurement-value">
+                  {shown.value}
+                  <small>{shown.unit}</small>
+                </strong>
+                {shownDelta === null ? (
+                  <span className="key-measurement-delta is-first">first</span>
+                ) : shownDelta.value === 0 ? (
+                  <span className="key-measurement-delta is-flat">no change</span>
+                ) : (
+                  <span className="key-measurement-delta">
+                    <span aria-hidden="true">{shownDelta.value > 0 ? '▲' : '▼'}</span>
+                    {formatDelta(shownDelta.value)}
+                    {shown.unit}
+                  </span>
+                )}
+              </li>
+            )
+          })}
         </ul>
       )}
     </section>

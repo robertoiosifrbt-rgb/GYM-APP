@@ -2,6 +2,9 @@ import { useWorkoutLog } from '../features/workout-log/useWorkoutLog'
 import { useWorkoutSessions } from '../features/workout-log/useWorkoutSessions'
 import { formatDuration, sessionDurationSeconds, sessionVolume } from '../features/workout-log/sessionStats'
 import { todayLocal } from '../shared/localDate'
+import { formatVolume, toDisplay } from '../shared/units'
+import { useUnits } from '../shared/unitsContext'
+import { useProfile } from '../features/settings/useProfile'
 import './HomePage.css'
 
 interface HomePageProps {
@@ -44,6 +47,8 @@ function getMonday(date = new Date()) {
 export function HomePage({ onStartWorkout, onOpenWorkoutLog, onOpenExercises, onOpenBody, onOpenPhotos }: HomePageProps) {
   const { sessions } = useWorkoutSessions()
   const { entries } = useWorkoutLog()
+  const { system } = useUnits()
+  const { profile } = useProfile()
   const monday = getMonday()
   const today = todayLocal()
   const weeklySessions = sessions.filter((session) => new Date(`${session.date}T12:00:00`) >= monday)
@@ -58,18 +63,28 @@ export function HomePage({ onStartWorkout, onOpenWorkoutLog, onOpenExercises, on
   const circumference = 2 * Math.PI * 45
   const strokeDashoffset = circumference - (weeklyPercent / 100) * circumference
 
+  // Salutul era „Hey Roberto", scris în cod. Numele vine acum din profil, iar
+  // cât timp nu e completat, salutul nu inventează unul.
+  const greeting = profile.name.trim() || 'there'
+
+  // Volumul săptămânii se scurtează la mii („7.7k kg"): pe dala asta încap trei
+  // cifre, nu șase. Conversia se face înainte de împărțire — altfel „k"-ul ar
+  // rămâne mii de kilograme cu eticheta „lb" lângă.
+  const weeklyVolumeDisplay = toDisplay(weeklyVolume, 'kg', system)
+  const weeklyVolumeLabel = weeklyVolume ? `${(weeklyVolumeDisplay.value / 1000).toFixed(1)}k ${weeklyVolumeDisplay.unit}` : '—'
+
   return <section className="target-home">
-    <header className="target-home-header"><div><h1><span className="hello-wave" aria-hidden="true">👋</span> Hey Roberto</h1><p>Ready to crush your goals?</p></div><button type="button" className="icon-button" aria-label="Notifications"><Icon name="bell"/></button></header>
+    <header className="target-home-header"><div><h1><span className="hello-wave" aria-hidden="true">👋</span> Hey {greeting}</h1><p>Ready to crush your goals?</p></div><button type="button" className="icon-button" aria-label="Notifications"><Icon name="bell"/></button></header>
 
     <section className="target-card weekly-progress-card" aria-label="Weekly Progress">
       <h2>Weekly Progress</h2>
-      <div className="weekly-progress-layout"><div className="progress-ring"><svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="45" className="progress-ring-bg"/><circle cx="60" cy="60" r="45" className="progress-ring-fill" style={{strokeDashoffset}} strokeDasharray={circumference}/></svg><div className="progress-ring-text"><strong>{weeklyPercent}%</strong></div></div><dl className="weekly-metrics"><div><dt>Workouts</dt><dd>{weeklyWorkouts} / 5</dd></div><div><dt>Volume</dt><dd>{weeklyVolume ? `${(weeklyVolume / 1000).toFixed(1)}k kg` : '—'}</dd></div><div><dt>Duration</dt><dd>{formatDuration(weeklyDuration)}</dd></div></dl></div>
+      <div className="weekly-progress-layout"><div className="progress-ring"><svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="45" className="progress-ring-bg"/><circle cx="60" cy="60" r="45" className="progress-ring-fill" style={{strokeDashoffset}} strokeDasharray={circumference}/></svg><div className="progress-ring-text"><strong>{weeklyPercent}%</strong></div></div><dl className="weekly-metrics"><div><dt>Workouts</dt><dd>{weeklyWorkouts} / 5</dd></div><div><dt>Volume</dt><dd>{weeklyVolumeLabel}</dd></div><div><dt>Duration</dt><dd>{formatDuration(weeklyDuration)}</dd></div></dl></div>
     </section>
 
     <section className="target-card today-workout-card"><h2>Today's Workout</h2><strong className="today-workout-name">{todaySession?.name || (todaySession ? 'Workout' : 'No workout started')}</strong><span className="today-workout-meta">{todaySession ? `${todayEntries.length} ${todayEntries.length === 1 ? 'exercise' : 'exercises'}${todaySession.endedAt ? ` · ${formatDuration(sessionDurationSeconds(todaySession))}` : ' · in progress'}` : 'Start a session when you are ready'}</span><button type="button" className="coral-action" onClick={() => onStartWorkout(todaySession && !todaySession.endedAt ? todaySession.id : undefined)}><span className="button-icon"><Icon name="play"/></span>{todaySession && !todaySession.endedAt ? 'Continue Workout' : 'Start Workout'}</button></section>
 
     <section className="home-block quick-actions-block"><h2>Quick Actions</h2><div className="target-quick-grid"><button type="button" onClick={onOpenWorkoutLog}><span><Icon name="workout"/></span><strong>Log Workout</strong></button><button type="button" onClick={onOpenExercises}><span><Icon name="list"/></span><strong>Exercises</strong></button><button type="button" onClick={onOpenBody}><span><Icon name="body"/></span><strong>Body Stats</strong></button><button type="button" onClick={onOpenPhotos}><span><Icon name="camera"/></span><strong>Progress Photos</strong></button></div></section>
 
-    <section className="home-block recent-workouts-block"><div className="target-section-title"><h2>Recent Workouts</h2><button type="button" onClick={onOpenWorkoutLog}>View all</button></div><div className="recent-workout-list">{recentSessions.length ? recentSessions.map((session) => { const volume = sessionVolume(entries, session.id); const duration = sessionDurationSeconds(session); return <button type="button" className="recent-workout-row" onClick={onOpenWorkoutLog} key={session.id}><span className="recent-workout-icon"><Icon name="bag"/></span><span><strong>{session.name || 'Workout'}</strong><small>{formatHomeDate(session.date)}{duration ? ` · ${formatDuration(duration)}` : ''}</small></span>{volume > 0 && <span className="recent-workout-volume">{volume.toLocaleString('en-GB')} kg</span>}{session.endedAt && <span className="recent-workout-done"><Icon name="check"/></span>}</button> }) : <button type="button" className="recent-workout-row" onClick={() => onStartWorkout()}><span className="recent-workout-icon"><Icon name="plus"/></span><span><strong>No workouts yet</strong><small>Start your first session</small></span></button>}</div></section>
+    <section className="home-block recent-workouts-block"><div className="target-section-title"><h2>Recent Workouts</h2><button type="button" onClick={onOpenWorkoutLog}>View all</button></div><div className="recent-workout-list">{recentSessions.length ? recentSessions.map((session) => { const volume = sessionVolume(entries, session.id); const duration = sessionDurationSeconds(session); return <button type="button" className="recent-workout-row" onClick={onOpenWorkoutLog} key={session.id}><span className="recent-workout-icon"><Icon name="bag"/></span><span><strong>{session.name || 'Workout'}</strong><small>{formatHomeDate(session.date)}{duration ? ` · ${formatDuration(duration)}` : ''}</small></span>{volume > 0 && <span className="recent-workout-volume">{formatVolume(volume, system)}</span>}{session.endedAt && <span className="recent-workout-done"><Icon name="check"/></span>}</button> }) : <button type="button" className="recent-workout-row" onClick={() => onStartWorkout()}><span className="recent-workout-icon"><Icon name="plus"/></span><span><strong>No workouts yet</strong><small>Start your first session</small></span></button>}</div></section>
   </section>
 }

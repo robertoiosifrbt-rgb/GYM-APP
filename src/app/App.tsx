@@ -11,6 +11,7 @@ import { SubNav } from './SubNav'
 import { ErrorBoundary } from './ErrorBoundary'
 import { UpdateBanner } from './UpdateBanner'
 import { useVersionCheck } from './useVersionCheck'
+import { UnitsProvider } from '../shared/UnitsProvider'
 
 export type Page = 'home' | 'body' | 'workout' | 'progress' | 'settings'
 type WorkoutSubPage = 'log' | 'exercises'
@@ -18,7 +19,7 @@ type WorkoutSubPage = 'log' | 'exercises'
 /** `null` when the runner is closed; `sessionId` is empty while picking exercises for a new one. */
 type RunnerState = { sessionId: string } | null
 
-function App() {
+function AppScreens() {
   const [page, setPage] = useState<Page>('home')
   const [workoutSubPage, setWorkoutSubPage] = useState<WorkoutSubPage>('log')
   const [runner, setRunner] = useState<RunnerState>(null)
@@ -89,6 +90,20 @@ function App() {
 
       <Nav current={page} onNavigate={setPage} />
     </div>
+  )
+}
+
+/*
+ * Sistemul de unități e citit de patru ecrane și schimbat dintr-unul singur
+ * (Settings), deci stă deasupra tuturor. Un hook propriu per ecran ar fi dat
+ * fiecăruia o copie: schimbi în Settings, treci la Body, și acolo scrie încă
+ * kilograme până la o reîncărcare.
+ */
+function App() {
+  return (
+    <UnitsProvider>
+      <AppScreens />
+    </UnitsProvider>
   )
 }
 

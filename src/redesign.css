@@ -250,10 +250,6 @@ button.session-card-header {
   gap: 7px
 }
 
-.settings-group {
-  padding: 15px
-}
-
 @media(max-width:430px) {
 
   .module-toolbar {
