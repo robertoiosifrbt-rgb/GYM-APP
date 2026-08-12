@@ -33,7 +33,16 @@ function App() {
 
       <main className="app-content">
         <ErrorBoundary>
-          {page === 'home' && <HomePage onStartWorkout={handleStartWorkout} />}
+          {page === 'home' && (
+            <HomePage
+              onStartWorkout={handleStartWorkout}
+              onOpenExercises={() => {
+                setPage('workout')
+                setWorkoutSubPage('exercises')
+              }}
+              onOpenBody={() => setPage('body')}
+            />
+          )}
 
           {page === 'body' && <BodyPage />}
 

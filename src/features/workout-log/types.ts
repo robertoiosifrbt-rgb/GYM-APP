@@ -23,6 +23,10 @@ export interface WorkoutSession {
    * this existed do not have one.
    */
   createdAt?: string
+  /**
+   * ISO instant, written when the session ends. Optional for ongoing sessions.
+   */
+  endedAt?: string
 }
 
 export type NewWorkoutSession = Omit<WorkoutSession, 'id' | 'createdAt'>
