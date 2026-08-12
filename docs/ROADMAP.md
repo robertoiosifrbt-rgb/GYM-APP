@@ -70,9 +70,18 @@ Regula pentru fiecare etapă: nu se trece la următoarea până când `npm run l
   `--color-surface-secondary`) nu existau. Plus formularul de editare din Workout
   Log, care ieșea 26px lățime pentru că pica în coloana de index a unui grid.
   Gărzile generale sunt în `src/styles/screenRepairs.test.ts`.
-- [ ] **Etapa 4 — Exercises**: căutare, thumbnail-uri, favorite, FAB
-  (`exercises-target.css` are deja regulile pentru căutare și FAB, scrise
-  dinainte pe clase nerandate — se folosesc sau se șterg în etapa asta)
+- [x] **Etapa 4 — Exercises**: căutare, thumbnail-uri, favorite, FAB.
+  Căutarea citește și mușchii și echipamentul, nu doar numele — „quads" găsește
+  Leg Press, al cărui nume nu spune nimic despre quads. Chips-urile derulează
+  orizontal pe un singur rând (înainte se împachetau pe două). Favoritele urcă
+  în capul listei; altfel steluța n-ar face nimic. Thumbnail-ul e harta de
+  mușchi la dimensiune de rând — mockup-ul are fotografie, noi n-avem poze
+  (vezi „Întrebări deschise" în `DESIGN_TARGET.md`).
+  **CSS-ul ecranului e acum într-o singură foaie**, `features/exercises/exercises.css`:
+  `exercises-target.css` s-a mutat în modul, iar regulile lui din `index.css`
+  (chips-urile vechi, lista moartă `.exercise-list`, `.new-field-row` definit de
+  două ori) și din `redesign.css` (formularul, selectorul de Tracks) au venit
+  după el. Ownership-ul e blocat de teste, ca la Home.
 - [ ] **Etapa 5 — Body Stats**: tab-uri Measurements/Composition/History + „Key Measurements" cu delta față de măsurătoarea anterioară
 - [ ] **Etapa 6 — Settings**: avatar, Units, Import Data (Level/XP și Rest Timer depind de deciziile din `DESIGN_TARGET.md` → „Întrebări deschise")
 

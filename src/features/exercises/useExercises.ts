@@ -21,9 +21,22 @@ export function useExercises() {
     return update((prev) => prev.filter((e) => e.id !== id))
   }
 
+  /*
+   * `favourite: undefined` rather than `false` when unstarring, so an exercise
+   * that was never starred and one that was starred and unstarred are stored
+   * the same way. `update` refuses and reports if the write fails, and the
+   * caller keeps the old state — a star that silently did not save would be
+   * worse than one that visibly did not move.
+   */
+  function toggleFavourite(id: string): boolean {
+    return update((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, favourite: e.favourite ? undefined : true } : e)),
+    )
+  }
+
   function removeFieldFromExercises(fieldId: string): boolean {
     return update((prev) => prev.map((exercise) => ({ ...exercise, fields: exercise.fields.filter((id) => id !== fieldId) })))
   }
 
-  return { exercises, addExercise, updateExercise, deleteExercise, removeFieldFromExercises, error, dismissError }
+  return { exercises, addExercise, updateExercise, deleteExercise, toggleFavourite, removeFieldFromExercises, error, dismissError }
 }

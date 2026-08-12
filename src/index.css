@@ -635,61 +635,14 @@ button.session-card-header {
   min-height: 18px;
 }
 
-.exercise-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-}
 
-.exercise-list li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 13px;
-  border-bottom: 1px solid var(--color-border);
-}
 
-.exercise-list li:last-child {
-  border-bottom: 0;
-}
 
-.exercise-list details {
-  flex: 1;
-  min-width: 0;
-}
 
-.exercise-list summary {
-  cursor: pointer;
-  line-height: 1.35;
-}
 
-.exercise-details {
-  margin-top: 8px;
-  padding: 8px 0 0;
-  color: var(--color-text-secondary);
-  font-size: .84rem;
-}
 
-.exercise-details p {
-  margin: 3px 0;
-}
 
-.new-field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  width: 100%;
-  margin-top: 8px;
-}
 
-.new-field-row input {
-  width: 100%;
-}
 
 @media (max-width: 430px) {
 
@@ -713,9 +666,6 @@ button.session-card-header {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .new-field-row {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Settings page */
@@ -800,49 +750,6 @@ button.session-card-header {
   font-size: 0.9rem;
   cursor: pointer;
   white-space: nowrap;
-}
-
-/*
- * Chips-urile stau pe rândul lor, sub titlu. Antetul e `display: flex` cu
- * `justify-content: space-between`, deci le punea lângă „Your Exercises":
- * titlul se strângea pe două rânduri într-o coloană îngustă, iar chips-urile
- * se înghesuiau în restul lățimii. La opt categorii nu încap oricum.
- */
-.section-header:has(.exercise-category-filter) {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0;
-}
-
-.exercise-category-filter {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-top: 0.75rem;
-}
-
-.exercise-category-filter button {
-  /* `--color-surface-secondary` nu a existat niciodată — token-ul se numește
-     `--color-surface-alt`. Chips-urile inactive rămâneau fără fundal. */
-  background: var(--color-surface-alt);
-  border: 1px solid var(--color-border);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-full);
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  color: var(--color-text-secondary);
-}
-
-.exercise-category-filter button:hover {
-  background: var(--color-border);
-  color: var(--color-text);
-}
-
-.exercise-category-filter button.active {
-  background: var(--color-accent);
-  color: var(--color-accent-contrast);
-  border-color: var(--color-accent);
 }
 
 .progress-photo-filters {

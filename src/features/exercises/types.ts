@@ -34,6 +34,12 @@ export interface Exercise extends ExerciseDetails {
   id: string
   name: string
   fields: string[]
+  /**
+   * Starred in the library. Optional, not defaulted to `false`: every exercise
+   * saved before favourites existed simply has no opinion, and writing the flag
+   * only when it is set keeps the stored JSON honest about that.
+   */
+  favourite?: boolean
 }
 
 function isDifficulty(value: unknown): value is Difficulty {
@@ -66,6 +72,10 @@ export function parseExercise(entry: unknown): ParsedEntry<Exercise> {
       primaryMuscles: asString(entry.primaryMuscles),
       secondaryMuscles: asString(entry.secondaryMuscles),
       instructions: asString(entry.instructions),
+      // Only `true` counts. Anything else stored under this key — a string, a
+      // number, a leftover from a hand-edited export — means "not starred"
+      // rather than making the entry unreadable.
+      favourite: entry.favourite === true || undefined,
     },
     lossy,
   }

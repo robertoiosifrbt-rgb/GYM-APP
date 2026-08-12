@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { ExercisesPage } from './ExercisesPage'
 
 const EXERCISES_KEY = 'gym-app:exercises'
@@ -136,5 +136,159 @@ describe('deleting an exercise', () => {
     expect(storedExercises()).toHaveLength(0)
     expect(JSON.parse(localStorage.getItem(WORKOUT_LOG_KEY)!)).toEqual(history)
     confirm.mockRestore()
+  })
+})
+
+/*
+ * Etapa 4: search, category chips, favourites and the FAB.
+ *
+ * `searchExercises.test.ts` covers the filtering rules themselves. These are
+ * about the screen — that the controls are wired to that logic, that the star
+ * survives a reload, and that an empty result says which of the three filters
+ * is responsible instead of claiming the library is empty.
+ */
+
+const LIBRARY = [
+  { id: 'a', name: 'Leg Press', fields: ['reps'], category: 'Legs', difficulty: '', equipment: 'Leg Press Machine', primaryMuscles: 'Quads', secondaryMuscles: 'Glutes', instructions: '' },
+  { id: 'b', name: 'Bench Press', fields: ['reps'], category: 'Chest', difficulty: '', equipment: 'Barbell', primaryMuscles: 'Chest', secondaryMuscles: 'Triceps', instructions: '' },
+  { id: 'c', name: 'Hammer Curl', fields: ['reps'], category: 'Arms', difficulty: '', equipment: 'Dumbbell', primaryMuscles: 'Biceps', secondaryMuscles: '', instructions: '' },
+]
+
+function renderWithLibrary() {
+  localStorage.setItem(EXERCISES_KEY, JSON.stringify(LIBRARY))
+  render(<ExercisesPage />)
+}
+
+const cardNames = () => screen.queryAllByRole('heading', { level: 3 }).map((h) => h.textContent)
+const search = () => screen.getByLabelText('Search exercises')
+
+describe('searching the library', () => {
+  it('narrows the list as a name is typed', () => {
+    renderWithLibrary()
+    expect(cardNames()).toHaveLength(3)
+    fireEvent.change(search(), { target: { value: 'ben' } })
+    expect(cardNames()).toEqual(['Bench Press'])
+  })
+
+  it('finds an exercise by a muscle its name never mentions', () => {
+    renderWithLibrary()
+    fireEvent.change(search(), { target: { value: 'quads' } })
+    expect(cardNames()).toEqual(['Leg Press'])
+  })
+
+  it('says the filter is responsible when nothing matches, not that the library is empty', () => {
+    renderWithLibrary()
+    fireEvent.change(search(), { target: { value: 'kettlebell' } })
+    expect(screen.getByText('Nothing matches')).toBeInTheDocument()
+    expect(screen.queryByText('No exercises yet')).not.toBeInTheDocument()
+  })
+
+  it('still says the library is empty when it actually is', () => {
+    render(<ExercisesPage />)
+    expect(screen.getByText('No exercises yet')).toBeInTheDocument()
+  })
+
+  it('reports how many of the library are showing', () => {
+    renderWithLibrary()
+    expect(screen.getByText('3 total')).toBeInTheDocument()
+    fireEvent.change(search(), { target: { value: 'press' } })
+    expect(screen.getByText('2 of 3')).toBeInTheDocument()
+  })
+})
+
+describe('category chips', () => {
+  it('offers only the categories the library uses', () => {
+    renderWithLibrary()
+    for (const label of ['All', 'Legs', 'Chest', 'Arms']) {
+      expect(screen.getByRole('button', { name: label })).toBeInTheDocument()
+    }
+    expect(screen.queryByRole('button', { name: 'Cardio' })).not.toBeInTheDocument()
+  })
+
+  it('filters to the chosen category and back', () => {
+    renderWithLibrary()
+    fireEvent.click(screen.getByRole('button', { name: 'Chest' }))
+    expect(cardNames()).toEqual(['Bench Press'])
+    fireEvent.click(screen.getByRole('button', { name: 'All' }))
+    expect(cardNames()).toHaveLength(3)
+  })
+
+  /*
+   * Deleting the last exercise in a category removes its chip while it is
+   * still the selection — without the fallback the screen would be empty with
+   * no chip left to press to escape it.
+   */
+  it('falls back to All when the selected category stops existing', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    renderWithLibrary()
+    fireEvent.click(screen.getByRole('button', { name: 'Chest' }))
+    expect(cardNames()).toEqual(['Bench Press'])
+    fireEvent.click(screen.getByRole('button', { name: 'Delete Bench Press' }))
+    expect(screen.queryByRole('button', { name: 'Chest' })).not.toBeInTheDocument()
+    expect(cardNames()).toEqual(['Leg Press', 'Hammer Curl'])
+    vi.restoreAllMocks()
+  })
+})
+
+describe('favourites', () => {
+  const star = (name: string) => screen.getByRole('button', { name: `Add ${name} to favourites` })
+
+  it('moves a starred exercise to the top of the list', () => {
+    renderWithLibrary()
+    expect(cardNames()).toEqual(['Leg Press', 'Bench Press', 'Hammer Curl'])
+    fireEvent.click(star('Hammer Curl'))
+    expect(cardNames()).toEqual(['Hammer Curl', 'Leg Press', 'Bench Press'])
+  })
+
+  it('keeps the star after a reload', () => {
+    renderWithLibrary()
+    fireEvent.click(star('Bench Press'))
+    expect(storedExercises().find((e: { id: string }) => e.id === 'b')).toMatchObject({ favourite: true })
+    cleanup()
+    render(<ExercisesPage />)
+    expect(screen.getByRole('button', { name: 'Remove Bench Press from favourites' })).toBeInTheDocument()
+  })
+
+  it('unstars without leaving the flag behind in storage', () => {
+    renderWithLibrary()
+    fireEvent.click(star('Bench Press'))
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Bench Press from favourites' }))
+    expect(storedExercises().find((e: { id: string }) => e.id === 'b')).not.toHaveProperty('favourite')
+  })
+
+  it('shows only favourites while the filter is on', () => {
+    renderWithLibrary()
+    fireEvent.click(star('Hammer Curl'))
+    fireEvent.click(screen.getByRole('button', { name: 'Show favourites only' }))
+    expect(cardNames()).toEqual(['Hammer Curl'])
+    fireEvent.click(screen.getByRole('button', { name: 'Show favourites only' }))
+    expect(cardNames()).toHaveLength(3)
+  })
+
+  it('reads a corrupt favourite flag as not starred rather than dropping the exercise', () => {
+    localStorage.setItem(EXERCISES_KEY, JSON.stringify([{ ...LIBRARY[0], favourite: 'yes please' }]))
+    render(<ExercisesPage />)
+    expect(screen.getByRole('heading', { level: 3, name: 'Leg Press' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Add Leg Press to favourites' })).toBeInTheDocument()
+  })
+})
+
+describe('the add button', () => {
+  it('opens the form and hides itself, so only one Add exercise button exists at a time', () => {
+    renderWithLibrary()
+    expect(screen.getAllByRole('button', { name: 'Add exercise' })).toHaveLength(1)
+    fireEvent.click(screen.getByRole('button', { name: 'Add exercise' }))
+    expect(screen.getByLabelText('Name')).toBeInTheDocument()
+    // The remaining one is the form's submit button, not the floating button.
+    expect(screen.getAllByRole('button', { name: 'Add exercise' })).toHaveLength(1)
+    expect(document.querySelector('.exercise-fab')).toBeNull()
+  })
+
+  it('closes the form on cancel and brings the button back', () => {
+    renderWithLibrary()
+    fireEvent.click(screen.getByRole('button', { name: 'Add exercise' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(screen.queryByLabelText('Name')).not.toBeInTheDocument()
+    expect(document.querySelector('.exercise-fab')).not.toBeNull()
   })
 })

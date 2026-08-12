@@ -243,119 +243,6 @@ button.session-card-header {
   border-style: dashed!important
 }
 
-.exercise-library-page {
-  display: flex;
-  flex-direction: column;
-  gap: 12px
-}
-
-/* .exercise-card-list și .exercise-card sunt definite în exercises-target.css,
-   singura foaie care descrie ecranul Exercises. */
-
-.exercise-card>form {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  box-shadow: none;
-  background: transparent
-}
-
-/*
- * `index.css` dă oricărui `form` un `display: flex; flex-wrap: wrap`. Un
- * formular fără reguli proprii devine deci un rând care se împachetează, iar
- * secțiunile lui — care sunt flex items cu `flex: 0 1 auto` — se strâng la
- * lățimea conținutului. Pe telefon, cardul rămânea gol pe ~40% în dreapta.
- * Secțiunile se stivuiesc, pe toată lățimea.
- */
-.exercise-editor-form {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-  width: 100%
-}
-
-.exercise-form-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 13px;
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  background: var(--color-surface-alt)
-}
-
-.exercise-form-grid {
-  display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: 10px
-}
-
-.exercise-form-grid .field-wide {
-  grid-column: 1/-1
-}
-
-.track-selector {
-  display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: 8px
-}
-
-.track-option {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--color-surface)
-}
-
-.track-option>label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  flex: 1;
-  min-height: 48px;
-  padding: 9px
-}
-
-/*
- * Numele track-ului și unitatea lui. `<strong>` și `<small>` n-aveau nicio
- * regulă: rămâneau inline într-un span care nu se putea micșora, iar la lățime
- * de telefon numele se suprapunea peste unitate („Weight (kg)" peste „kg").
- * Pe coloană nu au cum să se ciocnească, oricât de lung e numele.
- */
-.track-option>label>span {
-  display: flex;
-  flex-direction: column;
-  min-width: 0
-}
-
-.track-option>label>span strong {
-  font-size: .8rem;
-  overflow-wrap: anywhere
-}
-
-.track-option>label>span small {
-  color: var(--color-text-secondary);
-  font-size: .64rem
-}
-
-.track-delete {
-  width: 40px;
-  min-width: 40px;
-  min-height: 48px!important;
-  padding: 0!important;
-  border-left: 1px solid var(--color-border)!important;
-  color: var(--color-danger)!important
-}
-
-.new-field-row {
-  display: grid;
-  grid-template-columns: minmax(0,1.4fr) minmax(0,.8fr) auto auto;
-  gap: 7px
-}
 
 .photo-view-grid {
   display: grid;
@@ -375,19 +262,6 @@ button.session-card-header {
 
   .photo-view-grid {
     grid-template-columns: repeat(2,minmax(0,1fr))
-  }
-
-  .exercise-form-grid,
-  .track-selector {
-    grid-template-columns: 1fr
-  }
-
-  .exercise-form-grid .field-wide {
-    grid-column: auto
-  }
-
-  .new-field-row {
-    grid-template-columns: 1fr 1fr
   }
 
   .sets-list {

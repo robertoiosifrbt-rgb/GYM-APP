@@ -466,3 +466,249 @@
 .exercise-muscle-panel .body-map {
   margin-bottom: 12px;
 }
+
+
+/* --- mutate din redesign.css: formularul si selectorul de Tracks --- */
+
+.exercise-library-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px
+}
+
+/* .exercise-card-list și .exercise-card sunt definite în exercises-target.css,
+   singura foaie care descrie ecranul Exercises. */
+
+.exercise-card>form {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent
+}
+
+/*
+ * `index.css` dă oricărui `form` un `display: flex; flex-wrap: wrap`. Un
+ * formular fără reguli proprii devine deci un rând care se împachetează, iar
+ * secțiunile lui — care sunt flex items cu `flex: 0 1 auto` — se strâng la
+ * lățimea conținutului. Pe telefon, cardul rămânea gol pe ~40% în dreapta.
+ * Secțiunile se stivuiesc, pe toată lățimea.
+ */
+.exercise-editor-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%
+}
+
+.exercise-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface-alt)
+}
+
+.exercise-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px
+}
+
+.exercise-form-grid .field-wide {
+  grid-column: 1/-1
+}
+
+.track-selector {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 8px
+}
+
+.track-option {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface)
+}
+
+.track-option>label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  min-height: 48px;
+  padding: 9px
+}
+
+/*
+ * Numele track-ului și unitatea lui. `<strong>` și `<small>` n-aveau nicio
+ * regulă: rămâneau inline într-un span care nu se putea micșora, iar la lățime
+ * de telefon numele se suprapunea peste unitate („Weight (kg)" peste „kg").
+ * Pe coloană nu au cum să se ciocnească, oricât de lung e numele.
+ */
+.track-option>label>span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0
+}
+
+.track-option>label>span strong {
+  font-size: .8rem;
+  overflow-wrap: anywhere
+}
+
+.track-option>label>span small {
+  color: var(--color-text-secondary);
+  font-size: .64rem
+}
+
+.track-delete {
+  width: 40px;
+  min-width: 40px;
+  min-height: 48px!important;
+  padding: 0!important;
+  border-left: 1px solid var(--color-border)!important;
+  color: var(--color-danger)!important
+}
+
+.new-field-row {
+  display: grid;
+  grid-template-columns: minmax(0,1.4fr) minmax(0,.8fr) auto auto;
+  gap: 7px;
+  /* Mutate din index.css, unde aceeași clasă era definită a doua oară cu alte
+     coloane. Foaia asta se încărca după, deci coloanele de aici câștigau și
+     cele de acolo nu făceau nimic — în afară de aceste două declarații. */
+  width: 100%;
+  margin-top: 8px
+}
+
+.new-field-row input {
+  width: 100%
+}
+
+@media(max-width:430px) {
+
+  .exercise-form-grid,
+  .track-selector {
+    grid-template-columns: 1fr
+  }
+
+  .exercise-form-grid .field-wide {
+    grid-column: auto
+  }
+
+  .new-field-row {
+    grid-template-columns: 1fr 1fr
+  }
+}
+
+/* --- Etapa 4: căutare, favorite, thumbnail, FAB --- */
+
+/*
+ * Bara de căutare și butonul de filtru, pe același rând. Butonul are lățime
+ * fixă și nu se micșorează; câmpul ia restul — invers ar strânge input-ul la
+ * câteva zeci de pixeli de îndată ce apare o etichetă mai lungă.
+ */
+.exercise-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px
+}
+
+.exercise-search-row .target-exercise-search {
+  flex: 1;
+  min-width: 0
+}
+
+.exercise-filter-button {
+  flex: 0 0 auto;
+  color: var(--color-text-secondary)!important
+}
+
+.exercise-filter-button.active {
+  border-color: var(--color-accent)!important;
+  background: var(--color-accent-soft)!important;
+  color: var(--color-accent)!important
+}
+
+/* Iconița lupei, în interiorul câmpului. */
+.target-exercise-search span {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: var(--color-text-secondary)
+}
+
+/* Safari desenează un „×" propriu în `input[type=search]`, peste al nostru. */
+.target-exercise-search input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none
+}
+
+/*
+ * Rândul din listă: thumbnail | text | steluță. Textul e singurul care se
+ * micșorează (`minmax(0,1fr)`), ca un nume lung să nu împingă steluța afară.
+ */
+.exercise-card-top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px
+}
+
+.exercise-card-thumb {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  flex: 0 0 auto
+}
+
+/* Gol când exercițiul nu numește niciun mușchi: rândul se strânge la loc. */
+.exercise-card-thumb:empty {
+  display: none
+}
+
+.exercise-card-thumb .body-figure svg {
+  max-width: 46px
+}
+
+.exercise-favourite {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  min-height: 36px!important;
+  padding: 0!important;
+  border: 0!important;
+  background: transparent!important;
+  color: #c3c9d4!important;
+  box-shadow: none!important
+}
+
+.exercise-favourite.is-favourite {
+  color: #f5b301!important
+}
+
+.exercise-detail-hero-top .exercise-favourite {
+  color: #7d8798!important
+}
+
+.exercise-detail-hero-top .exercise-favourite.is-favourite {
+  color: #ffc960!important
+}
+
+/* Panoul de creare, deschis de FAB. */
+.exercise-create-panel {
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card)
+}

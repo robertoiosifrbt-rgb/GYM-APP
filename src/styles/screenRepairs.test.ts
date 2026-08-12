@@ -36,6 +36,12 @@ function sources(dir = 'src'): string[] {
 const allCss = () => stylesheets().map(read).join('\n')
 const allTsx = () => sources().map(read).join('\n')
 
+/** Files with at least one rule whose selector uses this class. */
+function filesStyling(cssClass: string): string[] {
+  const selector = new RegExp(`\\.${cssClass}\\b[^{}]*\\{`)
+  return stylesheets().filter((file) => selector.test(read(file).replace(/\/\*[\s\S]*?\*\//g, '')))
+}
+
 /** Every class a stylesheet writes rules for. */
 function classesStyled(file: string): string[] {
   const withoutComments = read(file).replace(/\/\*[\s\S]*?\*\//g, '')
@@ -148,33 +154,71 @@ describe('forms', () => {
 })
 
 describe('Exercises screen', () => {
-  const EXERCISES_STYLESHEET = 'src/exercises-target.css'
+  const EXERCISES_STYLESHEET = 'src/features/exercises/exercises.css'
 
   /*
    * `<span>Basics</span><small>Name and classification</small>` with no rule
    * at all: both inline, both on the same line, reading as one word.
    */
   it('gives the form section heading a rule that stacks its two lines', () => {
-    const css = read(EXERCISES_STYLESHEET)
-    const rule = css.match(/\.exercise-form-section-heading \{([^}]*)\}/)
+    const rule = read(EXERCISES_STYLESHEET).match(/\.exercise-form-section-heading \{([^}]*)\}/)
 
     expect(rule?.[1]).toContain('flex-direction: column')
   })
 
   it('styles the Tracks pills without needing a wrapper class', () => {
-    expect(classesStyled('src/exercises-target.css')).toContain('track-pills')
-    expect(read('src/exercises-target.css')).toMatch(/^\.track-pills span \{/m)
+    expect(classesStyled(EXERCISES_STYLESHEET)).toContain('track-pills')
+    expect(read(EXERCISES_STYLESHEET)).toMatch(/^\.track-pills span \{/m)
   })
 
   /*
-   * The section header is `display: flex; justify-content: space-between`, so
-   * eight category chips were squeezed into whatever width the title left
-   * over, and "Your Exercises" wrapped onto two lines in a narrow column.
+   * The chips used to sit inside the section header, which is
+   * `justify-content: space-between` — eight of them were squeezed into
+   * whatever width the title left over. They are their own strip now, and it
+   * scrolls sideways rather than wrapping, so adding a category lengthens the
+   * strip instead of pushing the list further down the screen.
    */
-  it('drops the category chips onto their own row', () => {
-    const rule = read('src/index.css').match(/\.section-header:has\(\.exercise-category-filter\) \{([^}]*)\}/)
+  it('scrolls the category chips sideways instead of wrapping them', () => {
+    const rule = read(EXERCISES_STYLESHEET).match(/\.exercise-category-scroll \{([^}]*)\}/)
 
-    expect(rule?.[1]).toContain('flex-direction: column')
+    expect(rule?.[1]).toContain('overflow-x: auto')
+    expect(rule?.[1]).not.toContain('flex-wrap: wrap')
+  })
+
+  /*
+   * The whole screen is described by one stylesheet, the way Home is. The
+   * classes below were spread across index.css, redesign.css and a root-level
+   * `exercises-target.css`, which is how the same selector ended up defined
+   * twice with different values.
+   */
+  const EXERCISES_CLASSES = [
+    'exercise-library-page',
+    'exercise-card-list',
+    'exercise-card',
+    'exercise-card-top',
+    'exercise-card-thumb',
+    'exercise-card-copy',
+    'exercise-category',
+    'exercise-favourite',
+    'track-pills',
+    'exercise-card-actions',
+    'exercise-search-row',
+    'exercise-category-scroll',
+    'exercise-library-count',
+    'exercise-fab',
+    'exercise-create-panel',
+    'exercise-editor-form',
+    'exercise-form-section',
+    'exercise-form-section-heading',
+    'exercise-form-grid',
+    'track-selector',
+    'track-option',
+    'track-delete',
+    'new-field-row',
+  ]
+
+  it.each(EXERCISES_CLASSES)('%s is styled only in the exercises stylesheet', (cssClass) => {
+    expect(filesStyling(cssClass)).toEqual([EXERCISES_STYLESHEET])
   })
 })
 

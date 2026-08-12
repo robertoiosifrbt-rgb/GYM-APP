@@ -3,6 +3,51 @@
 > Regulă: aici stau doar ultimele 5 intrări. Când se adaugă a 6-a, cea mai veche
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
+
+## 2026-08-12 — etapa 4: Exercises
+
+- **Căutare care caută unde trebuie.** `searchExercises.ts`, funcții pure.
+  Termenii se potrivesc peste nume, categorie, echipament și cele două câmpuri de
+  mușchi — nu doar peste nume. Motivul concret: „quads" trebuie să găsească Leg
+  Press, al cărui nume nu conține cuvântul. **Toți** termenii trebuie să se
+  potrivească, dar nu în același câmp: „dumbbell arms" găsește un exercițiu cu
+  gantere din categoria Arms. Potrivire pe subșir, fiindcă un cuvânt pe jumătate
+  scris e starea normală a unei căutări — „ben" arată deja Bench Press.
+- **Chips-urile derulează orizontal**, pe un singur rând, ca în mockup. Înainte se
+  împachetau pe două rânduri și împingeau lista în jos la fiecare categorie nouă.
+  Verificat: 8 chips, 534px de conținut în 406px vizibili, un singur rând.
+- **Favorite.** Câmp nou pe exercițiu, scris doar când e pornit — un exercițiu care
+  n-a fost niciodată stelat și unul stelat apoi destelat se stochează la fel.
+  Favoritele **urcă în capul listei**: o steluță care schimbă doar o iconiță nu
+  merită o apăsare. Butonul de filtru de lângă căutare le izolează.
+- **Thumbnail** în fiecare rând: harta de mușchi, la dimensiune de rând. Mockup-ul
+  are fotografie; noi n-avem poze, iar harta duce exact informația pe care ar fi
+  dat-o poza dintr-o privire. Când exercițiul nu numește niciun mușchi nu
+  randează nimic, iar rândul se strânge la loc (`:empty`).
+- **FAB** coral, jos-dreapta, în locul butonului din antet. Se ascunde cât
+  formularul e deschis — altfel ar fi existat două butoane „Add exercise" pe
+  ecran, unul care deschide și unul care salvează.
+- **Rezervă pentru categoria dispărută**: ștergi ultimul exercițiu din Chest și
+  chip-ul dispare cât timp e încă selectat — ecranul rămânea gol, fără niciun chip
+  de apăsat ca să ieși din el. **Bug găsit de propriul test**: calculam rezerva
+  dar filtram tot după selecția veche.
+- **Un ecran, o foaie.** `exercises-target.css` → `features/exercises/exercises.css`,
+  plus regulile lui din `index.css` (chips-urile vechi, lista moartă
+  `.exercise-list`, `.exercise-details`, `.new-field-row` definit de două ori cu
+  alte coloane) și din `redesign.css` (formularul, selectorul de Tracks). 23 de
+  clase au acum exact o definiție, blocat de test ca la Home. `index.css` a
+  scăzut cu ~2100 de caractere.
+- `ExerciseList.tsx` rescris lizibil (era pe un rând), iar iconițele au ieșit
+  într-un modul propriu ca să nu facă import circular cu pagina.
+- **Teste**: +31 (16 pure pentru căutare/filtrare/categorii, 15 pe ecran),
+  validate cu **7 mutații** — căutare doar în nume, favoritele ne-urcate,
+  `every`→`some`, rezerva scoasă, favoritul necitit din storage, steluță care nu
+  se mai stinge, FAB rămas peste formular — toate au picat suita.
+- Verificat: `lint` ✅, **310 teste** ✅, `build` ✅. Măsurat în browser la 430px:
+  toate cele șapte elemente noi așezate corect, zero derulare orizontală a paginii
+  (chips-urile ies doar în containerul lor derulabil, cum trebuie), căutarea
+  „quads" → 7 din 25, steluța la `rgb(245,179,1)`.
+
 ## 2026-08-12 — reparații pe cinci ecrane, raportate de proprietar
 
 Cauza comună a aproape tuturor: **CSS valid care nu se aplica**. Nimic nu arunca
@@ -130,15 +175,3 @@ Semnalat de proprietar: Home nu arăta ca în mockup. Cauza s-a dovedit a fi exa
 - **Aliniat la mockup**: butonul „Start Workout" are acum triunghiul de play, nu ganterele; inelul, spațierile și înălțimile dalelor urmează valorile din `DESIGN_TARGET.md`.
 - **Rămas nerezolvat, de decis**: „Duration 14h 5m" pe Home. Durata e `endedAt − createdAt`, deci e reală — o sesiune deschisă dimineața și încheiată seara. Nu e un calcul greșit, dar nu e nici o durată de antrenament utilă. Variantă: să numărăm până la ultimul set logat, nu până când apeși „finish".
 - Verificat: `lint` ✅, 193 de teste ✅, `build` ✅.
-
-## 2026-08-12 — etapa 2: Body Overview cu hartă de mușchi
-
-- **Bug de fond, reparat**: atribuirea mușchilor căuta numele mușchiului **în numele exercițiului** (`entry.exerciseName.includes('chest')`). „Barbell Bench Press" nu contribuia nimic la piept, oricât de atent completai câmpurile Primary/Secondary muscles — care erau pur și simplu ignorate. Acum se citesc din bibliotecă, cu revenire la numele exercițiului doar dacă sunt goale sau exercițiul a fost șters.
-- **`muscles.ts`** — taxonomia: 14 mușchi grupați în 6 părți de corp, plus traducerea textului liber în mușchi. Potrivirea e **pe cuvinte întregi**, nu pe subșir: altfel „Hammer curl" ajungea la hamstrings, „Hip abduction" la abs, „Backpack carry" la spate. Frazele („lower back", „upper body") se verifică înaintea cuvintelor izolate. Cuvintele groase se extind — „Legs" → quads + hamstrings + calves.
-- **`muscleStats.ts`** — seturi per mușchi într-o perioadă și nivelul de colorare. Cele patru niveluri din legenda mockup-ului au primit un înțeles: `primary` / `secondary` / `untargeted` (biblioteca îl poate antrena, dar n-ai făcut-o în perioada asta) / `notInvolved` (niciun exercițiu din bibliotecă nu-l numește). Distincția dintre ultimele două e cea care face harta utilă: „ai sărit peste" vs „n-ai cu ce".
-- **`BodyMap.tsx`** — siluetele față și spate, construite din elipse și dreptunghiuri pe un caroiaj 100×240, oglindite față de axa centrală. Stilizate intenționat, nu anatomice: trebuie să se citească la dimensiune de miniatură pe telefon.
-- **Ecranul**: tab-uri Muscles / Body Parts (a doua colorează regiuni întregi cu nivelul celui mai puternic mușchi din ele), legendă cu cele 4 stări, card Muscle Focus cu selector de perioadă (This Week / This Month / All Time) și bare per parte de corp.
-- **`startOfWeekLocal` / `startOfMonthLocal`** mutate în `shared/localDate.ts` — calculul lunii era duplicat în `HomePage`.
-- **Cum s-a verificat ce nu se poate vedea**: fiecare formă de mușchi poartă `data-muscle` și `data-level`, deci colorarea se testează în jsdom chiar dacă desenul nu. **+33 de teste**, validate cu **7 mutații** — revenirea la căutarea în numele exercițiului, potrivirea pe subșir, confundarea celor două niveluri „liniștite", ignorarea perioadei, frazele care nu mai bat cuvintele, Body Parts care nu mai grupează, ordinea nivelurilor inversată — toate au picat suita.
-- **Nu am putut verifica**: dacă silueta *arată* a om. Asta rămâne de confirmat pe ecran.
-- Verificat: `lint` ✅, 167 de teste ✅, `build` ✅.
