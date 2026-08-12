@@ -4,6 +4,17 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-12 — redesign UI: home, body overview, tabbed interface
+
+UI overhaul pentru a moderniza aplicația cu o interfață mai atractivă și funcționalități îmbunătățite. Toate testele trec, build-ul e clean.
+
+- **HomePage redesign**: adăugat weekly progress ring cu procent de workouts, today's workout card cu exercițiile și durata, quick actions grid, recent workouts list cu volume și status. Folosit hooks existente (`useWorkoutSessions`, `useWorkoutLog`) pentru date.
+- **BodyPage cu tabs**: creat BodyPage ca container cu tabs pentru Overview și Measurements. Styled seamless cu BodyOverview component și MeasurementsPage existentă.
+- **BodyOverview component**: muscle group visualization cu bar chart, legend, și workout statistics. Calculează exerciții per muscle group și afișează ca procent din total. CSS cu gradient fills, shadows, și responsive layout.
+- **Type updates**: adăugat `endedAt` optional property pe `WorkoutSession` pentru a marca finalizarea sesiunilor de antrenament.
+- **CSS enhancements**: complet styling pentru home page cards, progress ring, quick actions grid, recent workouts, body tabs, muscle bars. Folosit CSS variables pentru theming light/dark.
+- **Branch**: `claude/chat-gpt-review-jlmm9c` — rabit review și ready pentru merge.
+
 ## 2026-08-05 — stabilizare după audit tehnic
 
 Nicio funcție nouă. Sesiune de reparații pe baza auditului (2 HIGH, 8 MEDIUM, 4 LOW), în ordinea recomandată acolo.
