@@ -96,7 +96,11 @@ reale sunt o decizie separată (vezi „Întrebări deschise").
 
 Tab-uri **Muscles / Body Parts** (pill închis pe cel activ). **Silueta anatomică
 față + spate**, cu grupele musculare colorate după cât au fost lucrate. Legendă cu
-4 stări: Primary · Secondary · Untargeted · Not Involved. Card **Muscle Focus** cu
+4 stări, toate răspunzând la aceeași întrebare — ce a făcut antrenamentul din
+perioada selectată — deci toate se schimbă odată cu perioada:
+**Primary** (l-ai lucrat ca mușchi principal) · **Secondary** (doar ca secundar) ·
+**Untargeted** (i-ai lucrat zona, dar pe el nu) · **Not Involved** (nimic din ce ai
+făcut n-a atins zona aia). Card **Muscle Focus** cu
 selector de perioadă („This Week") și bare orizontale per grupă, cu numărul de
 seturi la dreapta.
 

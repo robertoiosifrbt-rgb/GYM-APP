@@ -14,10 +14,13 @@ export const PERIODS: Array<{ value: Period; label: string }> = [
 /**
  * How a muscle is coloured on the map.
  *
- * - `primary` — an exercise you logged names it as a primary muscle
- * - `secondary` — only ever named as a secondary muscle
- * - `untargeted` — your library can train it, but you did not in this period
- * - `notInvolved` — no exercise in your library names it at all
+ * All four answer the same question — what did this period's training do to
+ * this muscle — so all four change as the period changes:
+ *
+ * - `primary` — something you logged named it as a primary muscle
+ * - `secondary` — named only as a secondary muscle
+ * - `untargeted` — you trained its body part, but not this muscle
+ * - `notInvolved` — nothing you did this period touched that part of the body
  */
 export type MuscleLevel = 'primary' | 'secondary' | 'untargeted' | 'notInvolved'
 
@@ -94,15 +97,16 @@ export function computeMuscleStats(
     for (const muscle of secondary) secondarySets[muscle] = (secondarySets[muscle] ?? 0) + sets
   }
 
-  // A muscle your library can reach, even if you have not trained it lately.
-  // This is what separates "you skipped it" from "you cannot train it yet".
-  const reachable = new Set<MuscleId>()
-  for (const exercise of exercises) {
-    parseMuscles(exercise.primaryMuscles).forEach((muscle) => reachable.add(muscle))
-    parseMuscles(exercise.secondaryMuscles).forEach((muscle) => reachable.add(muscle))
-    if (!exercise.primaryMuscles && !exercise.secondaryMuscles) {
-      parseMuscles(exercise.name).forEach((muscle) => reachable.add(muscle))
-    }
+  /*
+   * The body parts this period's training touched at all. This is what
+   * separates "you were working that area but skipped this muscle" from "you
+   * did not go near it" — and, unlike the old rule, which asked whether the
+   * exercise library could reach a muscle at all, it changes week to week
+   * along with the other three levels.
+   */
+  const workedParts = new Set<BodyPart>()
+  for (const id of MUSCLE_IDS) {
+    if ((primarySets[id] ?? 0) > 0 || (secondarySets[id] ?? 0) > 0) workedParts.add(MUSCLES[id].part)
   }
 
   const byMuscle = {} as Record<MuscleId, MuscleStat>
@@ -113,7 +117,7 @@ export function computeMuscleStats(
       ? 'primary'
       : secondary > 0
         ? 'secondary'
-        : reachable.has(id)
+        : workedParts.has(MUSCLES[id].part)
           ? 'untargeted'
           : 'notInvolved'
     byMuscle[id] = {

@@ -75,9 +75,10 @@ describe('BodyOverview', () => {
 
     expect(levelsOf(container, 'chest')).toEqual(['primary'])
     expect(levelsOf(container, 'triceps')).toEqual(['secondary'])
-    // Named by the library but not trained this week.
-    expect(levelsOf(container, 'quads')).toEqual(['untargeted'])
-    // No exercise in the library mentions it at all.
+    // The arm was worked — through the triceps — but the biceps were skipped.
+    expect(levelsOf(container, 'biceps')).toEqual(['untargeted'])
+    // Nothing this week went near the legs.
+    expect(levelsOf(container, 'quads')).toEqual(['notInvolved'])
     expect(levelsOf(container, 'hamstrings')).toEqual(['notInvolved'])
   })
 
@@ -126,7 +127,7 @@ describe('BodyOverview', () => {
     seedLog()
     const { container } = render(<BodyOverview />)
 
-    expect(levelsOf(container, 'biceps')).toEqual(['notInvolved'])
+    expect(levelsOf(container, 'biceps')).toEqual(['untargeted'])
 
     fireEvent.click(screen.getByRole('tab', { name: 'Body Parts' }))
 
@@ -145,7 +146,7 @@ describe('BodyOverview', () => {
     seedLog('2020-01-06')
     const { container } = render(<BodyOverview />)
 
-    expect(levelsOf(container, 'chest')).toEqual(['untargeted'])
+    expect(levelsOf(container, 'chest')).toEqual(['notInvolved'])
     expect(screen.getByText(/No sets logged for this period/)).toBeInTheDocument()
 
     fireEvent.change(screen.getByLabelText('Period'), { target: { value: 'all' } })

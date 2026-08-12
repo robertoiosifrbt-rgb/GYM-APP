@@ -99,21 +99,30 @@ describe('computeMuscleStats', () => {
   })
 
   /*
-   * The two quiet levels say different things: one is "you skipped it this
-   * week", the other is "nothing in your library trains it".
+   * The two quiet levels say different things: one is "you were working that
+   * area and skipped this muscle", the other is "you did not go near it".
+   * A bench press names triceps, so the arm was worked — the biceps were the
+   * part of it you left out.
    */
-  it('separates a muscle you skipped from one your library cannot reach', () => {
+  it('separates a muscle you skipped from a part you never touched', () => {
     const stats = computeMuscleStats([entry()], [bench, squat], 'week', NOW)
 
-    expect(stats.byMuscle.quads.level).toBe('untargeted')
-    expect(stats.byMuscle.hamstrings.level).toBe('notInvolved')
+    expect(stats.byMuscle.biceps.level).toBe('untargeted')
+    expect(stats.byMuscle.quads.level).toBe('notInvolved')
   })
 
-  it('treats a muscle as reachable through the exercise name too', () => {
-    const bare = { ...bench, id: 'ex-calf', name: 'Calf raise', primaryMuscles: '', secondaryMuscles: '' }
-    const stats = computeMuscleStats([], [bare], 'week', NOW)
+  /*
+   * Every level answers the same question — what did this period's training do
+   * — so what the library merely *could* train has no say. It used to: a
+   * muscle named by any exercise came out green whether or not you had been
+   * anywhere near it, and that green never changed from week to week.
+   */
+  it('ignores what the library could train but you did not', () => {
+    const withSquat = computeMuscleStats([entry()], [bench, squat], 'week', NOW)
+    const withoutSquat = computeMuscleStats([entry()], [bench], 'week', NOW)
 
-    expect(stats.byMuscle.calves.level).toBe('untargeted')
+    expect(withSquat.byMuscle.quads.level).toBe(withoutSquat.byMuscle.quads.level)
+    expect(withSquat.byMuscle.quads.level).toBe('notInvolved')
   })
 
   /*
@@ -137,6 +146,6 @@ describe('computeMuscleStats', () => {
 
     expect(stats.focus).toEqual([])
     expect(stats.totalSets).toBe(0)
-    expect(stats.byMuscle.chest.level).toBe('untargeted')
+    expect(stats.byMuscle.chest.level).toBe('notInvolved')
   })
 })
