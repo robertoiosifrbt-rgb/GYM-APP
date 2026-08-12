@@ -68,6 +68,34 @@ scos, token fantomă reintrodus) — toate au picat suita.
 - **Nu e bug**: „Add photos" apare palid pentru că e `disabled` până alegi toate
   cele patru poze.
 
+### Al doilea tur, din încă două capturi
+
+- **Două formulare n-aveau nicio regulă CSS** — `.measurement-form` și
+  `.exercise-editor-form`, șapte clase cu totul. Cădeau pe regula generică din
+  `index.css`, `form { display: flex; flex-wrap: wrap }`, deci deveneau rânduri
+  care se împachetează. La Body, `<details class="measurement-more">` ajungea
+  flex item lângă secțiunea principală: „More measurements" apărea **sus-dreapta,
+  în dreptul câmpului Date**, cu propria coloană de câmpuri sub el — nu era o
+  secțiune care se desface, erau două coloane fără legătură. La Exercises,
+  secțiunile se strângeau la lățimea conținutului și lăsau ~40% din card gol.
+  Măsurătorile au acum foaia lor, `features/measurements/measurements.css`.
+- **Conținutul derula pe sub bara de status.** `viewport-fit=cover` întinde
+  pagina sub ceas; padding-ul cu `env(safe-area-inset-top)` ține conținutul
+  dedesubt doar cât ești în capul paginii. La derulare, titlul „Exercises" urca
+  peste „20:56". Padding-ul nu putea rezolva asta — el mută conținutul, nu-l
+  acoperă. Acum e o bandă fixă opacă (`.app-shell::before`) exact cât inset-ul,
+  deci pe un ecran fără crestătură are înălțime 0 și nu schimbă nimic.
+  Verificat: `z-index` 10, sub bara de jos, care e pe 20.
+- **Gardă nouă, generală**: orice `<form>` care își dă o clasă în markup trebuie
+  să aibă reguli proprii. Un formular care se numește are o intenție de așezare;
+  testul îi cere s-o scrie, în loc s-o lase pe seama regulii generice. Validată
+  cu 2 mutații.
+- Verificat: `lint` ✅, **256 de teste** ✅, `build` ✅. Măsurat în browser:
+  secțiunile formularului de exerciții umplu acum exact cutia de conținut
+  (376px din 376px, față de ~60% înainte); `details` e sub secțiunea principală
+  (top 656 vs 642), pe aceeași lățime, iar câmpurile secundare se desfac în
+  două coloane.
+
 ## 2026-08-12 — etapa 3: calendar în Workout Log
 
 - **`calendarMonth.ts`** — logica pură a grilei, deci complet testabilă. O lună e un șir `YYYY-MM`, o zi `YYYY-MM-DD`: aceeași formă în care sunt salvate sesiunile, deci potrivirea e egalitate de șiruri, fără `Date` și fără fus orar la mijloc. Săptămâna începe **luni** (`getDay()` numără de duminică — e off-by-one-ul clasic al calendarelor scrise de mână, acoperit de test: o lună care începe duminica are nevoie de șase zile de umplutură în față, nu de zero). Grila are doar câte săptămâni atinge luna, nu șase fixe.

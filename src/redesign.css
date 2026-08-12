@@ -260,6 +260,21 @@ button.session-card-header {
   background: transparent
 }
 
+/*
+ * `index.css` dă oricărui `form` un `display: flex; flex-wrap: wrap`. Un
+ * formular fără reguli proprii devine deci un rând care se împachetează, iar
+ * secțiunile lui — care sunt flex items cu `flex: 0 1 auto` — se strâng la
+ * lățimea conținutului. Pe telefon, cardul rămânea gol pe ~40% în dreapta.
+ * Secțiunile se stivuiesc, pe toată lățimea.
+ */
+.exercise-editor-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%
+}
+
 .exercise-form-section {
   display: flex;
   flex-direction: column;

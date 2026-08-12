@@ -1,0 +1,80 @@
+/*
+ * Formularul de măsurători.
+ *
+ * Până acum n-avea nicio regulă — niciuna dintre cele șapte clase ale lui nu
+ * apărea în vreo foaie de stil. Cădea deci pe regula generică din `index.css`,
+ * `form { display: flex; flex-wrap: wrap; align-items: end }`, iar consecința
+ * se vedea imediat: `<details class="measurement-more">` devenea un flex item
+ * lângă secțiunea principală, așa că „More measurements" ajungea sus-dreapta,
+ * în dreptul câmpului Date, cu propria lui coloană de câmpuri sub el. Nu era o
+ * secțiune care se desface sub formular; erau două coloane care nu aveau nicio
+ * legătură una cu alta.
+ */
+
+.measurement-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  width: 100%
+}
+
+.measurement-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px
+}
+
+/* Două coloane de câmpuri numerice; pe ecrane foarte înguste, una singură. */
+.measurement-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px
+}
+
+.measurement-more {
+  padding: 12px 13px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt)
+}
+
+.measurement-more > summary {
+  cursor: pointer;
+  color: var(--color-text);
+  font-size: .8rem;
+  font-weight: 800;
+  /* Fără marcatorul implicit: îl desenăm noi, ca să arate la fel pe iOS și pe
+     desktop, unde formele native diferă vizibil. */
+  list-style: none
+}
+
+.measurement-more > summary::-webkit-details-marker {
+  display: none
+}
+
+.measurement-more > summary::before {
+  content: "＋";
+  display: inline-block;
+  width: 1.1em;
+  color: var(--color-accent);
+  font-weight: 700
+}
+
+.measurement-more[open] > summary::before {
+  content: "－"
+}
+
+.measurement-more[open] > summary {
+  margin-bottom: 12px
+}
+
+.measurement-save {
+  width: 100%
+}
+
+@media (max-width: 359px) {
+  .measurement-grid {
+    grid-template-columns: 1fr
+  }
+}

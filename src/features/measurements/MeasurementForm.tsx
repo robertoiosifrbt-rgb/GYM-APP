@@ -3,6 +3,7 @@ import { parseBounded } from '../../shared/numbers'
 import { todayLocal } from '../../shared/localDate'
 import { isCalendarDate } from '../../shared/validate'
 import { MEASUREMENT_BOUNDS, type MeasurementNumberField, type NewMeasurement } from './types'
+import './measurements.css'
 
 interface MeasurementFormProps {
   /** Returns false when the entry could not be saved, so the form keeps its values. */

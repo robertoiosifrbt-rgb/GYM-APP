@@ -122,6 +122,31 @@ describe('rules that can never match', () => {
   })
 })
 
+describe('forms', () => {
+  /*
+   * `index.css` styles the bare `form` element as a wrapping flex row. That is
+   * a sensible default for a row of inputs, but it is a trap for any form with
+   * block-level children: they become flex items sized to their content.
+   *
+   * Two forms had no rules of their own and paid for it. `.measurement-form`
+   * put its `<details class="measurement-more">` beside the main section, so
+   * "More measurements" appeared top-right next to the Date field with its own
+   * column of inputs. `.exercise-editor-form` let its sections shrink to about
+   * 60% and left the rest of the card blank.
+   *
+   * A form that names itself in the markup has a layout in mind. This asks it
+   * to say what that layout is.
+   */
+  it('gives every classed form its own rule', () => {
+    const classed = [...new Set([...allTsx().matchAll(/<form className="([a-z][\w-]*)"/g)].map((m) => m[1]))]
+    const css = allCss().replace(/\/\*[\s\S]*?\*\//g, '')
+
+    const unstyled = classed.filter((cssClass) => !new RegExp(`\\.${cssClass}\\b[^{}]*\\{`).test(css))
+
+    expect(unstyled).toEqual([])
+  })
+})
+
 describe('Exercises screen', () => {
   const EXERCISES_STYLESHEET = 'src/exercises-target.css'
 
