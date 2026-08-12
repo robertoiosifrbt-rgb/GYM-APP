@@ -4,6 +4,17 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-12 — etapa 2b: Home, o singură foaie de stil
+
+Semnalat de proprietar: Home nu arăta ca în mockup. Cauza s-a dovedit a fi exact tiparul pe care etapa 0 îl lăsase pentru mai târziu.
+
+- **Dalele Quick Actions erau stivuite** (iconiță deasupra etichetei) în loc de rând (iconiță lângă etichetă). Cauza: `index.css` punea `flex-direction: column` pe `.target-quick-grid button`, iar `redesign.css` seta doar `display: flex` — nu și direcția. Coloana supraviețuia. Nimic nu era invalid, doar arăta greșit.
+- **Home are acum o singură foaie proprie**, `src/app/HomePage.css`. Am șters **96 de reguli** din `index.css` și `redesign.css` (44 + 52). Fiecare selector al Home-ului are exact o definiție; zero `!important`. Numărătoarea globală de `!important` a scăzut de la 232 la **187**, iar CSS-ul total de la 72 KB la 68 KB.
+- **Test nou de proprietate** (`HomePage.styles.test.ts`): fiecare clasă a Home-ului trebuie stilizată **într-un singur fișier**, foaia nu are voie să conțină `!important`, iar dalele trebuie să fie `flex-direction: row`. Verificat cu 3 mutații — o regulă Home readăugată în `index.css`, dalele întoarse pe coloană, un `!important` strecurat înapoi — toate au picat suita. Ăsta e modelul de urmat la fiecare ecran refăcut.
+- **Aliniat la mockup**: butonul „Start Workout" are acum triunghiul de play, nu ganterele; inelul, spațierile și înălțimile dalelor urmează valorile din `DESIGN_TARGET.md`.
+- **Rămas nerezolvat, de decis**: „Duration 14h 5m" pe Home. Durata e `endedAt − createdAt`, deci e reală — o sesiune deschisă dimineața și încheiată seara. Nu e un calcul greșit, dar nu e nici o durată de antrenament utilă. Variantă: să numărăm până la ultimul set logat, nu până când apeși „finish".
+- Verificat: `lint` ✅, 193 de teste ✅, `build` ✅.
+
 ## 2026-08-12 — etapa 2: Body Overview cu hartă de mușchi
 
 - **Bug de fond, reparat**: atribuirea mușchilor căuta numele mușchiului **în numele exercițiului** (`entry.exerciseName.includes('chest')`). „Barbell Bench Press" nu contribuia nimic la piept, oricât de atent completai câmpurile Primary/Secondary muscles — care erau pur și simplu ignorate. Acum se citesc din bibliotecă, cu revenire la numele exercițiului doar dacă sunt goale sau exercițiul a fost șters.
@@ -49,17 +60,3 @@ Fără cod. Sesiune de decizii, ca să nu se mai reconstruiască contextul la fi
 - **`docs/ROADMAP.md`** — planul: Etapa 0 (fundația CSS, fără schimbări funcționale) → shell → Body Overview → Workout Log → Exercises → Body Stats → Settings.
 - **`CLAUDE.md`** — trimite acum la `DESIGN_TARGET.md` la începutul fiecărei sesiuni, ca destinația să fie mereu cunoscută.
 - **Ramura `claude/ajutor-80fxuy`** ștearsă local; pe GitHub nu s-a putut (proxy-ul de git din mediu respinge push-urile de ștergere), rămasă în seama proprietarului.
-
-## 2026-08-12 — ecran de antrenament activ (`workout-runner`)
-
-Primul pas din target-ul vizual complet (mockup-ul cu 9 ecrane). S-a construit ecranul care lipsea de tot — sesiunea activă — plus două reparații găsite pe drum. `lint`, 120 de teste și `build` trec.
-
-- **Modul nou `src/features/workout-runner/`**: `WorkoutRunnerScreen` (container cu hook-urile) → `ExercisePicker` (alegi exercițiile, ordinea atingerii = ordinea antrenamentului) → `WorkoutRunner` (cronometru, bară „N of M exercises" + procent, tabel de seturi cu bifă per set, − / Add Set / repetă-ultimul-set, „Finish Exercise", card cu exercițiul următor, meniu `···`).
-- **Runner-ul ia tot ecranul**: `App.tsx` randează doar runner-ul cât timp e deschis, fără header și fără bottom nav. La ieșire paginile de dedesubt se remontează și recitesc din storage — motivul pentru care runner-ul își ține singur hook-urile în loc de state global (două `usePersistedState` pe aceeași cheie nu se văd în același tab).
-- **Model**: `WorkoutSession.plannedExerciseIds?` — coada runner-ului, opțională, cu parsare tolerantă (ids invalide se aruncă și se raportează ca reparație, sesiunea se păstrează).
-- **BUG reparat — `endedAt` se pierdea la fiecare reload**: `parseWorkoutSession` nu citea câmpul, deci „finish session" îl scria și următoarea încărcare îl arunca. Efect vizibil: sesiunile terminate reveneau ca „în desfășurare" și durata dispărea din Home.
-- **BUG reparat — pagina de poze randată de două ori**: `App.tsx` avea `page === 'progress' && <ProgressPhotosPage />` de două ori.
-- **Decizii de comportament**: exercițiu necompletat = „Skip Exercise", nu intrare goală; exercițiu deja logat se redeschide cu seturile lui și se actualizează, nu se duplică; reluarea sare la primul exercițiu nelogat; exercițiile șterse din bibliotecă ies din coadă, dar seturile logate rămân în jurnal.
-- **`formatClock` mutat în `src/shared/`**, folosit și de `WorkoutTimer` (era duplicat).
-- **Teste**: +18 (14 pentru runner, 4 pentru parser). Verificate prin **7 mutații** — endedAt aruncat, plan cu gunoi acceptat, ordine inversată, duplicat la reeditare, Skip pierdut, reluare de la zero, exercițiu gol salvat — toate au picat suita.
-- **Ramură**: construit pe `claude/ajutor-80fxuy`, mutat apoi pe **`dev`** — decizie de proprietar: se revine la fluxul `dev` → `main`. Corectat și `docs/ARCHITECTURE.md`, care descria o regulă de publicare care nu mai era adevărată: `deploy.yml` publică **doar din `main`**, nu și din `claude/**`.

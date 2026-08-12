@@ -39,7 +39,7 @@ Regula pentru fiecare etapă: nu se trece la următoarea până când `npm run l
   - [x] ștearsă pagina duplicată `features/measurements/BodyPage.tsx` + cele 3 foi de stil moarte
   - [x] cele 6 fișiere minificate pe un rând re-scrise citibil (10 → 3387 de linii)
   - [x] aplicația e explicit **light-only** — dark mode-ul era deja anulat pe jumătate
-  - **Restul s-a mutat în etapele 1–6, intenționat** (vezi mai jos): 232 de `!important` și 36 de selectori definiți în mai multe fișiere.
+  - **Restul s-a mutat în etapele 1–6, intenționat** (vezi mai jos): 232 de `!important` și 36 de selectori definiți în mai multe fișiere (187 și, respectiv, mai puțini după etapele 1–2b).
 
   *De ce restul nu s-a făcut acum:* un `!important` nu poate fi scos în siguranță
   cât timp regula concurentă încă există — se scoate odată cu ea. Iar regulile
@@ -56,6 +56,10 @@ Regula pentru fiecare etapă: nu se trece la următoarea până când `npm run l
   Atribuirea mușchilor citește acum câmpurile **Primary/Secondary muscles** din bibliotecă —
   înainte căuta numele mușchiului în numele exercițiului, deci „Barbell Bench Press" nu contribuia
   nimic la piept.
+- [x] **Etapa 2b — Home**: dalele Quick Actions erau stivuite (iconiță deasupra etichetei) pentru că
+  `index.css` punea `flex-direction: column`, iar `redesign.css` seta doar `display: flex`. Home are
+  acum o singură foaie proprie, `src/app/HomePage.css` — 96 de reguli șterse din fișierele comune,
+  zero `!important`, plus un test care blochează revenirea la două surse.
 - [ ] **Etapa 3 — Workout Log**: calendar lunar cu zilele de antrenament marcate
 - [ ] **Etapa 4 — Exercises**: căutare, thumbnail-uri, favorite, FAB
 - [ ] **Etapa 5 — Body Stats**: tab-uri Measurements/Composition/History + „Key Measurements" cu delta față de măsurătoarea anterioară
@@ -65,7 +69,7 @@ La fiecare etapă, pe lângă ecranul în sine:
 
 - se șterg regulile vechi care îl vizau din `index.css` / `*-target.css` /
   `redesign.css`, iar `!important`-urile rămase fără concurent dispar odată cu
-  ele — fiecare etapă scade numărătoarea de 232;
+  ele — fiecare etapă scade numărătoarea (232 la început, 187 acum);
 - se rescrie componenta atinsă ca să fie lizibilă (7 componente sunt încă scrise
   pe rânduri de până la 1168 de caractere).
 

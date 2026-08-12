@@ -1,6 +1,7 @@
 import { useWorkoutLog } from '../features/workout-log/useWorkoutLog'
 import { useWorkoutSessions } from '../features/workout-log/useWorkoutSessions'
 import { todayLocal } from '../shared/localDate'
+import './HomePage.css'
 
 interface HomePageProps {
   /** Opens the full-screen runner: with a session id to resume, without one to pick exercises. */
@@ -11,8 +12,9 @@ interface HomePageProps {
   onOpenPhotos: () => void
 }
 
-function Icon({ name }: { name: 'bell' | 'workout' | 'list' | 'body' | 'camera' | 'bag' | 'check' | 'plus' }) {
+function Icon({ name }: { name: 'bell' | 'workout' | 'list' | 'body' | 'camera' | 'bag' | 'check' | 'plus' | 'play' }) {
   const p = { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
+  if (name === 'play') return <svg {...p} fill="currentColor" stroke="none"><path d="M8 5.5v13l11-6.5z"/></svg>
   if (name === 'bell') return <svg {...p}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
   if (name === 'workout') return <svg {...p}><path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10"/></svg>
   if (name === 'list') return <svg {...p}><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
@@ -88,7 +90,7 @@ export function HomePage({ onStartWorkout, onOpenWorkoutLog, onOpenExercises, on
       <div className="weekly-progress-layout"><div className="progress-ring"><svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="45" className="progress-ring-bg"/><circle cx="60" cy="60" r="45" className="progress-ring-fill" style={{strokeDashoffset}} strokeDasharray={circumference}/></svg><div className="progress-ring-text"><strong>{weeklyPercent}%</strong></div></div><dl className="weekly-metrics"><div><dt>Workouts</dt><dd>{weeklyWorkouts} / 5</dd></div><div><dt>Volume</dt><dd>{weeklyVolume ? `${(weeklyVolume / 1000).toFixed(1)}k kg` : '—'}</dd></div><div><dt>Duration</dt><dd>{formatDuration(weeklyDuration)}</dd></div></dl></div>
     </section>
 
-    <section className="target-card today-workout-card"><h2>Today's Workout</h2><strong className="today-workout-name">{todaySession?.name || (todaySession ? 'Workout' : 'No workout started')}</strong><span className="today-workout-meta">{todaySession ? `${todayEntries.length} ${todayEntries.length === 1 ? 'exercise' : 'exercises'}${todaySession.endedAt ? ` · ${formatDuration(sessionDurationSeconds(todaySession))}` : ' · in progress'}` : 'Start a session when you are ready'}</span><button type="button" className="coral-action" onClick={() => onStartWorkout(todaySession && !todaySession.endedAt ? todaySession.id : undefined)}><span className="button-icon"><Icon name="workout"/></span>{todaySession && !todaySession.endedAt ? 'Continue Workout' : 'Start Workout'}</button></section>
+    <section className="target-card today-workout-card"><h2>Today's Workout</h2><strong className="today-workout-name">{todaySession?.name || (todaySession ? 'Workout' : 'No workout started')}</strong><span className="today-workout-meta">{todaySession ? `${todayEntries.length} ${todayEntries.length === 1 ? 'exercise' : 'exercises'}${todaySession.endedAt ? ` · ${formatDuration(sessionDurationSeconds(todaySession))}` : ' · in progress'}` : 'Start a session when you are ready'}</span><button type="button" className="coral-action" onClick={() => onStartWorkout(todaySession && !todaySession.endedAt ? todaySession.id : undefined)}><span className="button-icon"><Icon name="play"/></span>{todaySession && !todaySession.endedAt ? 'Continue Workout' : 'Start Workout'}</button></section>
 
     <section className="home-block quick-actions-block"><h2>Quick Actions</h2><div className="target-quick-grid"><button type="button" onClick={onOpenWorkoutLog}><span><Icon name="workout"/></span><strong>Log Workout</strong></button><button type="button" onClick={onOpenExercises}><span><Icon name="list"/></span><strong>Exercises</strong></button><button type="button" onClick={onOpenBody}><span><Icon name="body"/></span><strong>Body Stats</strong></button><button type="button" onClick={onOpenPhotos}><span><Icon name="camera"/></span><strong>Progress Photos</strong></button></div></section>
 
