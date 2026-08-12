@@ -5,7 +5,7 @@ interface PhotoGalleryProps {
   photoSets: ProgressPhotoSet[]
 }
 
-const angleLabels = { front: 'Front', back: 'Back', left: 'Left', right: 'Right' }
+const angleLabels = { front: 'Front', back: 'Back', left: 'Left side', right: 'Right side' }
 
 export function PhotoGallery({ photoSets }: PhotoGalleryProps) {
   const [urls, setUrls] = useState<Record<string, string>>({})
@@ -23,24 +23,30 @@ export function PhotoGallery({ photoSets }: PhotoGalleryProps) {
     }
   }, [photoSets])
 
-  if (photoSets.length === 0) {
-    return <p>No photos yet.</p>
-  }
+  if (photoSets.length === 0) return <p>No photos yet.</p>
 
   return (
-    <div className="photo-sets">
-      {photoSets.map((set) => (
-        <div className="photo-set" key={set.id}>
-          <h3>{set.date}</h3>
-          <div className="photo-grid">
+    <div className="photo-timeline">
+      {photoSets.map((set, index) => (
+        <article className="photo-checkin card" key={set.id}>
+          <div className="photo-checkin-header">
+            <div>
+              <span className="card-kicker">CHECK-IN {photoSets.length - index}</span>
+              <h3>{set.date}</h3>
+            </div>
+            <span className="photo-count">4 views</span>
+          </div>
+          <div className="photo-view-grid">
             {PHOTO_ANGLES.map((angle) => (
-              <figure key={angle}>
-                <img src={urls[`${set.id}-${angle}`]} alt={`${angleLabels[angle]} photo from ${set.date}`} />
+              <figure className="photo-view" key={angle}>
+                <div className="photo-frame">
+                  <img src={urls[`${set.id}-${angle}`]} alt={`${angleLabels[angle]} photo from ${set.date}`} />
+                </div>
                 <figcaption>{angleLabels[angle]}</figcaption>
               </figure>
             ))}
           </div>
-        </div>
+        </article>
       ))}
     </div>
   )
