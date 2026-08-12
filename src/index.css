@@ -267,26 +267,30 @@ button.session-card-header { display: block; width: 100%; min-height: 60px; padd
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: conic-gradient(#4a90e2 var(--progress, 0deg), var(--color-border) 0deg);
+  background: conic-gradient(from 0deg, #4a90e2 var(--progress, 0deg), #e7e9ee 0deg);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  flex-shrink: 0;
 }
 
 .progress-ring > div {
-  width: 100px;
-  height: 100px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   background: var(--color-surface);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
 }
 
 .progress-ring strong {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-text);
 }
 
 .weekly-metrics {
