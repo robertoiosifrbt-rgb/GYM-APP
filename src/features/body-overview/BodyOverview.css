@@ -186,3 +186,23 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* --- compact: the same figure inside an exercise card -------------------- */
+
+.body-map-compact {
+  gap: 4px;
+}
+
+.body-map-compact .body-figure svg {
+  max-width: 62px;
+}
+
+/* No Front/Back captions at this size — the pair is read as one picture. */
+.body-map-compact figcaption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

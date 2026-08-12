@@ -73,7 +73,7 @@ export function BodyOverview() {
       </div>
 
       <div className="body-map-card">
-        <BodyMap levelFor={levelFor} summary={summary} />
+        <BodyMap shadeFor={levelFor} summary={summary} />
 
         <ul className="body-legend">
           {LEVEL_ORDER.map((level) => (

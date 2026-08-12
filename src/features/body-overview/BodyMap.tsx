@@ -1,5 +1,13 @@
 import type { MuscleId } from './muscles'
 import { LEVEL_COLORS, type MuscleLevel } from './muscleStats'
+
+/**
+ * `none` is the neutral body colour. The Body Overview never uses it — there,
+ * every muscle is at one of the four levels — but an exercise map does: on a
+ * bench press, quads are simply not part of the movement, and coming out green
+ * ("you skipped it") or blue ("nothing trains it") would say something false.
+ */
+export type MuscleShade = MuscleLevel | 'none'
 import {
   ANTERIOR,
   BACK_VIEW_BOX,
@@ -66,10 +74,10 @@ const REGION_TO_MUSCLE: Record<BodyRegion, MuscleId | undefined> = {
 
 interface FigureProps {
   view: 'front' | 'back'
-  levelFor: (muscle: MuscleId) => MuscleLevel
+  shadeFor: (muscle: MuscleId) => MuscleShade
 }
 
-function Figure({ view, levelFor }: FigureProps) {
+function Figure({ view, shadeFor }: FigureProps) {
   const shapes: BodyShape[] = view === 'front' ? ANTERIOR : POSTERIOR
 
   return (
@@ -85,14 +93,14 @@ function Figure({ view, levelFor }: FigureProps) {
             if (!muscle) {
               return <path key={index} d={shape.d} fill={BODY_FILL} />
             }
-            const level = levelFor(muscle)
+            const shade = shadeFor(muscle)
             return (
               <path
                 key={index}
                 d={shape.d}
-                fill={LEVEL_COLORS[level]}
+                fill={shade === 'none' ? BODY_FILL : LEVEL_COLORS[shade]}
                 data-muscle={muscle}
-                data-level={level}
+                data-level={shade}
                 data-view={view}
               />
             )
@@ -105,16 +113,18 @@ function Figure({ view, levelFor }: FigureProps) {
 }
 
 interface BodyMapProps {
-  levelFor: (muscle: MuscleId) => MuscleLevel
+  shadeFor: (muscle: MuscleId) => MuscleShade
   /** Read out to a screen reader, which cannot use the drawing. */
   summary: string
+  /** Thumbnail size, without the Front/Back captions — for use inside a card. */
+  compact?: boolean
 }
 
-export function BodyMap({ levelFor, summary }: BodyMapProps) {
+export function BodyMap({ shadeFor, summary, compact = false }: BodyMapProps) {
   return (
-    <div className="body-map" role="img" aria-label={summary}>
-      <Figure view="front" levelFor={levelFor} />
-      <Figure view="back" levelFor={levelFor} />
+    <div className={`body-map ${compact ? 'body-map-compact' : ''}`} role="img" aria-label={summary}>
+      <Figure view="front" shadeFor={shadeFor} />
+      <Figure view="back" shadeFor={shadeFor} />
     </div>
   )
 }

@@ -527,3 +527,8 @@
   color: #a32316;
   font-size: 0.82rem;
 }
+
+/* The muscle map replaces the dumbbell glyph that stood in for it. */
+.runner-exercise-visual .body-map {
+  flex: 0 0 auto;
+}

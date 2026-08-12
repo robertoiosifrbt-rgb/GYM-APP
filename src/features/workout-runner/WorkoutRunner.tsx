@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { Exercise, FieldType } from '../exercises'
 import { parseBounded } from '../../shared/numbers'
 import { formatClock } from '../../shared/formatClock'
+import { ExerciseMuscleMap } from '../body-overview'
 import {
   SET_VALUE_BOUNDS,
   type NewExerciseEntry,
@@ -289,12 +290,12 @@ export function WorkoutRunner({
         <article className="runner-exercise-card">
           <h1>{current.name}</h1>
 
-          <div className="runner-exercise-visual" aria-hidden="true">
-            <span className="runner-exercise-glyph">
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
-                <path d="M4 9v6M7 7v10M17 7v10M20 9v6M7 12h10" />
-              </svg>
-            </span>
+          <div className="runner-exercise-visual">
+            <ExerciseMuscleMap
+              primaryMuscles={current.primaryMuscles}
+              secondaryMuscles={current.secondaryMuscles}
+              exerciseName={current.name}
+            />
             <span className="runner-exercise-muscles">
               <strong>{current.primaryMuscles || current.category || 'Exercise'}</strong>
               {current.secondaryMuscles && <small>{current.secondaryMuscles}</small>}

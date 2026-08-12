@@ -448,3 +448,34 @@
     min-height: 165px
   }
 }
+
+
+/* Muscle map beside the exercise name, in place of the old placeholder circle. */
+.exercise-visual {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.exercise-visual-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.exercise-visual-copy strong {
+  font-size: 0.95rem;
+}
+
+.exercise-visual-copy span {
+  font-size: 0.76rem;
+  opacity: 0.75;
+}
+
+.exercise-muscle-panel .body-map {
+  margin-bottom: 12px;
+}
