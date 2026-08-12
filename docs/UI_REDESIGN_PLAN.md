@@ -1,16 +1,16 @@
-# UI Redesign Plan
+# GYM APP — Visual Target Rebuild Plan
 
-## Goal
+## Source of truth
 
-Refacem complet interfața aplicației de sală, fără să aruncăm logica și datele existente. Păstrăm funcționalitatea actuală (exerciții, workout log, measurements, progress photos, settings, local storage, IndexedDB, version banner), dar schimbăm modul în care aplicația arată și se folosește pe telefon.
+The 9-screen reference image supplied by Roberto on 12 Aug 2026 is now the visual target for the app. The previous plan overstated completion because it measured incremental restyling, not fidelity to this target.
 
-Ținta este o aplicație mobilă coerentă, rapidă și clară, cu mai puține formulare tehnice și mai mult focus pe acțiunile reale din sală.
+We keep the existing working data/storage logic where possible, but rebuild the presentation and user flows screen-by-screen to match the reference closely on iPhone.
 
 ## Progress
 
-**Overall: 95% complete — final consistency/audit pass remains**
+**Overall: 10% complete — target plan established; implementation starts with Home + global shell**
 
-`[###################-] 19 / 20`
+`[##------------------] 2 / 20`
 
 Status legend:
 - [ ] Not started
@@ -18,114 +18,82 @@ Status legend:
 - [x] Done
 - [!] Needs review/fix
 
-## Phase 1 — Design foundation
+## Phase A — Global visual system
 
-- [x] 1. Define new visual system: spacing, typography, radii, shadows, buttons, inputs, cards, states.
-- [x] 2. Rebuild global mobile shell: safe areas, sticky/fixed navigation, scroll behaviour, page padding.
-- [x] 3. Replace current top header with contextual page headers.
-- [x] 4. Redesign bottom navigation for Home / Body / Workout / Progress / Settings.
+- [x] 1. Lock the supplied 9-screen image as the visual target and reset progress honestly.
+- [x] 2. Preserve existing data model, storage, Track history safety and working tests during the visual rebuild.
+- [~] 3. Rebuild global iPhone shell: white/light background, compact headers, reference typography, card radius/shadows, coral accent, dark navy primary actions, safe areas.
+- [ ] 4. Rebuild bottom navigation to visually match the reference: Home / Body / Workout / Progress / Settings, compact icons/labels, coral active state.
 
-Phase 1 passed lint, tests, build and GitHub Pages deployment successfully.
+## Phase B — Home screen
 
-## Phase 2 — Home
+Target: top-left screen in reference.
 
-- [x] 5. Replace current Home with dashboard layout.
-- [x] 6. Add Today's Workout card and primary Start Workout action.
-- [x] 7. Add useful quick actions: Log Workout, Exercises, Body Stats, Progress Photos.
-- [x] 8. Add recent workout / progress summary using existing data where available.
+- [ ] 5. Header: greeting, subtitle and notification action.
+- [ ] 6. Weekly Progress card: circular percentage plus Workouts / Volume / Duration metrics.
+- [ ] 7. Today's Workout card: workout name, exercise/time summary and coral Start Workout CTA.
+- [ ] 8. Quick Actions 2x2 cards: Log Workout / Exercises / Body Stats / Progress Photos.
+- [ ] 9. Recent Workouts compact list with date, duration/volume and completion state.
 
-Home now uses the dashboard hero, quick actions, direct navigation to the main modules, and live summary cards backed by existing workout-session and measurement data.
+## Phase C — Workout
 
-## Phase 3 — Workout experience
+Target: top-middle + middle-left screens.
 
-- [x] 9. Redesign workout/session list as compact mobile cards instead of form-heavy blocks.
-- [x] 10. Redesign active exercise logging: clear set rows, dynamic track columns, add/remove set, fast numeric entry.
-- [x] 11. Preserve edit/delete for logged exercises, but make actions safer and less visually noisy.
-- [x] 12. Redesign exercise library: searchable compact cards and clearer edit/add flow.
-- [x] 13. Redesign exercise details/edit screen so Category / Equipment / Muscles / Instructions / Tracks are grouped and easier to scan.
+- [ ] 10. Active Workout screen: dark navy header, elapsed timer, exercise progress, progress bar, current exercise card, set table, completion controls, next-exercise card.
+- [ ] 11. Workout Log screen: real month calendar at top, selected-day state, workout cards underneath, totals aligned like reference.
 
-The exercise editor is grouped into Basics / Muscles / Tracks. Tracks can be selected, custom Tracks can be added, and each Track has a dedicated removal control. Mobile styling keeps the editor compact and the save action reachable.
+## Phase D — Exercises
 
-## Phase 4 — Tracks data safety
+Target: middle-middle + middle-right screens.
 
-- [x] 14. Fix Track deletion so removing a Track from future use does not make historical logged values disappear.
-- [x] 15. Clean removed Track references from current exercise definitions safely.
-- [x] 16. Add tests for Track deletion, historical values, and existing exercises.
+- [ ] 12. Exercise Library: search, filter button, category chips, compact illustrated rows, favourite action, floating add button.
+- [ ] 13. Exercise Detail: dark hero header, exercise visual area, muscle visual area, metadata cards, Instructions/Muscles tabs and Add to Workout CTA.
+- [ ] 14. Exercise create/edit: retain all current editable fields and removable Tracks, but style the flow consistently with the target rather than exposing a large technical form by default.
 
-Removed Tracks are archived instead of being destroyed, current exercise definitions are cleaned, and workout history continues to render the archived Track label/value. Dedicated regression tests are in place and passing.
+## Phase E — Body
 
-## Phase 5 — Body / Progress
+Target: top-right + bottom-left screens.
 
-- [x] 17. Redesign Measurements as a body-stats dashboard plus clean add/edit flow.
-- [x] 18. Redesign Progress Photos as a mobile gallery grouped by date, with clearer front/side/back views.
+- [ ] 15. Body Overview: Muscles / Body Parts segmented control, front/back body visual, legend and muscle-focus bars.
+- [ ] 16. Body Stats: Measurements / Composition / History tabs, key-measurement rows with icons and deltas, dark Add Measurements CTA.
 
-Measurements now has a dashboard summary, compact mobile entry form, optional expanded measurements, and controlled history scrolling. Progress Photos uses dated check-in cards with Front / Back / Left side / Right side views and a two-column iPhone layout.
+## Phase F — Progress Photos
 
-## Phase 6 — Settings / polish
+Target: bottom-middle screen.
 
-- [x] 19. Redesign Settings into grouped mobile rows/cards; keep export/backup warnings clear.
-- [~] 20. Final consistency pass: responsive iPhone layout, accessibility, destructive confirmations, empty states, loading/error states, dark mode, tests, lint, build and deploy verification.
+- [ ] 17. Progress Photos: All Photos / Front / Side / Back filters, 3-column photo grid grouped by date, add-photo action.
 
-Settings now separates backup/export, progress-photo storage warnings, restore status and local-storage information into mobile-friendly cards.
+## Phase G — Settings
 
-## Navigation target
+Target: bottom-right screen.
 
-Main bottom navigation:
+- [ ] 18. Settings: profile/level card, Preferences grouped rows, Data rows, About section; preserve current Export/Restore/storage functionality behind this visual structure.
 
-- Home
-- Body
-- Workout
-- Progress
-- Settings
+## Phase H — Fidelity + safety audit
 
-Body contains measurements/body statistics.
+- [ ] 19. Visual fidelity pass on iPhone: spacing, typography, icon sizing, card geometry, nav, sticky actions, overflow, light/dark behaviour and all empty/error states.
+- [ ] 20. Regression gate: Track deletion/history safety, existing exercise/workout/body/photo data compatibility, full tests, lint, production build and successful GitHub Pages deploy.
 
-Workout contains workout log and exercise library.
+## Non-negotiable functional rules
 
-Progress contains progress photos and later progress analytics if added.
+1. Existing workout history must remain readable.
+2. Removing a Track must remove it from future/current exercise definitions without deleting historical logged values.
+3. Exercise add/edit/delete and workout add/edit/delete remain functional.
+4. Measurements, progress photos, export/restore and version banner remain functional.
+5. No screen is marked complete merely because it uses similar colours; it must match the reference structure and hierarchy.
+6. No phase is marked complete until its existing relevant tests pass.
 
-## UX rules
+## Implementation order
 
-1. The main screen of each module should be an overview/action screen, not a large configuration form.
-2. Configuration fields appear only when creating or editing something.
-3. Primary actions must be obvious and thumb-friendly on mobile.
-4. Destructive actions must be secondary and confirmed where data could be lost.
-5. Historical workout data must never become unreadable because a current exercise or Track was deleted.
-6. Existing user data must remain compatible through the redesign.
-7. No redesign step is considered done until lint, tests and build pass.
+1. Global shell + bottom nav.
+2. Home to high visual fidelity.
+3. Active Workout + Workout Log calendar.
+4. Exercise Library + Exercise Detail + editor.
+5. Body Overview + Body Stats.
+6. Progress Photos.
+7. Settings.
+8. Final fidelity and regression audit.
 
-## Data we are keeping
+## Progress rule
 
-The redesign preserves the current storage model unless a migration is explicitly required:
-
-- Exercises and their details
-- Custom Track types
-- Workout sessions
-- Logged exercise entries and sets
-- Measurements
-- Progress photos in IndexedDB
-- Settings / export behaviour
-- Version update banner logic
-
-## Final pass checklist
-
-Before marking 20/20 complete:
-
-- verify every main screen at narrow iPhone width without page-level horizontal overflow
-- verify focus-visible states and keyboard navigation for buttons, inputs, selects, summaries and bottom nav
-- verify dark-mode contrast on cards, accent states, warnings and sticky action bars
-- verify all destructive actions still require confirmation
-- verify empty, storage-error and corrupt-data states remain readable
-- run lint, full test suite, production build and GitHub Pages deploy
-
-## Implementation strategy
-
-Work incrementally on `main`, with small deployable changes. Do not replace the whole app in one commit. Each phase should leave the app usable and should reuse existing hooks/data logic where possible.
-
-When a task above is completed, update this document immediately:
-
-- change `[ ]` to `[x]`
-- increase the `Overall` percentage
-- update the ASCII progress bar and completed count
-
-This file is the source of truth for the redesign until the project is complete.
+Update this file after each completed target screen. Percentage is based on these 20 target tasks, not on the old restyle plan.
