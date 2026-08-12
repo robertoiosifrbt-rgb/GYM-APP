@@ -8,8 +8,12 @@ interface ExerciseEntryFormProps {
   exercises: Exercise[]
   fieldTypes: FieldType[]
   getLastEntry: (exerciseId: string) => WorkoutEntry | undefined
+  /** Existing entry switches the form into edit mode. */
+  initialEntry?: WorkoutEntry
   /** Returns false when the entry could not be saved; the sets stay on screen. */
-  onAdd: (entry: NewExerciseEntry) => boolean
+  onAdd?: (entry: NewExerciseEntry) => boolean
+  onUpdate?: (entry: NewExerciseEntry) => boolean
+  onCancel?: () => void
 }
 
 /**
@@ -20,13 +24,29 @@ interface ExerciseEntryFormProps {
  */
 type DraftSet = Record<string, string>
 
-export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }: ExerciseEntryFormProps) {
-  const [exerciseId, setExerciseId] = useState('')
-  const [sets, setSets] = useState<DraftSet[]>([{}])
+function entrySetsToDraft(entry?: WorkoutEntry): DraftSet[] {
+  if (!entry) return [{}]
+  return entry.sets.map((set) =>
+    Object.fromEntries(Object.entries(set).map(([fieldId, value]) => [fieldId, String(value)])),
+  )
+}
+
+export function ExerciseEntryForm({
+  exercises,
+  fieldTypes,
+  getLastEntry,
+  initialEntry,
+  onAdd,
+  onUpdate,
+  onCancel,
+}: ExerciseEntryFormProps) {
+  const editing = Boolean(initialEntry)
+  const [exerciseId, setExerciseId] = useState(initialEntry?.exerciseId ?? '')
+  const [sets, setSets] = useState<DraftSet[]>(entrySetsToDraft(initialEntry))
   const [error, setError] = useState<string | null>(null)
 
   const exercise = exercises.find((e) => e.id === exerciseId)
-  const lastEntry = exerciseId ? getLastEntry(exerciseId) : undefined
+  const lastEntry = !editing && exerciseId ? getLastEntry(exerciseId) : undefined
 
   function updateSetField(index: number, fieldId: string, value: string) {
     setSets((prev) =>
@@ -50,7 +70,7 @@ export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }
 
   function handleExerciseChange(id: string) {
     setExerciseId(id)
-    setSets([{}])
+    if (!editing) setSets([{}])
     setError(null)
   }
 
@@ -79,15 +99,25 @@ export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }
     }
 
     if (parsedSets.length === 0) {
-      setError('Fill in at least one set before logging.')
+      setError('Fill in at least one set before saving.')
       return
     }
 
-    if (!onAdd({ exerciseId: exercise.id, exerciseName: exercise.name, sets: parsedSets })) {
-      setError('Could not save this exercise — see the message above. Your sets are still here.')
+    const nextEntry: NewExerciseEntry = {
+      exerciseId: exercise.id,
+      exerciseName: exercise.name,
+      sets: parsedSets,
+    }
+    const saved = editing ? onUpdate?.(nextEntry) : onAdd?.(nextEntry)
+    if (!saved) {
+      setError(`Could not ${editing ? 'update' : 'save'} this exercise — see the message above. Your sets are still here.`)
       return
     }
 
+    if (editing) {
+      onCancel?.()
+      return
+    }
     setExerciseId('')
     setSets([{}])
   }
@@ -99,9 +129,9 @@ export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }
   return (
     <form onSubmit={handleSubmit}>
       <div className="field">
-        <label htmlFor="exercise-select">Exercise</label>
+        <label htmlFor={editing ? `exercise-select-${initialEntry?.id}` : 'exercise-select'}>Exercise</label>
         <select
-          id="exercise-select"
+          id={editing ? `exercise-select-${initialEntry?.id}` : 'exercise-select'}
           value={exerciseId}
           onChange={(e) => handleExerciseChange(e.target.value)}
           required
@@ -164,8 +194,13 @@ export function ExerciseEntryForm({ exercises, fieldTypes, getLastEntry, onAdd }
       )}
 
       <button type="submit" disabled={!exercise}>
-        Log exercise
+        {editing ? 'Save exercise' : 'Log exercise'}
       </button>
+      {editing && onCancel && (
+        <button type="button" onClick={onCancel}>
+          Cancel
+        </button>
+      )}
     </form>
   )
 }
