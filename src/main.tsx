@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import './redesign.css'
 import './target-shell.css'
+import './workout-target.css'
 import App from './app/App.tsx'
 
 createRoot(document.getElementById('root')!).render(
