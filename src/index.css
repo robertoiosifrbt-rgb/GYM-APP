@@ -267,24 +267,31 @@ button.session-card-header { display: block; width: 100%; min-height: 60px; padd
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: conic-gradient(from -90deg, #5b9fee 0deg, #5b9fee var(--progress, 0deg), #d1dce6 var(--progress), #d1dce6 360deg);
+  background:
+    conic-gradient(
+      from -90deg at 50% 50%,
+      #5b9fee 0deg,
+      #5b9fee calc(var(--progress, 0deg)),
+      #e0e0e0 calc(var(--progress, 0deg)),
+      #e0e0e0 360deg
+    );
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .progress-ring > div {
-  width: 96px;
-  height: 96px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   background: var(--color-surface);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
 }
 
 .progress-ring strong {
