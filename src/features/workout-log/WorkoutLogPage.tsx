@@ -9,17 +9,22 @@ import { SessionForm } from './SessionForm'
 
 export function WorkoutLogPage() {
   const { exercises } = useExercises()
-  const { fieldTypes } = useFieldTypes()
+  const { fieldTypes, allFieldTypes } = useFieldTypes()
   const {
     sessions,
     addSession,
     updateSession,
+    finishSession,
+    deleteSession,
     error: sessionsError,
     dismissError: dismissSessionsError,
   } = useWorkoutSessions()
   const {
     entries,
     addEntry,
+    updateEntry,
+    deleteEntry,
+    deleteEntriesForSession,
     getLastEntry,
     backfillSessionIds,
     updateEntriesDate,
@@ -112,6 +117,24 @@ export function WorkoutLogPage() {
     return true
   }
 
+  function handleUpdateEntry(sessionId: string, entryId: string, entry: any): boolean {
+    return updateEntry(entryId, entry)
+  }
+
+  function handleDeleteEntry(entryId: string): boolean {
+    return deleteEntry(entryId)
+  }
+
+  function handleDeleteSession(sessionId: string): boolean {
+    const deleted = deleteSession(sessionId)
+    if (deleted) deleteEntriesForSession(sessionId)
+    return deleted
+  }
+
+  function handleFinishSession(sessionId: string): boolean {
+    return finishSession(sessionId)
+  }
+
   function dismissAll() {
     dismissSessionsError()
     dismissEntriesError()
@@ -156,10 +179,15 @@ export function WorkoutLogPage() {
           isOpen={session.id === openSessionId}
           exercises={exercises}
           fieldTypes={fieldTypes}
+          historyFieldTypes={allFieldTypes}
           getLastEntry={getLastEntry}
           onToggle={() => handleToggle(session.id)}
-          onUpdateSession={(date, name) => handleUpdateSession(session.id, date, name)}
+          onUpdateSession={(date, name, durationSeconds) => handleUpdateSession(session.id, date, name)}
+          onFinishSession={() => handleFinishSession(session.id)}
+          onDeleteSession={() => handleDeleteSession(session.id)}
           onAddEntry={(entry) => addEntry({ ...entry, sessionId: session.id, date: session.date })}
+          onUpdateEntry={(entryId, entry) => handleUpdateEntry(session.id, entryId, entry)}
+          onDeleteEntry={(entryId) => handleDeleteEntry(entryId)}
         />
       ))}
     </section>

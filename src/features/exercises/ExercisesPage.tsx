@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { StorageNotice } from '../../shared/StorageNotice'
 import { useExercises } from './useExercises'
 import { useFieldTypes } from './useFieldTypes'
@@ -18,13 +19,21 @@ export function ExercisesPage() {
   const {
     fieldTypes,
     addFieldType,
+    removeFieldType,
     error: fieldTypesError,
     dismissError: dismissFieldTypesError,
   } = useFieldTypes()
+  const [creatingExercise, setCreatingExercise] = useState(false)
 
   function dismissAll() {
     dismissExercisesError()
     dismissFieldTypesError()
+  }
+
+  function handleAddExercise(name: string, fields: string[], details: any): boolean {
+    if (!addExercise(name, fields, details)) return false
+    setCreatingExercise(false)
+    return true
   }
 
   return (
@@ -39,15 +48,28 @@ export function ExercisesPage() {
       <StorageNotice message={exercisesError ?? fieldTypesError} onDismiss={dismissAll} />
 
       <div className="section-header">
-        <h2>Add New Exercise</h2>
+        {creatingExercise ? (
+          <h2>Add New Exercise</h2>
+        ) : (
+          <>
+            <h2>Add New Exercise</h2>
+            <button type="button" className="add-button" onClick={() => setCreatingExercise(true)}>
+              + New exercise
+            </button>
+          </>
+        )}
       </div>
-      <ExerciseForm
-        exercises={exercises}
-        fieldTypes={fieldTypes}
-        onAddFieldType={addFieldType}
-        submitLabel="Add exercise"
-        onSubmit={addExercise}
-      />
+      {creatingExercise && (
+        <ExerciseForm
+          exercises={exercises}
+          fieldTypes={fieldTypes}
+          onAddFieldType={addFieldType}
+          onRemoveFieldType={removeFieldType}
+          submitLabel="Add exercise"
+          onSubmit={handleAddExercise}
+          onCancel={() => setCreatingExercise(false)}
+        />
+      )}
 
       <div className="section-header">
         <h2>Your Exercises</h2>
@@ -56,6 +78,7 @@ export function ExercisesPage() {
         exercises={exercises}
         fieldTypes={fieldTypes}
         onAddFieldType={addFieldType}
+        onRemoveFieldType={removeFieldType}
         onUpdate={updateExercise}
         onDelete={deleteExercise}
       />
