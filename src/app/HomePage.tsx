@@ -6,6 +6,7 @@ interface HomePageProps {
   onStartWorkout: () => void
   onOpenExercises: () => void
   onOpenBody: () => void
+  onOpenPhotos: () => void
 }
 
 function Icon({ name }: { name: 'bell' | 'workout' | 'list' | 'body' | 'camera' | 'bag' | 'check' | 'plus' }) {
@@ -60,7 +61,7 @@ function formatDuration(seconds: number) {
   return remaining ? `${hours}h ${remaining}m` : `${hours}h`
 }
 
-export function HomePage({ onStartWorkout, onOpenExercises, onOpenBody }: HomePageProps) {
+export function HomePage({ onStartWorkout, onOpenExercises, onOpenBody, onOpenPhotos }: HomePageProps) {
   const { sessions } = useWorkoutSessions()
   const { entries } = useWorkoutLog()
   const monday = getMonday()
@@ -84,7 +85,7 @@ export function HomePage({ onStartWorkout, onOpenExercises, onOpenBody }: HomePa
 
     <section className="target-card today-workout-card"><h2>Today's Workout</h2><strong className="today-workout-name">{todaySession?.name || (todaySession ? 'Workout' : 'No workout started')}</strong><span className="today-workout-meta">{todaySession ? `${todayEntries.length} ${todayEntries.length === 1 ? 'exercise' : 'exercises'}${todaySession.endedAt ? ` · ${formatDuration(sessionDurationSeconds(todaySession))}` : ' · in progress'}` : 'Start a session when you are ready'}</span><button type="button" className="coral-action" onClick={onStartWorkout}><span className="button-icon"><Icon name="workout"/></span>{todaySession && !todaySession.endedAt ? 'Continue Workout' : 'Start Workout'}</button></section>
 
-    <section className="home-block quick-actions-block"><h2>Quick Actions</h2><div className="target-quick-grid"><button type="button" onClick={onStartWorkout}><span><Icon name="workout"/></span><strong>Log Workout</strong></button><button type="button" onClick={onOpenExercises}><span><Icon name="list"/></span><strong>Exercises</strong></button><button type="button" onClick={onOpenBody}><span><Icon name="body"/></span><strong>Body Stats</strong></button></div></section>
+    <section className="home-block quick-actions-block"><h2>Quick Actions</h2><div className="target-quick-grid"><button type="button" onClick={onStartWorkout}><span><Icon name="workout"/></span><strong>Log Workout</strong></button><button type="button" onClick={onOpenExercises}><span><Icon name="list"/></span><strong>Exercises</strong></button><button type="button" onClick={onOpenBody}><span><Icon name="body"/></span><strong>Body Stats</strong></button><button type="button" onClick={onOpenPhotos}><span><Icon name="camera"/></span><strong>Progress Photos</strong></button></div></section>
 
     <section className="home-block recent-workouts-block"><div className="target-section-title"><h2>Recent Workouts</h2><button type="button" onClick={onStartWorkout}>View all</button></div><div className="recent-workout-list">{recentSessions.length ? recentSessions.map((session) => { const volume = sessionVolume(entries, session.id); const duration = sessionDurationSeconds(session); return <button type="button" className="recent-workout-row" onClick={onStartWorkout} key={session.id}><span className="recent-workout-icon"><Icon name="bag"/></span><span><strong>{session.name || 'Workout'}</strong><small>{formatHomeDate(session.date)}{duration ? ` · ${formatDuration(duration)}` : ''}</small></span>{volume > 0 && <span className="recent-workout-volume">{volume.toLocaleString('en-GB')} kg</span>}{session.endedAt && <span className="recent-workout-done"><Icon name="check"/></span>}</button> }) : <button type="button" className="recent-workout-row" onClick={onStartWorkout}><span className="recent-workout-icon"><Icon name="plus"/></span><span><strong>No workouts yet</strong><small>Start your first session</small></span></button>}</div></section>
   </section>
