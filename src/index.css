@@ -533,6 +533,14 @@ button.session-card-header { display: block; width: 100%; min-height: 60px; padd
 
 .page-header {
   margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.page-header > div {
+  flex: 1;
 }
 
 .page-header h1 {
@@ -606,4 +614,97 @@ button.session-card-header { display: block; width: 100%; min-height: 60px; padd
   background: var(--color-accent);
   color: var(--color-accent-contrast);
   border-color: var(--color-accent);
+}
+
+.progress-photo-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+
+.progress-photo-filters .filter-button {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--color-text-secondary);
+}
+
+.progress-photo-filters .filter-button:hover {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+.progress-photo-filters .filter-button.active {
+  background: var(--color-surface-strong);
+  color: var(--color-accent-contrast);
+  border-color: var(--color-surface-strong);
+}
+
+.header-action-button {
+  background: none !important;
+  border: none !important;
+  color: var(--color-text) !important;
+  font-size: 1.5rem !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 300;
+}
+
+.progress-photo-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.progress-photo-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.progress-photo-group h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+
+.progress-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.progress-photo-tile {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.progress-photo-tile img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4/5;
+  object-fit: cover;
+  display: block;
+}
+
+.progress-photo-tile figcaption {
+  background: var(--color-surface-strong);
+  color: var(--color-accent-contrast);
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 500;
 }

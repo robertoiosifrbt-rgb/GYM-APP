@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { StorageNotice } from '../../shared/StorageNotice'
 import { usePhotos } from './usePhotos'
 import { PhotoUploadForm } from './PhotoUploadForm'
@@ -5,29 +6,58 @@ import { PhotoGallery } from './PhotoGallery'
 
 export function ProgressPhotosPage() {
   const { photoSets, addPhotoSet, error, dismissError } = usePhotos()
+  const [filter, setFilter] = useState<'all' | 'front' | 'side' | 'back'>('all')
+  const [showUploadForm, setShowUploadForm] = useState(false)
+
+  const filterOptions: Array<{ value: 'all' | 'front' | 'side' | 'back'; label: string }> = [
+    { value: 'all', label: 'All Photos' },
+    { value: 'front', label: 'Front' },
+    { value: 'side', label: 'Side' },
+    { value: 'back', label: 'Back' },
+  ]
+
+  async function handleAddPhotos(date: string, photos: Record<string, Blob>) {
+    const result = await addPhotoSet(date, photos as any)
+    if (result) setShowUploadForm(false)
+    return result
+  }
 
   return (
     <section>
       <div className="page-header">
         <div>
           <h1>Progress Photos</h1>
-          <p>{photoSets.length} {photoSets.length === 1 ? 'set' : 'sets'} uploaded</p>
         </div>
+        <button type="button" className="header-action-button" onClick={() => setShowUploadForm(!showUploadForm)}>+</button>
       </div>
 
       <StorageNotice message={error} onDismiss={dismissError} />
 
-      <div className="section-header">
-        <h2>Upload New Photos</h2>
-      </div>
-      <PhotoUploadForm onAdd={addPhotoSet} />
-
-      {photoSets.length > 0 && (
+      {showUploadForm && (
         <div className="section-header">
-          <h2>Photo Gallery</h2>
+          <h2>Upload New Photos</h2>
         </div>
       )}
-      <PhotoGallery photoSets={photoSets} />
+      {showUploadForm && <PhotoUploadForm onAdd={handleAddPhotos} />}
+
+      {photoSets.length > 0 && (
+        <>
+          <div className="progress-photo-filters">
+            {filterOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={`filter-button ${filter === option.value ? 'active' : ''}`}
+                onClick={() => setFilter(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <PhotoGallery photoSets={photoSets} filter={filter} />
+        </>
+      )}
+      {photoSets.length === 0 && <p>No progress photos yet</p>}
     </section>
   )
 }
