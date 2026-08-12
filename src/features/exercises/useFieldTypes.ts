@@ -19,5 +19,9 @@ export function useFieldTypes() {
     return update((prev) => prev.map((fieldType) => fieldType.id === id ? { ...fieldType, archived: true } : fieldType))
   }
 
-  return { fieldTypes, allFieldTypes, addFieldType, removeFieldType, error, dismissError }
+  function restoreFieldType(id: string): boolean {
+    return update((prev) => prev.map((fieldType) => fieldType.id === id ? { ...fieldType, archived: undefined } : fieldType))
+  }
+
+  return { fieldTypes, allFieldTypes, addFieldType, removeFieldType, restoreFieldType, error, dismissError }
 }
