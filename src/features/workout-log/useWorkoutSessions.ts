@@ -13,8 +13,16 @@ export function useWorkoutSessions() {
     return update((prev) => [...prev, newSession].sort(bySessionRecencyDesc)) ? newSession : null
   }
 
-  function updateSession(id: string, date: string, name: string): boolean {
-    return update((prev) => prev.map((s) => (s.id === id ? { ...s, date, name } : s)).sort(bySessionRecencyDesc))
+  function updateSession(id: string, date: string, name: string, durationSeconds?: number): boolean {
+    return update((prev) => prev.map((s) => {
+      if (s.id !== id) return s
+      if (durationSeconds === undefined) return { ...s, date, name }
+      const startMs = s.createdAt ? new Date(s.createdAt).getTime() : Number.NaN
+      const fallbackStart = new Date(`${date}T12:00:00`).getTime()
+      const base = Number.isFinite(startMs) ? startMs : fallbackStart
+      const createdAt = Number.isFinite(startMs) ? s.createdAt : new Date(base).toISOString()
+      return { ...s, date, name, createdAt, endedAt: new Date(base + durationSeconds * 1000).toISOString() }
+    }).sort(bySessionRecencyDesc))
   }
 
   function finishSession(id: string): boolean {
