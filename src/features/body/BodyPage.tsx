@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { BodyOverview } from '../body-overview/BodyOverview'
 import { MeasurementsPage } from '../measurements'
+import './BodyPage.css'
 
 type BodyTab = 'overview' | 'measurements'
 
@@ -8,7 +9,7 @@ export function BodyPage() {
   const [tab, setTab] = useState<BodyTab>('overview')
 
   return (
-    <section className="body-page-container">
+    <div className="body-page-wrapper">
       <div className="body-tabs" role="tablist">
         <button
           role="tab"
@@ -28,8 +29,10 @@ export function BodyPage() {
         </button>
       </div>
 
-      {tab === 'overview' && <BodyOverview />}
-      {tab === 'measurements' && <MeasurementsPage />}
-    </section>
+      <div className="body-tab-content">
+        {tab === 'overview' && <BodyOverview />}
+        {tab === 'measurements' && <MeasurementsPage />}
+      </div>
+    </div>
   )
 }
