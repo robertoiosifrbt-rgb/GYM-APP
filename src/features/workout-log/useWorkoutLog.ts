@@ -26,6 +26,14 @@ export function useWorkoutLog() {
     return update((prev) => prev.filter((entry) => entry.sessionId !== sessionId))
   }
 
+  function restoreEntries(restored: WorkoutEntry[]): boolean {
+    if (!restored.length) return true
+    return update((prev) => {
+      const existingIds = new Set(prev.map((entry) => entry.id))
+      return [...prev, ...restored.filter((entry) => !existingIds.has(entry.id))].sort(byRecencyDesc)
+    })
+  }
+
   function getLastEntry(exerciseId: string): WorkoutEntry | undefined {
     return entries.filter((e) => e.exerciseId === exerciseId).sort(byRecencyDesc)[0]
   }
@@ -38,5 +46,5 @@ export function useWorkoutLog() {
     return update((prev) => prev.map((e) => (e.sessionId === sessionId ? { ...e, date } : e)).sort(byRecencyDesc))
   }
 
-  return { entries, addEntry, updateEntry, deleteEntry, deleteEntriesForSession, getLastEntry, backfillSessionIds, updateEntriesDate, error, dismissError }
+  return { entries, addEntry, updateEntry, deleteEntry, deleteEntriesForSession, restoreEntries, getLastEntry, backfillSessionIds, updateEntriesDate, error, dismissError }
 }
