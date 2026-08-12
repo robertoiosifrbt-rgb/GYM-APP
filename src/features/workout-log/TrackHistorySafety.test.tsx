@@ -48,7 +48,7 @@ describe('archived Track workout history', () => {
   it('keeps the removed Track value readable in an existing workout', () => {
     render(<WorkoutLogPage />)
 
-    expect(screen.getByText('Bench Press')).toBeInTheDocument()
+    expect(screen.getByRole('strong')).toHaveTextContent('Bench Press')
     expect(screen.getByText(/8 reps/i)).toBeInTheDocument()
     expect(screen.getByText(/80kg/i)).toBeInTheDocument()
   })
