@@ -8,9 +8,25 @@ export function ProgressPhotosPage() {
 
   return (
     <section>
-      <h2>Progress photos</h2>
+      <div className="page-header">
+        <div>
+          <h1>Progress Photos</h1>
+          <p>{photoSets.length} {photoSets.length === 1 ? 'set' : 'sets'} uploaded</p>
+        </div>
+      </div>
+
       <StorageNotice message={error} onDismiss={dismissError} />
+
+      <div className="section-header">
+        <h2>Upload New Photos</h2>
+      </div>
       <PhotoUploadForm onAdd={addPhotoSet} />
+
+      {photoSets.length > 0 && (
+        <div className="section-header">
+          <h2>Photo Gallery</h2>
+        </div>
+      )}
       <PhotoGallery photoSets={photoSets} />
     </section>
   )

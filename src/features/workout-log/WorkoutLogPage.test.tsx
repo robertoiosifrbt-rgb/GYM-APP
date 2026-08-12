@@ -216,7 +216,7 @@ describe('WorkoutLogPage', () => {
 
     render(<WorkoutLogPage />)
 
-    expect(screen.getByRole('heading', { name: 'Daily log' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Workout Log' })).toBeInTheDocument()
     expect(screen.getByText(/unreadable/i)).toBeInTheDocument()
   })
 
@@ -226,7 +226,7 @@ describe('WorkoutLogPage', () => {
 
     render(<WorkoutLogPage />)
 
-    expect(screen.getByRole('heading', { name: 'Daily log' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Workout Log' })).toBeInTheDocument()
     expect(screen.getByText(/unreadable/i)).toBeInTheDocument()
   })
 })

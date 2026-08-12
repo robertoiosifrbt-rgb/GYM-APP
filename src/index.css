@@ -871,8 +871,28 @@ button.session-card-header {
   margin-top: 1.5rem;
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
 .section-header h2 {
   margin: 0;
   font-size: 1.1rem;
   color: var(--color-text);
+  flex: 1;
+}
+
+.add-button {
+  background: var(--color-accent) !important;
+  color: var(--color-accent-contrast) !important;
+  border: none !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
 }

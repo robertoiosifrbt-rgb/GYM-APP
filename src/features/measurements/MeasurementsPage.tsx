@@ -8,10 +8,25 @@ export function MeasurementsPage() {
 
   return (
     <section>
-      <h2>Body measurements</h2>
+      <div className="page-header">
+        <div>
+          <h1>Body Measurements</h1>
+          <p>{measurements.length} {measurements.length === 1 ? 'measurement' : 'measurements'} recorded</p>
+        </div>
+      </div>
+
       <StorageNotice message={error} onDismiss={dismissError} />
+
+      <div className="section-header">
+        <h2>Add New Measurement</h2>
+      </div>
       <MeasurementForm onAdd={addMeasurement} />
-      <h3>History</h3>
+
+      {measurements.length > 0 && (
+        <div className="section-header">
+          <h2>Measurement History</h2>
+        </div>
+      )}
       <MeasurementHistory measurements={measurements} />
     </section>
   )

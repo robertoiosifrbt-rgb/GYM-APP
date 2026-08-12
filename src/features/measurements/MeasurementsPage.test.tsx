@@ -84,7 +84,7 @@ describe('MeasurementsPage', () => {
 
     render(<MeasurementsPage />)
 
-    expect(screen.getByRole('heading', { name: 'Body measurements' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Body Measurements' })).toBeInTheDocument()
     expect(screen.getByText(/unreadable/i)).toBeInTheDocument()
     // The unreadable original is preserved rather than thrown away.
     expect(localStorage.getItem(`${STORAGE_KEY}${CORRUPT_SUFFIX}`)).toBe('[{"id":"m1",')

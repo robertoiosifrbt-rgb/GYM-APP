@@ -120,19 +120,33 @@ export function WorkoutLogPage() {
 
   return (
     <section>
-      <h2>Daily log</h2>
+      <div className="page-header">
+        <div>
+          <h1>Workout Log</h1>
+          <p>{sessions.length} {sessions.length === 1 ? 'session' : 'sessions'} recorded</p>
+        </div>
+      </div>
 
       <StorageNotice message={sessionsError ?? entriesError ?? actionError} onDismiss={dismissAll} />
 
-      {creating ? (
+      <div className="section-header">
+        {creating ? (
+          <h2>New Session</h2>
+        ) : (
+          <>
+            <h2>Sessions</h2>
+            <button type="button" className="add-button" onClick={() => setCreating(true)}>
+              + New session
+            </button>
+          </>
+        )}
+      </div>
+
+      {creating && (
         <SessionForm onSubmit={handleCreate} onCancel={() => setCreating(false)} />
-      ) : (
-        <button type="button" onClick={() => setCreating(true)}>
-          + New session
-        </button>
       )}
 
-      {sessions.length === 0 && <p>No sessions yet.</p>}
+      {sessions.length === 0 && !creating && <p>No sessions yet.</p>}
 
       {sessions.map((session) => (
         <SessionCard
