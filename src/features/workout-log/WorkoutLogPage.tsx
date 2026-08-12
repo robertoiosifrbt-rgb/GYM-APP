@@ -20,6 +20,7 @@ export function WorkoutLogPage() {
   const {
     entries,
     addEntry,
+    updateEntry,
     getLastEntry,
     backfillSessionIds,
     updateEntriesDate,
@@ -47,8 +48,6 @@ export function WorkoutLogPage() {
       }
       const created = addSession({ date, name: '' })
       if (!created) {
-        // Storage refused the write. Leave the remaining entries untouched and
-        // allow another attempt on the next mount rather than half-migrating.
         migrated.current = false
         return
       }
@@ -82,27 +81,19 @@ export function WorkoutLogPage() {
   }
 
   function handleUpdateSession(sessionId: string, date: string, name: string): boolean {
-    // Find the session being updated to save old values for potential revert.
     const session = sessions.find((s) => s.id === sessionId)
     if (!session) return false
 
-    // Update session first.
     if (!updateSession(sessionId, date, name)) return false
 
-    // The session's date is denormalised onto its entries so history stays
-    // consistent. If the second write fails, revert the first to keep them in step.
     if (!updateEntriesDate(sessionId, date)) {
-      // Revert the session update to the old date and name.
       if (!updateSession(sessionId, session.date, session.name)) {
-        // Revert itself failed — now we're in a bad state where neither could
-        // be fixed. Inform the user clearly and let them retry manually.
         setActionError(
           'ERROR: Session and entry dates are now out of sync and both revert attempts failed. ' +
             'Free some storage space and edit the session again to fix.',
         )
         return false
       }
-      // Revert succeeded. Report the original update failure.
       setActionError(
         'The session was not saved — storage is full. Free some space and try again.',
       )
@@ -146,6 +137,7 @@ export function WorkoutLogPage() {
           onToggle={() => handleToggle(session.id)}
           onUpdateSession={(date, name) => handleUpdateSession(session.id, date, name)}
           onAddEntry={(entry) => addEntry({ ...entry, sessionId: session.id, date: session.date })}
+          onUpdateEntry={updateEntry}
         />
       ))}
     </section>
