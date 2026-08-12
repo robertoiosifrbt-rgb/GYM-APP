@@ -1,5 +1,6 @@
 import { useWorkoutLog } from '../features/workout-log/useWorkoutLog'
 import { useWorkoutSessions } from '../features/workout-log/useWorkoutSessions'
+import { todayLocal } from '../shared/localDate'
 
 interface HomePageProps {
   onStartWorkout: () => void
@@ -43,29 +44,49 @@ function sessionVolume(entries: ReturnType<typeof useWorkoutLog>['entries'], ses
   }, 0), 0)
 }
 
+function sessionDurationSeconds(session: { createdAt?: string; endedAt?: string }) {
+  if (!session.createdAt || !session.endedAt) return 0
+  const start = new Date(session.createdAt).getTime()
+  const end = new Date(session.endedAt).getTime()
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return 0
+  return Math.floor((end - start) / 1000)
+}
+
+function formatDuration(seconds: number) {
+  if (seconds <= 0) return '—'
+  const minutes = Math.max(1, Math.round(seconds / 60))
+  if (minutes < 60) return `${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  const remaining = minutes % 60
+  return remaining ? `${hours}h ${remaining}m` : `${hours}h`
+}
+
 export function HomePage({ onStartWorkout, onOpenExercises, onOpenBody, onOpenProgress }: HomePageProps) {
   const { sessions } = useWorkoutSessions()
   const { entries } = useWorkoutLog()
-  const latestSession = sessions[0]
   const monday = getMonday()
+  const today = todayLocal()
   const weeklySessions = sessions.filter((session) => new Date(`${session.date}T12:00:00`) >= monday)
   const weeklyWorkouts = Math.min(weeklySessions.length, 5)
   const weeklyPercent = Math.round((weeklyWorkouts / 5) * 100)
   const weeklyVolume = weeklySessions.reduce((sum, session) => sum + sessionVolume(entries, session.id), 0)
-  const latestVolume = latestSession ? sessionVolume(entries, latestSession.id) : 0
+  const weeklyDuration = weeklySessions.reduce((sum, session) => sum + sessionDurationSeconds(session), 0)
+  const todaySession = sessions.find((session) => session.date === today && !session.endedAt) ?? sessions.find((session) => session.date === today)
+  const todayEntries = todaySession ? entries.filter((entry) => entry.sessionId === todaySession.id) : []
+  const recentSessions = sessions.slice(0, 3)
 
   return <section className="target-home">
     <header className="target-home-header"><div><h1><span className="hello-wave" aria-hidden="true">👋</span> Hey Roberto</h1><p>Ready to crush your goals?</p></div><button type="button" className="icon-button" aria-label="Notifications"><Icon name="bell"/></button></header>
 
     <section className="target-card weekly-progress-card" aria-label="Weekly Progress">
       <h2>Weekly Progress</h2>
-      <div className="weekly-progress-layout"><div className="progress-ring" style={{ '--progress': `${weeklyPercent * 3.6}deg` } as React.CSSProperties}><div><strong>{weeklyPercent}%</strong></div></div><dl className="weekly-metrics"><div><dt>Workouts</dt><dd>{weeklyWorkouts} / 5</dd></div><div><dt>Volume</dt><dd>{weeklyVolume ? `${(weeklyVolume / 1000).toFixed(1)}k kg` : '—'}</dd></div><div><dt>Duration</dt><dd>—</dd></div></dl></div>
+      <div className="weekly-progress-layout"><div className="progress-ring" style={{ '--progress': `${weeklyPercent * 3.6}deg` } as React.CSSProperties}><div><strong>{weeklyPercent}%</strong></div></div><dl className="weekly-metrics"><div><dt>Workouts</dt><dd>{weeklyWorkouts} / 5</dd></div><div><dt>Volume</dt><dd>{weeklyVolume ? `${(weeklyVolume / 1000).toFixed(1)}k kg` : '—'}</dd></div><div><dt>Duration</dt><dd>{formatDuration(weeklyDuration)}</dd></div></dl></div>
     </section>
 
-    <section className="target-card today-workout-card"><h2>Today's Workout</h2><strong className="today-workout-name">{latestSession?.name || 'Push Day'}</strong><span className="today-workout-meta">5 exercises · 60–75 min</span><button type="button" className="coral-action" onClick={onStartWorkout}><span className="button-icon"><Icon name="workout"/></span>Start Workout</button></section>
+    <section className="target-card today-workout-card"><h2>Today's Workout</h2><strong className="today-workout-name">{todaySession?.name || (todaySession ? 'Workout' : 'No workout started')}</strong><span className="today-workout-meta">{todaySession ? `${todayEntries.length} ${todayEntries.length === 1 ? 'exercise' : 'exercises'}${todaySession.endedAt ? ` · ${formatDuration(sessionDurationSeconds(todaySession))}` : ' · in progress'}` : 'Start a session when you are ready'}</span><button type="button" className="coral-action" onClick={onStartWorkout}><span className="button-icon"><Icon name="workout"/></span>{todaySession && !todaySession.endedAt ? 'Continue Workout' : 'Start Workout'}</button></section>
 
     <section className="home-block quick-actions-block"><h2>Quick Actions</h2><div className="target-quick-grid"><button type="button" onClick={onStartWorkout}><span><Icon name="workout"/></span><strong>Log Workout</strong></button><button type="button" onClick={onOpenExercises}><span><Icon name="list"/></span><strong>Exercises</strong></button><button type="button" onClick={onOpenBody}><span><Icon name="body"/></span><strong>Body Stats</strong></button><button type="button" onClick={onOpenProgress}><span><Icon name="camera"/></span><strong>Progress Photos</strong></button></div></section>
 
-    <section className="home-block recent-workouts-block"><div className="target-section-title"><h2>Recent Workouts</h2><button type="button" onClick={onStartWorkout}>View all</button></div><div className="recent-workout-list">{latestSession ? <button type="button" className="recent-workout-row" onClick={onStartWorkout}><span className="recent-workout-icon"><Icon name="bag"/></span><span><strong>{latestSession.name || 'Workout'}</strong><small>{formatHomeDate(latestSession.date)}</small></span>{latestVolume > 0 && <span className="recent-workout-volume">{latestVolume.toLocaleString('en-GB')} kg</span>}<span className="recent-workout-done"><Icon name="check"/></span></button> : <button type="button" className="recent-workout-row" onClick={onStartWorkout}><span className="recent-workout-icon"><Icon name="plus"/></span><span><strong>No workouts yet</strong><small>Start your first session</small></span></button>}</div></section>
+    <section className="home-block recent-workouts-block"><div className="target-section-title"><h2>Recent Workouts</h2><button type="button" onClick={onStartWorkout}>View all</button></div><div className="recent-workout-list">{recentSessions.length ? recentSessions.map((session) => { const volume = sessionVolume(entries, session.id); const duration = sessionDurationSeconds(session); return <button type="button" className="recent-workout-row" onClick={onStartWorkout} key={session.id}><span className="recent-workout-icon"><Icon name="bag"/></span><span><strong>{session.name || 'Workout'}</strong><small>{formatHomeDate(session.date)}{duration ? ` · ${formatDuration(duration)}` : ''}</small></span>{volume > 0 && <span className="recent-workout-volume">{volume.toLocaleString('en-GB')} kg</span>}{session.endedAt && <span className="recent-workout-done"><Icon name="check"/></span>}</button> }) : <button type="button" className="recent-workout-row" onClick={onStartWorkout}><span className="recent-workout-icon"><Icon name="plus"/></span><span><strong>No workouts yet</strong><small>Start your first session</small></span></button>}</div></section>
   </section>
 }
