@@ -1,77 +1,43 @@
-import { useEffect, useRef, useState } from 'react'
-
-const DEFAULT_SECONDS = 90
+import { useEffect, useState } from 'react'
 
 function formatTime(totalSeconds: number) {
   const safeSeconds = Math.max(0, totalSeconds)
-  const minutes = Math.floor(safeSeconds / 60)
+  const hours = Math.floor(safeSeconds / 3600)
+  const minutes = Math.floor((safeSeconds % 3600) / 60)
   const seconds = safeSeconds % 60
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  return hours > 0
+    ? `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+    : `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
 
-export function WorkoutTimer() {
-  const [seconds, setSeconds] = useState(DEFAULT_SECONDS)
-  const [running, setRunning] = useState(false)
-  const endAtRef = useRef<number | null>(null)
+interface WorkoutTimerProps {
+  startedAt?: string
+  endedAt?: string
+  onFinish?: () => void
+}
+
+export function WorkoutTimer({ startedAt, endedAt, onFinish }: WorkoutTimerProps) {
+  const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
-    if (!running) return
-
-    if (!endAtRef.current) endAtRef.current = Date.now() + seconds * 1000
-
-    const tick = () => {
-      if (!endAtRef.current) return
-      const remaining = Math.max(0, Math.ceil((endAtRef.current - Date.now()) / 1000))
-      setSeconds(remaining)
-      if (remaining === 0) {
-        setRunning(false)
-        endAtRef.current = null
-        if ('vibrate' in navigator) navigator.vibrate([180, 100, 180])
-      }
-    }
-
-    tick()
-    const interval = window.setInterval(tick, 250)
+    if (!startedAt || endedAt) return
+    const interval = window.setInterval(() => setNow(Date.now()), 1000)
     return () => window.clearInterval(interval)
-  }, [running])
+  }, [startedAt, endedAt])
 
-  function toggle() {
-    if (running) {
-      if (endAtRef.current) {
-        setSeconds(Math.max(0, Math.ceil((endAtRef.current - Date.now()) / 1000)))
-      }
-      endAtRef.current = null
-      setRunning(false)
-      return
-    }
+  if (!startedAt) return null
 
-    if (seconds <= 0) setSeconds(DEFAULT_SECONDS)
-    endAtRef.current = Date.now() + (seconds > 0 ? seconds : DEFAULT_SECONDS) * 1000
-    setRunning(true)
-  }
+  const start = new Date(startedAt).getTime()
+  const end = endedAt ? new Date(endedAt).getTime() : now
+  const seconds = Number.isFinite(start) && Number.isFinite(end) ? Math.floor(Math.max(0, end - start) / 1000) : 0
 
-  function adjust(delta: number) {
-    const next = Math.max(0, seconds + delta)
-    setSeconds(next)
-    if (running) endAtRef.current = Date.now() + next * 1000
-  }
-
-  function reset() {
-    setRunning(false)
-    endAtRef.current = null
-    setSeconds(DEFAULT_SECONDS)
-  }
-
-  return <section className={`workout-timer ${running ? 'is-running' : ''}`} aria-label="Rest timer">
+  return <section className={`workout-timer ${endedAt ? 'is-finished' : 'is-running'}`} aria-label="Workout timer">
     <div className="workout-timer-copy">
-      <span>Rest timer</span>
+      <span>{endedAt ? 'Workout duration' : 'Session time'}</span>
       <strong aria-live="polite">{formatTime(seconds)}</strong>
     </div>
-    <div className="workout-timer-controls">
-      <button type="button" onClick={() => adjust(-30)} aria-label="Remove 30 seconds">−30</button>
-      <button type="button" className="workout-timer-main" onClick={toggle}>{running ? 'Pause' : seconds === 0 ? 'Restart' : 'Start'}</button>
-      <button type="button" onClick={() => adjust(30)} aria-label="Add 30 seconds">+30</button>
-      <button type="button" className="workout-timer-reset" onClick={reset}>Reset</button>
-    </div>
+    {!endedAt && onFinish && <div className="workout-timer-controls">
+      <button type="button" className="workout-timer-main" onClick={onFinish}>Finish session</button>
+    </div>}
   </section>
 }
