@@ -283,13 +283,15 @@ button.session-card-header { display: block; width: 100%; min-height: 60px; padd
   fill: none;
   stroke: #e0e0e0;
   stroke-width: 8;
+  stroke-linecap: butt;
 }
 
 .progress-ring-fill {
   fill: none;
   stroke: #5b9fee;
   stroke-width: 8;
-  stroke-linecap: round;
+  stroke-linecap: butt;
+  stroke-dasharray: inherit;
   transition: stroke-dashoffset 0.3s ease;
 }
 
