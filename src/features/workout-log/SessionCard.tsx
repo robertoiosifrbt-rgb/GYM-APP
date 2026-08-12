@@ -11,6 +11,7 @@ interface SessionCardProps {
   isOpen: boolean
   exercises: Exercise[]
   fieldTypes: FieldType[]
+  historyFieldTypes: FieldType[]
   getLastEntry: (exerciseId: string) => WorkoutEntry | undefined
   onToggle: () => void
   onUpdateSession: (date: string, name: string) => boolean
@@ -19,102 +20,16 @@ interface SessionCardProps {
   onDeleteEntry?: (entryId: string) => boolean
 }
 
-export function SessionCard({
-  session,
-  entries,
-  isOpen,
-  exercises,
-  fieldTypes,
-  getLastEntry,
-  onToggle,
-  onUpdateSession,
-  onAddEntry,
-  onUpdateEntry,
-  onDeleteEntry,
-}: SessionCardProps) {
+export function SessionCard({ session, entries, isOpen, exercises, fieldTypes, historyFieldTypes, getLastEntry, onToggle, onUpdateSession, onAddEntry, onUpdateEntry, onDeleteEntry }: SessionCardProps) {
   const [editing, setEditing] = useState(false)
   const [editingEntryId, setEditingEntryId] = useState('')
 
-  return (
-    <div className={`session-card ${isOpen ? 'session-card-open' : ''}`}>
-      <button type="button" className="session-card-header" onClick={onToggle} aria-expanded={isOpen}>
-        <div className="session-card-title">
-          <span className="session-date">{session.date}</span>
-          <h3>{session.name || 'Workout session'}</h3>
-          <span className="session-meta">{entries.length} {entries.length === 1 ? 'exercise' : 'exercises'}</span>
-        </div>
-        <span className="session-chevron" aria-hidden="true">{isOpen ? '−' : '+'}</span>
-      </button>
-
-      {isOpen && (
-        <div className="session-card-body">
-          {entries.length > 0 && (
-            <div className="logged-exercise-list">
-              {entries.map((entry) => (
-                <div className="logged-exercise-card" key={entry.id}>
-                  {editingEntryId === entry.id ? (
-                    <ExerciseEntryForm
-                      exercises={exercises}
-                      fieldTypes={fieldTypes}
-                      getLastEntry={getLastEntry}
-                      initialEntry={entry}
-                      onUpdate={(updated) => onUpdateEntry(entry.id, updated)}
-                      onCancel={() => setEditingEntryId('')}
-                    />
-                  ) : (
-                    <>
-                      <div className="logged-exercise-main">
-                        <strong>{entry.exerciseName}</strong>
-                        <span>{entry.sets.map((set) => formatSet(set, fieldTypes)).join(' · ')}</span>
-                      </div>
-                      <div className="logged-exercise-actions">
-                        <button type="button" onClick={() => setEditingEntryId(entry.id)}>Edit</button>
-                        {onDeleteEntry && (
-                          <button
-                            type="button"
-                            className="danger-action"
-                            onClick={() => {
-                              if (window.confirm(`Delete ${entry.exerciseName} from this log?`)) onDeleteEntry(entry.id)
-                            }}
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="session-tools">
-            {editing ? (
-              <SessionForm
-                initial={session}
-                onSubmit={(date, name) => {
-                  if (!onUpdateSession(date, name)) return false
-                  setEditing(false)
-                  return true
-                }}
-                onCancel={() => setEditing(false)}
-              />
-            ) : (
-              <button type="button" onClick={() => setEditing(true)}>Edit session</button>
-            )}
-          </div>
-
-          <div className="add-exercise-panel">
-            <span className="card-kicker">ADD EXERCISE</span>
-            <ExerciseEntryForm
-              exercises={exercises}
-              fieldTypes={fieldTypes}
-              getLastEntry={getLastEntry}
-              onAdd={onAddEntry}
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  )
+  return <div className={`session-card ${isOpen ? 'session-card-open' : ''}`}>
+    <button type="button" className="session-card-header" onClick={onToggle} aria-expanded={isOpen}><div className="session-card-title"><span className="session-date">{session.date}</span><h3>{session.name || 'Workout session'}</h3><span className="session-meta">{entries.length} {entries.length === 1 ? 'exercise' : 'exercises'}</span></div><span className="session-chevron" aria-hidden="true">{isOpen ? '−' : '+'}</span></button>
+    {isOpen && <div className="session-card-body">
+      {entries.length > 0 && <div className="logged-exercise-list">{entries.map((entry) => <div className="logged-exercise-card" key={entry.id}>{editingEntryId === entry.id ? <ExerciseEntryForm exercises={exercises} fieldTypes={fieldTypes} historyFieldTypes={historyFieldTypes} getLastEntry={getLastEntry} initialEntry={entry} onUpdate={(updated) => onUpdateEntry(entry.id, updated)} onCancel={() => setEditingEntryId('')} /> : <><div className="logged-exercise-main"><strong>{entry.exerciseName}</strong><span>{entry.sets.map((set) => formatSet(set, historyFieldTypes)).join(' · ')}</span></div><div className="logged-exercise-actions"><button type="button" onClick={() => setEditingEntryId(entry.id)}>Edit</button>{onDeleteEntry && <button type="button" className="danger-action" onClick={() => { if (window.confirm(`Delete ${entry.exerciseName} from this log?`)) onDeleteEntry(entry.id) }}>Delete</button>}</div></>}</div>)}</div>}
+      <div className="session-tools">{editing ? <SessionForm initial={session} onSubmit={(date, name) => { if (!onUpdateSession(date, name)) return false; setEditing(false); return true }} onCancel={() => setEditing(false)} /> : <button type="button" onClick={() => setEditing(true)}>Edit session</button>}</div>
+      <div className="add-exercise-panel"><span className="card-kicker">ADD EXERCISE</span><ExerciseEntryForm exercises={exercises} fieldTypes={fieldTypes} historyFieldTypes={historyFieldTypes} getLastEntry={getLastEntry} onAdd={onAddEntry} /></div>
+    </div>}
+  </div>
 }
