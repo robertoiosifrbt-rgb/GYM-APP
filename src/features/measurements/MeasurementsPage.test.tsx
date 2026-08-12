@@ -84,7 +84,9 @@ describe('MeasurementsPage', () => {
 
     render(<MeasurementsPage />)
 
-    expect(screen.getByRole('heading', { name: 'Body Measurements' })).toBeInTheDocument()
+    // The screen title belongs to the Body tab wrapper now, so this checks a
+    // heading the page itself owns.
+    expect(screen.getByRole('heading', { name: 'Add New Measurement' })).toBeInTheDocument()
     expect(screen.getByText(/unreadable/i)).toBeInTheDocument()
     // The unreadable original is preserved rather than thrown away.
     expect(localStorage.getItem(`${STORAGE_KEY}${CORRUPT_SUFFIX}`)).toBe('[{"id":"m1",')

@@ -4,6 +4,19 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-12 — etapa 2c: reparații pe Body Overview
+
+Patru probleme raportate de proprietar dintr-o singură poză a ecranului.
+
+- **Conținutul intra sub bara de status.** CSS-ul era corect (`env(safe-area-inset-top)` pe `.app-content`), dar valoarea ieșea ~0: `index.html` avea `apple-mobile-web-app-status-bar-style: black-translucent`, care îi spune explicit iOS-ului să deseneze pagina **sub** bara de status. Trecut pe `default`, plus `theme-color` schimbat din coral în fundalul paginii (`#f7f8fb`), ca zona barei să se contopească. Se vedea abia după etapa 1 — până atunci bara „Gym App" umplea spațiul din întâmplare.
+- **Silueta arăta ca niște pete lipite pe fundal.** Formele de mușchi se revărsau peste conturul brațelor și șoldurilor. Rezolvat cu un `clipPath` care decupează stratul de mușchi la silueta corpului, plus forme mai mici și mai spre interior. E schimbarea care contează cel mai mult pentru cum se citește desenul.
+- **„Arms 39 sets" era umflat.** Cardul Muscle Focus aduna și seturile secundare, iar un bench press trece tricepsul ca secundar — deci fiecare set de piept devenea și un set de brațe, iar brațele ieșeau pe primul loc în orice zi de împins. Focus numără acum **doar seturile primare**; munca secundară rămâne vizibilă pe hartă, în portocaliu.
+- **Numărul de seturi cădea pe rândul de sub bară**, din auto-plasarea în grid. Fixat explicit pe rândul numelui.
+- **Titlul apărea sub tab-uri**, iar ecranul avea două rânduri de tab-uri suprapuse. `BodyPage` deține acum titlul, care urmează tab-ul activ („Body Overview" / „Body Measurements"), iar copiii nu-și mai pun unul propriu — rămâne un singur `h1` per ecran.
+- **Teste**: +2, plus 3 mutații (decuparea scoasă, focus care numără iar secundarele, titlul care nu mai urmează tab-ul) — toate au picat suita. Un test existent a fost reancorat: verifica supraviețuirea la date corupte prin titlul care s-a mutat la părinte.
+- Verificat: `lint` ✅, 195 de teste ✅, `build` ✅.
+- **Neverificabil de aici**: dacă silueta arată acum a om. Tot pe ecran se vede.
+
 ## 2026-08-12 — etapa 2b: Home, o singură foaie de stil
 
 Semnalat de proprietar: Home nu arăta ca în mockup. Cauza s-a dovedit a fi exact tiparul pe care etapa 0 îl lăsase pentru mai târziu.
@@ -48,15 +61,3 @@ Prima etapă din drumul spre target-ul vizual. Fără nicio schimbare de aspect 
 - **Cele 6 fișiere minificate pe un rând** (unul avea 7 KB fără niciun `\n`) re-scrise citibil cu un formator postcss: 10 → 3387 de linii, cascadă identică bit cu bit.
 - **Ce NU s-a făcut, intenționat**: 232 de `!important` și 36 de selectori dubli. Un `!important` nu poate fi scos în siguranță cât timp regula concurentă există — se scoate odată cu ea, iar regulile concurente sunt straturile per ecran. Deci se curăță în etapele 1–6, per ecran, unde ștergerea e verificabilă. Forțarea acum ar însemna schimbări de aspect nedovedibile.
 - Verificat: `lint` ✅, 124 de teste ✅, `build` ✅.
-
-## 2026-08-12 — destinația vizuală, documentată + plan pe etape
-
-Fără cod. Sesiune de decizii, ca să nu se mai reconstruiască contextul la fiecare pornire.
-
-- **Întrebare de proprietar**: „rescriem toată aplicația pe module, inspirată din mockup?" **Răspuns: nu.** Măsurat întâi: datoria e în stratul de prezentare, nu în module — 13 fișiere CSS (~78 KB), **289** de `!important`, **41** de selectori definiți în mai multe fișiere, ~10 KB de CSS mort, o pagină duplicată (`features/measurements/BodyPage.tsx`), 7 componente scrise pe rânduri de până la 1168 de caractere. Stratul de date (`src/shared/`, hooks, parsere — 1085 de linii) plus cele 124 de teste sunt partea verificată prin audit; rescrise de la zero, se reintroduc bug-urile deja reparate. Precedent: rescrierea totală din 5 august a produs auditul cu 2 HIGH + 8 MEDIUM.
-- **Decizie**: rescriere doar a stratului de prezentare, pe etape, un ecran per sesiune.
-- **`docs/DESIGN_TARGET.md`** — document nou, destinația fixă: token-uri de design citite din mockup (culori, raze, spațiere, tipografie, shell) + cele 9 ecrane, fiecare cu ce conține și ce lipsește + 4 întrebări deschise (poze la exerciții, Level/XP, Rest Timer, notificări).
-- **`docs/design/target-screens.png`** — mockup-ul salvat în repo ca reper. Regula scrisă explicit: poza e reper de **aspect**, verificarea rămâne în text.
-- **`docs/ROADMAP.md`** — planul: Etapa 0 (fundația CSS, fără schimbări funcționale) → shell → Body Overview → Workout Log → Exercises → Body Stats → Settings.
-- **`CLAUDE.md`** — trimite acum la `DESIGN_TARGET.md` la începutul fiecărei sesiuni, ca destinația să fie mereu cunoscută.
-- **Ramura `claude/ajutor-80fxuy`** ștearsă local; pe GitHub nu s-a putut (proxy-ul de git din mediu respinge push-urile de ștergere), rămasă în seama proprietarului.

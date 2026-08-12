@@ -116,15 +116,20 @@ describe('computeMuscleStats', () => {
     expect(stats.byMuscle.calves.level).toBe('untargeted')
   })
 
-  it('ranks body parts by sets, biggest first', () => {
+  /*
+   * Only primary sets. With secondaries counted too, arms topped the list on
+   * every push day — a bench press names triceps as secondary, so each chest
+   * set also landed on the arms.
+   */
+  it('ranks body parts by the sets that targeted them, biggest first', () => {
     const entries = [
       entry({ id: 'a' }),
       entry({ id: 'b', exerciseId: squat.id, exerciseName: squat.name, sets: [{ reps: 5 }] }),
     ]
     const stats = computeMuscleStats(entries, [bench, squat], 'week', NOW)
 
-    expect(stats.focus.map(({ part }) => part)).toEqual(['Arms', 'Chest', 'Shoulders', 'Legs'])
-    expect(stats.focus[0]).toEqual({ part: 'Arms', sets: 3 })
+    expect(stats.focus.map(({ part }) => part)).toEqual(['Chest', 'Legs'])
+    expect(stats.focus[0]).toEqual({ part: 'Chest', sets: 3 })
   })
 
   it('reports nothing at all for an empty log', () => {

@@ -86,6 +86,35 @@ describe('BodyOverview', () => {
   })
 
   /*
+   * Counting secondary sets in the focus list made arms the biggest number on
+   * screen: a bench press names triceps as secondary, so every chest set was
+   * also an arm set. The map still shows that work in amber.
+   */
+  it('leaves secondary work out of the focus list', () => {
+    seedLog()
+    render(<BodyOverview />)
+
+    expect(screen.getByText('Chest')).toBeInTheDocument()
+    expect(screen.queryByText('Arms')).not.toBeInTheDocument()
+    expect(screen.queryByText('Shoulders')).not.toBeInTheDocument()
+  })
+
+  /*
+   * Without the clip the muscle shapes spill past the arms and hips and the
+   * figure reads as blobs stuck onto a background rather than a body.
+   */
+  it('clips the muscle shapes to the body outline', () => {
+    const { container } = render(<BodyOverview />)
+
+    const clipped = [...container.querySelectorAll('[clip-path]')]
+    expect(clipped).toHaveLength(2)
+    for (const group of clipped) {
+      const id = group.getAttribute('clip-path')?.replace(/^url\(#|\)$/g, '')
+      expect(container.querySelector(`clipPath#${id}`)).not.toBeNull()
+    }
+  })
+
+  /*
    * Body Parts is the coarse view: one colour per region, so a muscle takes
    * the level of the strongest muscle it shares a part with. Biceps were not
    * trained, but triceps were, so the whole arm reads as worked.

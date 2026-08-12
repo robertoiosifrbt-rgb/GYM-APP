@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PageHeader } from '../../shared/PageHeader'
 import { BodyOverview } from '../body-overview/BodyOverview'
 import { MeasurementsPage } from '../measurements'
 import './BodyPage.css'
@@ -10,6 +11,8 @@ export function BodyPage() {
 
   return (
     <div className="body-page-wrapper">
+      <PageHeader title={tab === 'overview' ? 'Body Overview' : 'Body Measurements'} />
+
       <div className="body-tabs" role="tablist">
         <button
           role="tab"

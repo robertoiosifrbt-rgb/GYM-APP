@@ -126,10 +126,15 @@ export function computeMuscleStats(
     }
   }
 
+  /*
+   * Focus counts primary sets only. Counting secondaries as well made arms the
+   * biggest number on the screen — a bench press lists triceps as secondary,
+   * so every chest set also became an arm set. "Focus" is what you aimed at;
+   * the secondary work still shows on the map, in amber.
+   */
   const setsByPart = new Map<BodyPart, number>()
   for (const id of MUSCLE_IDS) {
-    const { primarySets: primary, secondarySets: secondary } = byMuscle[id]
-    const sets = primary + secondary
+    const sets = byMuscle[id].primarySets
     if (sets === 0) continue
     const part = MUSCLES[id].part
     setsByPart.set(part, (setsByPart.get(part) ?? 0) + sets)

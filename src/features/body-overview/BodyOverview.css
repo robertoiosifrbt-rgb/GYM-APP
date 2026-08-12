@@ -141,6 +141,8 @@
 }
 
 .muscle-focus-sets {
+  grid-row: 1;
+  grid-column: 2;
   color: var(--color-text-secondary);
   font-size: 0.72rem;
   text-align: right;

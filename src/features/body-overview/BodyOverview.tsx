@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { PageHeader } from '../../shared/PageHeader'
 import { useExercises } from '../exercises'
 import { useWorkoutLog } from '../workout-log/useWorkoutLog'
 import { BodyMap } from './BodyMap'
@@ -52,8 +51,6 @@ export function BodyOverview() {
 
   return (
     <section className="body-overview-page">
-      <PageHeader title="Body Overview" />
-
       <div className="body-mode-tabs" role="tablist" aria-label="Body map detail">
         <button
           type="button"

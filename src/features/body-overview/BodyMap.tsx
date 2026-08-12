@@ -60,26 +60,26 @@ function pair(muscle: MuscleId, shape: Ellipse): Shape[] {
 }
 
 const FRONT: Shape[] = [
-  ...pair('shoulders', { cx: 27, cy: 44, rx: 8.5, ry: 8 }),
-  ...pair('chest', { cx: 41, cy: 53, rx: 9, ry: 7.5 }),
-  { kind: 'rect', muscle: 'abs', x: 42, y: 66, width: 16, height: 34, rx: 5 },
-  ...pair('obliques', { cx: 35.5, cy: 83, rx: 4.5, ry: 13 }),
-  ...pair('biceps', { cx: 21, cy: 62, rx: 6, ry: 14 }),
-  ...pair('forearms', { cx: 16, cy: 100, rx: 5, ry: 16 }),
-  ...pair('quads', { cx: 41, cy: 145, rx: 8.5, ry: 26 }),
-  ...pair('calves', { cx: 40, cy: 196, rx: 6.5, ry: 22 }),
+  ...pair('shoulders', { cx: 29, cy: 43, rx: 7, ry: 6.5 }),
+  ...pair('chest', { cx: 41.5, cy: 51, rx: 8, ry: 6 }),
+  { kind: 'rect', muscle: 'abs', x: 43, y: 62, width: 14, height: 32, rx: 6 },
+  ...pair('obliques', { cx: 36, cy: 78, rx: 4, ry: 12 }),
+  ...pair('biceps', { cx: 21.5, cy: 60, rx: 5.5, ry: 13 }),
+  ...pair('forearms', { cx: 16.5, cy: 99, rx: 5, ry: 15 }),
+  ...pair('quads', { cx: 41, cy: 143, rx: 8, ry: 24 }),
+  ...pair('calves', { cx: 40, cy: 193, rx: 6, ry: 20 }),
 ]
 
 const BACK: Shape[] = [
-  { kind: 'rect', muscle: 'traps', x: 35, y: 36, width: 30, height: 17, rx: 8 },
-  ...pair('shoulders', { cx: 27, cy: 44, rx: 8.5, ry: 8 }),
-  ...pair('lats', { cx: 39.5, cy: 68, rx: 10, ry: 15 }),
-  { kind: 'rect', muscle: 'lowerBack', x: 43, y: 88, width: 14, height: 22, rx: 5 },
-  ...pair('triceps', { cx: 21, cy: 62, rx: 6, ry: 14 }),
-  ...pair('forearms', { cx: 16, cy: 100, rx: 5, ry: 16 }),
-  ...pair('glutes', { cx: 42, cy: 121, rx: 9, ry: 9.5 }),
-  ...pair('hamstrings', { cx: 41, cy: 152, rx: 8.5, ry: 24 }),
-  ...pair('calves', { cx: 40, cy: 196, rx: 6.5, ry: 22 }),
+  { kind: 'rect', muscle: 'traps', x: 38, y: 38, width: 24, height: 13, rx: 6 },
+  ...pair('shoulders', { cx: 29, cy: 43, rx: 7, ry: 6.5 }),
+  ...pair('lats', { cx: 40, cy: 64, rx: 9, ry: 13 }),
+  { kind: 'rect', muscle: 'lowerBack', x: 44, y: 84, width: 12, height: 20, rx: 5 },
+  ...pair('triceps', { cx: 21.5, cy: 60, rx: 5.5, ry: 13 }),
+  ...pair('forearms', { cx: 16.5, cy: 99, rx: 5, ry: 15 }),
+  ...pair('glutes', { cx: 43, cy: 116, rx: 8, ry: 8 }),
+  ...pair('hamstrings', { cx: 41, cy: 148, rx: 8, ry: 23 }),
+  ...pair('calves', { cx: 40, cy: 193, rx: 6, ry: 20 }),
 ]
 
 interface FigureProps {
@@ -93,6 +93,18 @@ function Figure({ view, levelFor }: FigureProps) {
   return (
     <figure className="body-figure">
       <svg viewBox="0 0 100 240" role="presentation" focusable="false">
+        {/* The muscles are clipped to the outline, so a shape that runs past
+            the edge of an arm or a hip is trimmed instead of floating over the
+            background. It is what stops the figure reading as stuck-on blobs. */}
+        <defs>
+          <clipPath id={`body-clip-${view}`}>
+            <rect {...NECK} />
+            <path d={TORSO} />
+            {BODY.map((shape, index) => (
+              <ellipse key={index} {...shape} />
+            ))}
+          </clipPath>
+        </defs>
         <g fill={BODY_FILL} stroke={BODY_STROKE} strokeWidth="0.8">
           <rect {...NECK} />
           <path d={TORSO} />
@@ -100,7 +112,7 @@ function Figure({ view, levelFor }: FigureProps) {
             <ellipse key={index} {...shape} />
           ))}
         </g>
-        <g stroke="rgba(255,255,255,.65)" strokeWidth="0.7">
+        <g clipPath={`url(#body-clip-${view})`} stroke="rgba(255,255,255,.5)" strokeWidth="0.6">
           {shapes.map((shape, index) => {
             const level = levelFor(shape.muscle)
             const common = {
