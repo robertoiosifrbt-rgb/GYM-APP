@@ -4,17 +4,14 @@ import { WorkoutLogPage } from './WorkoutLogPage'
 import { todayLocal } from '../../shared/localDate'
 import type { WorkoutEntry, WorkoutSession } from './types'
 
-const EXERCISES_KEY = 'gym-app:exercises'
-const SESSIONS_KEY = 'gym-app:workout-sessions'
-const LOG_KEY = 'gym-app:workout-log'
-const BENCH = { id:'ex-bench', name:'Bench Press', fields:['reps','kg'], category:'', difficulty:'', equipment:'', primaryMuscles:'', secondaryMuscles:'', instructions:'' }
-const SQUAT = { ...BENCH, id:'ex-squat', name:'Squat' }
+const EXERCISES_KEY='gym-app:exercises',SESSIONS_KEY='gym-app:workout-sessions',LOG_KEY='gym-app:workout-log'
+const BENCH={id:'ex-bench',name:'Bench Press',fields:['reps','kg'],category:'',difficulty:'',equipment:'',primaryMuscles:'',secondaryMuscles:'',instructions:''}
+const SQUAT={...BENCH,id:'ex-squat',name:'Squat'}
 const storedSessions=():WorkoutSession[]=>JSON.parse(localStorage.getItem(SESSIONS_KEY)??'[]')
 const storedEntries=():WorkoutEntry[]=>JSON.parse(localStorage.getItem(LOG_KEY)??'[]')
 function seedSession(over:Partial<WorkoutSession>={}){const session:WorkoutSession={id:'s1',date:todayLocal(),name:'Push Day',createdAt:'2026-07-15T07:00:00.000Z',...over};localStorage.setItem(SESSIONS_KEY,JSON.stringify([session]));return session}
 function logExercise(exerciseName:string,reps:string,kg:string){fireEvent.change(screen.getByLabelText('Exercise'),{target:{value:exerciseName==='Squat'?SQUAT.id:BENCH.id}});const inputs=screen.getAllByPlaceholderText('Reps');fireEvent.change(inputs[inputs.length-1],{target:{value:reps}});const kgInputs=screen.getAllByPlaceholderText('Weight (kg)');fireEvent.change(kgInputs[kgInputs.length-1],{target:{value:kg}});fireEvent.click(screen.getByRole('button',{name:'Log exercise'}))}
 beforeEach(()=>localStorage.setItem(EXERCISES_KEY,JSON.stringify([BENCH,SQUAT])))
-
 describe('WorkoutLogPage',()=>{
 it('creates a session dated with the local calendar day',()=>{render(<WorkoutLogPage/>);fireEvent.click(screen.getByRole('button',{name:'+ New session'}));expect(screen.getByLabelText('Date')).toHaveValue(todayLocal());fireEvent.change(screen.getByLabelText('Name (optional)'),{target:{value:'Push Day'}});fireEvent.click(screen.getByRole('button',{name:'Start session'}));expect(storedSessions()).toHaveLength(1);expect(storedSessions()[0]).toMatchObject({date:todayLocal(),name:'Push Day'})})
 it('stamps a new session with a creation time',()=>{render(<WorkoutLogPage/>);fireEvent.click(screen.getByRole('button',{name:'+ New session'}));fireEvent.click(screen.getByRole('button',{name:'Start session'}));expect(storedSessions()[0].createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/)})
@@ -28,5 +25,5 @@ it('will not log an exercise with no values filled in',()=>{seedSession();render
 it('reports a refused write and keeps the sets on screen',()=>{seedSession();render(<WorkoutLogPage/>);const setItem=vi.spyOn(Storage.prototype,'setItem').mockImplementation(()=>{throw new DOMException('exceeded','QuotaExceededError')});logExercise('Bench Press','8','60');expect(screen.getByText(/out of storage space/i)).toBeInTheDocument();expect(screen.getAllByPlaceholderText('Reps')[0]).toHaveValue(8);expect(localStorage.getItem(LOG_KEY)).toBeNull();setItem.mockRestore()})
 it('still renders when the stored sessions are corrupt',()=>{localStorage.setItem(SESSIONS_KEY,'nonsense{');render(<WorkoutLogPage/>);expect(screen.getByRole('heading',{name:'Daily log'})).toBeInTheDocument();expect(screen.getByText(/unreadable/i)).toBeInTheDocument()})
 it('still renders when the stored entries are corrupt',()=>{seedSession();localStorage.setItem(LOG_KEY,'[{"id":');render(<WorkoutLogPage/>);expect(screen.getByRole('heading',{name:'Daily log'})).toBeInTheDocument();expect(screen.getByText(/unreadable/i)).toBeInTheDocument()})
-it('removes an exercise from the track without deleting workout history',()=>{const date=todayLocal();seedSession({date});localStorage.setItem(LOG_KEY,JSON.stringify([{id:'entry-1',sessionId:'s1',date,exerciseId:BENCH.id,exerciseName:'Bench Press',sets:[{reps:8,kg:60}],createdAt:`${date}T08:00:00.000Z`} ]));render(<WorkoutLogPage/>);expect(screen.getByText('Bench Press')).toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:/Remove Bench Press from track/i}));expect(storedEntries()).toHaveLength(1);expect(storedEntries()[0].exerciseName).toBe('Bench Press');expect(screen.queryByRole('button',{name:/Remove Bench Press from track/i})).not.toBeInTheDocument()})
+it('removes an exercise from the track without deleting workout history',()=>{const date=todayLocal();seedSession({date});localStorage.setItem(LOG_KEY,JSON.stringify([{id:'entry-1',sessionId:'s1',date,exerciseId:BENCH.id,exerciseName:'Bench Press',sets:[{reps:8,kg:60}],createdAt:`${date}T08:00:00.000Z`} ]));render(<WorkoutLogPage/>);const remove=screen.getByRole('button',{name:/Remove Bench Press from track/i});fireEvent.click(remove);expect(storedEntries()).toHaveLength(1);expect(storedEntries()[0].exerciseName).toBe('Bench Press');expect(screen.queryByRole('button',{name:/Remove Bench Press from track/i})).not.toBeInTheDocument()})
 })
