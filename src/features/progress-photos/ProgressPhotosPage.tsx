@@ -7,7 +7,7 @@ import type { PhotoAngle } from './types'
 
 export function ProgressPhotosPage() {
   const { photoSets, addPhotoSet, error, dismissError } = usePhotos()
-  const [adding, setAdding] = useState(false)
+  const [adding, setAdding] = useState(true)
 
   return (
     <section className="progress-page">
