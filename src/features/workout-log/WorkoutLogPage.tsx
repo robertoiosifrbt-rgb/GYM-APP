@@ -6,6 +6,7 @@ import { useWorkoutLog } from './useWorkoutLog'
 import { useWorkoutSessions } from './useWorkoutSessions'
 import { SessionCard } from './SessionCard'
 import { SessionForm } from './SessionForm'
+import { WorkoutTimer } from './WorkoutTimer'
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 const WEEKDAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
@@ -92,6 +93,8 @@ export function WorkoutLogPage() {
       <h2>Workout Log</h2>
       <button type="button" className="workout-log-add" aria-label="New session" onClick={() => setCreating((value) => !value)}>+</button>
     </header>
+
+    <WorkoutTimer />
 
     <section className="workout-calendar" aria-label="Workout calendar">
       <div className="calendar-toolbar">
