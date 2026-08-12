@@ -54,7 +54,7 @@ describe('ProgressPhotosPage', () => {
     })
     expect(screen.getAllByText(/✓/)).toHaveLength(4)
     // Nothing was added to the gallery.
-    expect(screen.getByText('No photos yet.')).toBeInTheDocument()
+    expect(screen.getByText('No progress photos yet')).toBeInTheDocument()
   })
 
   it('lets the same photos be saved on a second attempt once storage frees up', async () => {
@@ -70,7 +70,7 @@ describe('ProgressPhotosPage', () => {
 
     await waitFor(() => expect(screen.queryAllByText(/✓/)).toHaveLength(0))
     expect(saveMock).toHaveBeenCalledTimes(2)
-    expect(screen.queryByText('No photos yet.')).not.toBeInTheDocument()
+    expect(screen.queryByText('No progress photos yet')).not.toBeInTheDocument()
   })
 
   it('saves a complete set of four images with the chosen date', async () => {
