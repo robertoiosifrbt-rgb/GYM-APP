@@ -47,6 +47,10 @@
   --radius-lg: 18px;
   --radius-md: 14px;
   --radius-sm: 10px;
+  /* Pentru pastile: mai mare decât orice înălțime, deci capetele ies rotunde.
+     Lipsea, iar `var(--radius-full)` fără fallback nu e o eroare — e pur și
+     simplu ignorat, deci chips-urile de categorie ieșeau pătrate. */
+  --radius-full: 999px;
   --shadow-card: 0 5px 18px rgba(16, 24, 40, 0.055);
   --shadow-floating: 0 -3px 20px rgba(16, 24, 40, 0.07);
 

@@ -1,75 +1,25 @@
 
-
-/* Size only. The ring itself is the SVG in index.css — the old conic-gradient
-   version that used to live here fought it: its ::before took grid cell 1/1 {
-  width: 88px;
-  height: 88px
-}
-
-.target-bottom-nav {
-  min-height: 70px!important;
-  padding: 6px 8px calc(6px + env(safe-area-inset-bottom))!important
-}
-
-.target-bottom-nav button {
-  min-height: 58px!important;
-  padding: 5px 2px!important;
-  gap: 4px!important
-}
-
-.target-bottom-nav .nav-icon {
-  width: 26px!important;
-  height: 26px!important
-}
-
-.target-bottom-nav .nav-icon svg {
-  width: 24px!important;
-  height: 24px!important
-}
-
-.target-bottom-nav .nav-label {
-  font-size: .7rem!important;
-  line-height: 1!important
-}
-
-.module-toolbar {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 0 0 14px
-}
-
-.module-toolbar h2 {
-  margin: 3px 0 0
-}
-
-.editor-panel {
-  padding: 16px;
-  margin-bottom: 14px
-}
-
-.editor-panel>form {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  box-shadow: none;
-  background: transparent
-}
-
-.editor-panel-heading {
-  margin-bottom: 14px
-}
-
-.editor-panel-heading h3 {
-  margin: 0 0 4px
-}
-
-.editor-panel-heading p {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: .82rem
-}
+/*
+ * Aici era un comentariu deschis și niciodată închis. Înghițea tot ce urma,
+ * până la următoarea secvență de închidere — 16 reguli, dezactivate în tăcere.
+ * CSS-ul rămâne valid, deci nimic nu semnala nimic; regulile nu existau.
+ *
+ * Cea mai vizibilă consecință: `.danger-action` nu se aplica, așa că butonul
+ * „Delete" de pe cardurile de exercițiu era negru, nu roșu. Singura regulă
+ * activă pentru clasa asta era `.session-tools .danger-action`, care acoperă
+ * doar butonul de la subsolul sesiunii.
+ *
+ * Din cele 16, se păstrează cele patru folosite și fără alt stăpân, mai jos.
+ * Restul s-au șters, nu s-au reactivat, ca să nu schimbe aspectul pe care
+ * proprietarul l-a aprobat cu ele stinse:
+ *   - `.target-bottom-nav` (5 reguli) — bara de jos e descrisă complet în
+ *     `target-shell.css`, care se importă după asta; astea erau versiunea
+ *     veche și ar fi crescut nav-ul de la 51px la 58px;
+ *   - `.module-toolbar`, `.editor-panel*` (7 reguli) — clase care nu apar în
+ *     niciun `.tsx`;
+ *   - un bloc rămas fără selector, care dimensiona inelul de progres; inelul
+ *     e acum în întregime în `HomePage.css` (etapa 2b).
+ */
 
 .empty-state {
   display: flex;
@@ -95,9 +45,6 @@
 
 /* Existing migrated modules */
 
-.workout-log-page .module-toolbar {
-  margin-bottom: 12px
-}
 
 .session-card-open {
   border-color: color-mix(in srgb,var(--color-accent) 30%,var(--color-border))
@@ -302,15 +249,8 @@ button.session-card-header {
   gap: 12px
 }
 
-.exercise-card-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px
-}
-
-.exercise-card {
-  padding: 14px
-}
+/* .exercise-card-list și .exercise-card sunt definite în exercises-target.css,
+   singura foaie care descrie ecranul Exercises. */
 
 .exercise-card>form {
   margin: 0;
@@ -363,6 +303,28 @@ button.session-card-header {
   flex: 1;
   min-height: 48px;
   padding: 9px
+}
+
+/*
+ * Numele track-ului și unitatea lui. `<strong>` și `<small>` n-aveau nicio
+ * regulă: rămâneau inline într-un span care nu se putea micșora, iar la lățime
+ * de telefon numele se suprapunea peste unitate („Weight (kg)" peste „kg").
+ * Pe coloană nu au cum să se ciocnească, oricât de lung e numele.
+ */
+.track-option>label>span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0
+}
+
+.track-option>label>span strong {
+  font-size: .8rem;
+  overflow-wrap: anywhere
+}
+
+.track-option>label>span small {
+  color: var(--color-text-secondary);
+  font-size: .64rem
 }
 
 .track-delete {

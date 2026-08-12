@@ -35,3 +35,26 @@ export function startOfWeekLocal(now: Date = new Date()): string {
 export function startOfMonthLocal(now: Date = new Date()): string {
   return toLocalDateString(new Date(now.getFullYear(), now.getMonth(), 1))
 }
+
+export const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]
+
+/**
+ * `2026-07-15` → `15 July 2026`. Screen readers get the day spoken rather than
+ * spelled out digit by digit, and a written-out month never reads as a
+ * different date to a different reader the way `07-15` does.
+ *
+ * Lives here, not in a feature module: the workout calendar and the progress
+ * photo gallery both show stored dates, and neither should have to import from
+ * the other to say the same thing.
+ *
+ * Built from the string's own parts on purpose — going through `Date` would
+ * reintroduce the timezone shift the helpers above exist to avoid.
+ */
+export function dayLabel(date: string): string {
+  const [year, month, day] = date.split('-').map(Number)
+  if (!year || !month || !day || !MONTH_NAMES[month - 1]) return date
+  return `${day} ${MONTH_NAMES[month - 1]} ${year}`
+}

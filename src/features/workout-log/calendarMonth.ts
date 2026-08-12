@@ -1,4 +1,4 @@
-import { toLocalDateString } from '../../shared/localDate'
+import { MONTH_NAMES, toLocalDateString } from '../../shared/localDate'
 
 /**
  * The month grid behind the workout calendar.
@@ -19,11 +19,6 @@ export interface CalendarDay {
 
 /** Monday first: a training week starts on Monday, not on Sunday. */
 export const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
-const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-]
 
 export function monthOf(date: string): string {
   return date.slice(0, 7)
@@ -79,12 +74,6 @@ export function monthGrid(month: string): CalendarDay[] {
   return days
 }
 
-/**
- * `2026-07-15` → `15 July 2026`. Screen readers get the day spoken rather than
- * spelled out digit by digit, and it keeps calendar days from colliding with
- * anything else on the page that carries a raw date.
- */
-export function dayLabel(date: string): string {
-  const [year, month, day] = date.split('-').map(Number)
-  return `${day} ${MONTH_NAMES[month - 1]} ${year}`
-}
+/* Re-exported so the calendar's own imports read as one module; the
+   implementation is shared with the photo gallery. See shared/localDate.ts. */
+export { dayLabel } from '../../shared/localDate'

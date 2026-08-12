@@ -63,7 +63,16 @@ Regula pentru fiecare etapă: nu se trece la următoarea până când `npm run l
 - [x] **Etapa 3 — Workout Log**: calendar lunar cu zilele de antrenament marcate. Lista urmează
   luna de pe ecran (altfel calendarul și lista arătau lucruri diferite), iar apăsarea unei zile
   restrânge la ea. Se deschide pe luna ultimului antrenament, nu pe cea curentă.
+- [x] **Reparații raportate de proprietar (2026-08-12)** — cinci ecrane, o cauză
+  comună: CSS valid care nu se aplica. Un comentariu neînchis în `redesign.css`
+  ascundea 16 reguli; două containere nerandate (`.target-exercise-library`,
+  `.target-workout-log`) făceau moarte alte 14; două token-uri (`--radius-full`,
+  `--color-surface-secondary`) nu existau. Plus formularul de editare din Workout
+  Log, care ieșea 26px lățime pentru că pica în coloana de index a unui grid.
+  Gărzile generale sunt în `src/styles/screenRepairs.test.ts`.
 - [ ] **Etapa 4 — Exercises**: căutare, thumbnail-uri, favorite, FAB
+  (`exercises-target.css` are deja regulile pentru căutare și FAB, scrise
+  dinainte pe clase nerandate — se folosesc sau se șterg în etapa asta)
 - [ ] **Etapa 5 — Body Stats**: tab-uri Measurements/Composition/History + „Key Measurements" cu delta față de măsurătoarea anterioară
 - [ ] **Etapa 6 — Settings**: avatar, Units, Import Data (Level/XP și Rest Timer depind de deciziile din `DESIGN_TARGET.md` → „Întrebări deschise")
 

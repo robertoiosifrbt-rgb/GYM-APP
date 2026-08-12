@@ -1,7 +1,32 @@
-.target-exercise-library {
-  position: relative;
-  gap: 13px;
-  padding-bottom: 88px
+/*
+ * Regulile de mai jos descriu ecranul Exercises direct, pe clasele lui.
+ * Până acum, cele care desenau cardurile erau scrise `.target-exercise-library
+ * .exercise-card` — dar `.target-exercise-library` nu e randat nicăieri în
+ * TSX, deci niciuna nu se aplica. De-asta pill-urile de Tracks ieșeau ca text
+ * simplu, lipit: „RepsWeight (kg)".
+ */
+
+/*
+ * Antetul fiecărei secțiuni din formular: „Basics" pe un rând, explicația sub.
+ * N-avea nicio regulă, iar `<span>` și `<small>` sunt amândouă inline — de
+ * aceea se citea „BasicsName and classification", într-un singur cuvânt.
+ */
+.exercise-form-section-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 10px
+}
+
+.exercise-form-section-heading span {
+  font-size: .82rem;
+  font-weight: 800;
+  color: var(--color-text)
+}
+
+.exercise-form-section-heading small {
+  font-size: .68rem;
+  color: var(--color-text-secondary)
 }
 
 .exercise-library-header {
@@ -112,28 +137,30 @@
   font-size: .72rem
 }
 
-.target-exercise-library .exercise-card-list {
+.exercise-card-list {
+  display: flex;
+  flex-direction: column;
   gap: 8px
 }
 
-.target-exercise-library .exercise-card {
+.exercise-card {
   padding: 12px 13px;
   border-radius: 15px;
   box-shadow: 0 3px 12px rgba(16,24,40,.035)
 }
 
-.target-exercise-library .exercise-card-top {
+.exercise-card-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 10px
 }
 
-.target-exercise-library .exercise-card-copy {
+.exercise-card-copy {
   min-width: 0
 }
 
-.target-exercise-library .exercise-category {
+.exercise-category {
   display: inline-block;
   margin-bottom: 4px;
   color: #ff6656;
@@ -143,18 +170,18 @@
   letter-spacing: .04em
 }
 
-.target-exercise-library .exercise-card h3 {
+.exercise-card h3 {
   margin: 0 0 7px;
   font-size: .92rem
 }
 
-.target-exercise-library .track-pills {
+.track-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 5px
 }
 
-.target-exercise-library .track-pills span {
+.track-pills span {
   padding: 4px 7px;
   border-radius: 999px;
   background: #f3f5f8;
@@ -172,14 +199,14 @@
   font-size: .68rem!important
 }
 
-.target-exercise-library .exercise-card-actions {
+.exercise-card-actions {
   display: flex;
   justify-content: flex-end;
   gap: 6px;
   margin-top: 10px
 }
 
-.target-exercise-library .exercise-card-actions button {
+.exercise-card-actions button {
   min-height: 32px;
   padding: 6px 9px;
   font-size: .69rem
@@ -230,39 +257,9 @@
   font-size: 1.2rem
 }
 
-.exercise-visual-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 185px;
-  margin-top: 12px;
-  border-radius: 18px;
-  background: linear-gradient(150deg,#f3f5f8,#fff);
-  color: #8c96a6
-}
 
-.exercise-visual-placeholder .exercise-figure {
-  display: grid;
-  place-items: center;
-  width: 82px;
-  height: 82px;
-  margin-bottom: 9px;
-  border-radius: 50%;
-  background: #e9edf3;
-  color: #ff6258;
-  font-size: 2.2rem
-}
 
-.exercise-visual-placeholder strong {
-  color: #172033;
-  font-size: 1rem
-}
 
-.exercise-visual-placeholder span {
-  margin-top: 4px;
-  font-size: .66rem
-}
 
 .exercise-meta-grid {
   display: grid;
@@ -411,19 +408,9 @@
   box-shadow: 0 10px 24px rgba(255,101,85,.32)!important
 }
 
-.target-exercise-editor {
-  margin: 0
-}
 
-.target-exercise-editor .editor-panel-heading p {
-  max-width: 28rem
-}
 
 @media(max-width:430px) {
-
-  .target-exercise-library {
-    padding-bottom: 82px
-  }
 
   .exercise-library-header h1 {
     font-size: 1.28rem

@@ -3,6 +3,70 @@
 > Regulă: aici stau doar ultimele 5 intrări. Când se adaugă a 6-a, cea mai veche
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
+## 2026-08-12 — reparații pe cinci ecrane, raportate de proprietar
+
+Cauza comună a aproape tuturor: **CSS valid care nu se aplica**. Nimic nu arunca
+erori, build-ul trecea, testele treceau — regulile pur și simplu nu existau.
+De-asta niciunul nu fusese prins până acum.
+
+- **Un comentariu nedeschis corect în `redesign.css`** înghițea **16 reguli**,
+  de la linia 3 până la primul marcaj de închidere, la linia 96. Printre ele
+  `.danger-action` — de aceea butonul „Delete" de pe cardurile de exercițiu era
+  negru, nu roșu. Am păstrat cele patru reguli folosite (`.empty-state`,
+  `.danger-action`, `.form-actions`) și am șters restul, în loc să le reactivez:
+  bara de jos e descrisă complet în `target-shell.css`, iar reactivarea ar fi
+  crescut-o de la 51px la 58px — o schimbare de aspect pe care n-a cerut-o nimeni.
+- **Două containere care nu sunt randate nicăieri** — `.target-exercise-library`
+  și `.target-workout-log` — sub care erau scrise 14 reguli. Toate moarte. De
+  aceea pill-urile de Tracks se citeau „RepsWeight (kg)": nu erau pastile, erau
+  `<span>`-uri inline fără nicio regulă. Regulile sunt acum pe clasele lor.
+- **Două token-uri care nu există**: `--radius-full` (chips-urile de categorie
+  ieșeau pătrate) și `--color-surface-secondary` (chips-urile inactive rămâneau
+  fără fundal; token-ul real e `--color-surface-alt`). Un `var()` nedefinit nu e
+  eroare de CSS — declarația e ignorată în tăcere.
+- **`.exercise-form-section-heading` n-avea nicio regulă.** `<span>` și `<small>`
+  sunt amândouă inline, deci se citea „BasicsName and classification".
+- **Formularul de editare din Workout Log ieșea 26px lățime.**
+  `.target-logged-exercise` e un grid `28px | 1fr | auto` pentru rândul citit
+  (număr | nume | butoane). La Edit, cardul are un singur copil — formularul —
+  care cădea în coloana de 28px. Acum ține tot rândul.
+- **Câmpurile ieșeau din card pe iOS, dar nu în Chromium.** Un flex item are
+  implicit `min-width: auto`, deci nu se micșorează sub lățimea minimă a
+  conținutului; `input[type=date]` și `input[type=file]` au pe iOS o lățime
+  intrinsecă mult mai mare. `min-width: 0` pe `.field`, plafon `max-width: 100%`
+  pe controale. **Nu se poate reproduce de aici** — fixul e argumentat, nu văzut.
+- **Chips-urile de categorie stăteau lângă titlu**, într-un antet
+  `justify-content: space-between`: „Your Exercises" se strângea pe două rânduri
+  într-o coloană îngustă. Acum sunt pe rândul lor.
+- **Data brută `2026-07-15` din galeria de poze** → `15 July 2026`. `dayLabel`
+  s-a mutat din `workout-log/calendarMonth.ts` în `shared/localDate.ts`, ca
+  galeria să nu importe din alt modul de funcționalitate. `PhotoGallery.tsx`
+  rescris lizibil (era pe un rând), cum cere regula pentru orice componentă atinsă.
+
+**Cum s-a verificat ce nu se vede de aici.** Am condus aplicația într-un browser
+headless la 430×932 (dimensiunea din capturi), cu date realiste, și am măsurat
+geometria ca **text**: ce iese din ecran, ce se suprapune, ce control e strivit.
+Așa s-a confirmat `select`-ul de 26px înainte și 350px după, pill-urile ca
+`display:inline radius:0` înainte și `radius:999px` cu fundal după, „Delete" la
+`rgb(220,67,56)` față de `rgb(23,27,37)` la „Edit". Instrumentul a stat în afara
+proiectului — n-a intrat nicio dependență nouă în `package.json`.
+
+**Teste**: +22 în `src/styles/screenRepairs.test.ts`, plus reancorarea unui test
+existent care verifica data brută. Două dintre gărzi sunt generale, nu punctuale:
+una cere ca fiecare `var()` fără fallback să aibă token-ul definit, alta ca niciun
+selector descendent să nu pornească de la o clasă nerandată — **a doua a găsit
+singură `.target-workout-log`, pe care nu-l reparasem.** Validate cu **7 mutații**
+(token șters, reguli rescopate sub containerul mort, antetul revenit inline,
+formularul întors în coloana de 28px, comentariu lăsat neînchis, `min-width`
+scos, token fantomă reintrodus) — toate au picat suita.
+
+- Verificat: `lint` ✅, **254 de teste** ✅, `build` ✅.
+- **Nerezolvat, de decis de proprietar**: „Workout duration 14:04:57". Durata e
+  `endedAt − createdAt`, deci e reală — o sesiune deschisă dimineața și încheiată
+  seara. Nu e un calcul greșit, dar nu e nici o durată de antrenament utilă. E
+  aceeași întrebare rămasă deschisă de la etapa 2b.
+- **Nu e bug**: „Add photos" apare palid pentru că e `disabled` până alegi toate
+  cele patru poze.
 
 ## 2026-08-12 — etapa 3: calendar în Workout Log
 
@@ -50,12 +114,3 @@ Semnalat de proprietar: Home nu arăta ca în mockup. Cauza s-a dovedit a fi exa
 - **Cum s-a verificat ce nu se poate vedea**: fiecare formă de mușchi poartă `data-muscle` și `data-level`, deci colorarea se testează în jsdom chiar dacă desenul nu. **+33 de teste**, validate cu **7 mutații** — revenirea la căutarea în numele exercițiului, potrivirea pe subșir, confundarea celor două niveluri „liniștite", ignorarea perioadei, frazele care nu mai bat cuvintele, Body Parts care nu mai grupează, ordinea nivelurilor inversată — toate au picat suita.
 - **Nu am putut verifica**: dacă silueta *arată* a om. Asta rămâne de confirmat pe ecran.
 - Verificat: `lint` ✅, 167 de teste ✅, `build` ✅.
-
-## 2026-08-12 — etapa 1: shell fără header global
-
-- **Scos header-ul global „Gym App"** din `App.tsx`. Niciun ecran din mockup nu are așa ceva — fiecare își poartă propriul titlu. Bara avea și `env(safe-area-inset-top)` propriu, care se aduna cu cel al lui `.app-content`, deci conținutul era împins în jos de două ori.
-- **`src/shared/PageHeader.tsx`** — un singur titlu de ecran pentru toate paginile. Înlocuiește `.page-header` (index.css), `.target-settings-header` (settings-target.css) și `.body-overview-header` (BodyOverview.css): trei headere aproape identice, ajunse la trei mărimi diferite — 1.8rem, 1.34rem, 1.28rem. Acum 1.15rem centrat (norma din mockup) și 1.5rem la stânga pentru Exercises și Settings, singurele două ecrane cu titlu mare acolo. Are subtitlu opțional și o acțiune la dreapta (butonul `+` de la Progress Photos).
-- **Șters CSS-ul rămas fără stăpân**: `.app-header`, `.app-title` (+ suprascrierea din `@media`), `.page-eyebrow` și `.app-shell.page-home .app-content` — ultimele două erau deja moarte, definite în CSS și nefolosite în niciun `.tsx`.
-- **Aici aspectul se schimbă intenționat**, spre deosebire de etapa 0: titluri uniforme și mai mici, subtitluri de la 0.95rem la 0.75rem, tot conținutul urcă pe ecran. Deci plasa de siguranță nu mai e diff-ul de cascadă (aspectul *trebuie* să se schimbe), ci testele. Cascada a fost folosită doar ca să confirme că ștergerile au scos exact regulile moarte — printre ele un `justify-content: space-between` din `index.css` care încă se aplica peste noul header.
-- **Teste**: +10 (5 pentru `PageHeader`, 5 pentru shell, inclusiv „un singur `h1` per ecran" — forma în care markup-ul vechi tot aluneca). Verificate cu 4 mutații: header-ul global readus, un ecran fără titlu, subtitlul randat când lipsește, `align` ignorat — toate au picat suita.
-- Verificat: `lint` ✅, 134 de teste ✅, `build` ✅.

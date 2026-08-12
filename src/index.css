@@ -318,6 +318,14 @@ form {
   flex: 1 1 150px;
   flex-direction: column;
   gap: 6px;
+  /*
+   * Un flex item are implicit `min-width: auto`, deci nu se micșorează sub
+   * lățimea minimă a conținutului. Controalele native ale iOS-ului —
+   * `input[type=date]` și `input[type=file]` — au o lățime intrinsecă mult mai
+   * mare decât în Chromium, așa că pe telefon câmpul ieșea din card, chiar
+   * dacă input-ul dinăuntru e `width: 100%`. Aici nu se vede, pe iOS da.
+   */
+  min-width: 0;
 }
 
 .field label,
@@ -336,6 +344,9 @@ input,
 select,
 textarea {
   width: 100%;
+  /* Aceeași poveste ca la `.field`: pe iOS lățimea intrinsecă a controalelor
+     native depășește containerul dacă nu i se pune un plafon explicit. */
+  max-width: 100%;
   min-height: var(--tap-size);
   color: var(--color-text);
   background: var(--color-surface-alt);
@@ -791,6 +802,18 @@ button.session-card-header {
   white-space: nowrap;
 }
 
+/*
+ * Chips-urile stau pe rândul lor, sub titlu. Antetul e `display: flex` cu
+ * `justify-content: space-between`, deci le punea lângă „Your Exercises":
+ * titlul se strângea pe două rânduri într-o coloană îngustă, iar chips-urile
+ * se înghesuiau în restul lățimii. La opt categorii nu încap oricum.
+ */
+.section-header:has(.exercise-category-filter) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
 .exercise-category-filter {
   display: flex;
   gap: 0.5rem;
@@ -799,7 +822,9 @@ button.session-card-header {
 }
 
 .exercise-category-filter button {
-  background: var(--color-surface-secondary);
+  /* `--color-surface-secondary` nu a existat niciodată — token-ul se numește
+     `--color-surface-alt`. Chips-urile inactive rămâneau fără fundal. */
+  background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
   padding: 0.5rem 1rem;
   border-radius: var(--radius-full);

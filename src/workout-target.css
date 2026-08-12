@@ -1,8 +1,9 @@
-.target-workout-log {
-  display: flex;
-  flex-direction: column;
-  gap: 14px
-}
+/*
+ * `.target-workout-log` era containerul sub care erau scrise regulile pentru
+ * cardurile de sesiune — dar clasa nu e randată nicăieri în TSX, deci niciuna
+ * nu se aplica. Regulile sunt acum pe clasele lor (`.session-card`,
+ * `button.session-card-header`, …), iar containerul mort a fost șters.
+ */
 
 .workout-log-header {
   display: flex;
@@ -203,21 +204,21 @@
   font-size: .68rem
 }
 
-.target-workout-log .session-card {
+.session-card {
   border-radius: 14px;
   box-shadow: 0 3px 14px rgba(16,24,40,.045)
 }
 
-.target-workout-log button.session-card-header {
+button.session-card-header {
   min-height: 68px;
   padding: 11px 13px
 }
 
-.target-workout-log .session-card-title h3 {
+.session-card-title h3 {
   font-size: .92rem
 }
 
-.target-workout-log .session-meta {
+.session-meta {
   font-size: .69rem
 }
 
@@ -327,10 +328,22 @@
   grid-template-columns: 28px minmax(0,1fr) auto;
   align-items: center;
   gap: 9px;
+  /* vezi regula de sub bloc pentru cazul „în editare" */
   padding: 12px!important;
   border: 1px solid #e2e6ee!important;
   border-radius: 14px!important;
   background: #f7f8fb!important
+}
+
+/*
+ * Cele trei coloane de mai sus sunt pentru rândul citit: număr | nume | butoane.
+ * Când apeși Edit, cardul are un singur copil — formularul — și acela cădea în
+ * prima coloană, cea de 28px: select-ul de exercițiu ajungea la 26px lățime,
+ * imposibil de folosit. Formularul ține tot rândul.
+ */
+.target-logged-exercise > form {
+  grid-column: 1/-1;
+  align-self: stretch
 }
 
 .logged-exercise-index {
@@ -426,10 +439,6 @@
   .calendar-grid button,
   .calendar-empty {
     font-size: .64rem
-  }
-
-  .target-workout-log {
-    gap: 12px
   }
 
   .workout-timer {

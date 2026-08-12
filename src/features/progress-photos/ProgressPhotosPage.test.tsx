@@ -91,6 +91,10 @@ describe('ProgressPhotosPage', () => {
     render(<ProgressPhotosPage />)
     await waitFor(() => expect(screen.getByText(/1 saved photo set could not be read/i)).toBeInTheDocument())
     expect(screen.getByText(/nothing was deleted/i)).toBeInTheDocument()
-    expect(screen.getByText('2026-07-15')).toBeInTheDocument()
+    // The readable label, not the stored `2026-07-15`: this assertion is what
+    // the surviving group is identified by, so it doubles as the guard that
+    // the gallery never goes back to printing the raw date.
+    expect(screen.getByText('15 July 2026')).toBeInTheDocument()
+    expect(screen.queryByText('2026-07-15')).not.toBeInTheDocument()
   })
 })
