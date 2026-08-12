@@ -17,6 +17,7 @@ interface SessionCardProps {
   onUpdateSession: (date: string, name: string) => boolean
   onAddEntry: (entry: NewExerciseEntry) => boolean
   onUpdateEntry: (entryId: string, entry: NewExerciseEntry) => boolean
+  onDeleteEntry?: (entryId: string) => boolean
 }
 
 const sessionLabel = (s: WorkoutSession) => `${s.date}${s.name ? ` — ${s.name}` : ''}`
@@ -32,6 +33,7 @@ export function SessionCard({
   onUpdateSession,
   onAddEntry,
   onUpdateEntry,
+  onDeleteEntry,
 }: SessionCardProps) {
   const [editing, setEditing] = useState(false)
   const [editingEntryId, setEditingEntryId] = useState('')
@@ -63,7 +65,19 @@ export function SessionCard({
                       {entry.sets.map((set) => formatSet(set, fieldTypes)).join(', ')}{' '}
                       <button type="button" onClick={() => setEditingEntryId(entry.id)}>
                         Edit
-                      </button>
+                      </button>{' '}
+                      {onDeleteEntry && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm(`Delete ${entry.exerciseName} from this log?`)) {
+                              onDeleteEntry(entry.id)
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      )}
                     </>
                   )}
                 </li>
