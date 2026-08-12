@@ -21,7 +21,11 @@ function fileInput(angle: PhotoAngle) {
 }
 
 function openForm() {
-  if (!document.getElementById('photo-front')) fireEvent.click(screen.getByRole('button', { name: 'Add photos' }))
+  if (!document.getElementById('photo-front')) {
+    const buttons = screen.getAllByRole('button')
+    const plusButton = buttons.find((btn) => btn.textContent?.includes('+'))
+    if (plusButton) fireEvent.click(plusButton)
+  }
 }
 
 async function selectAllPhotos() {

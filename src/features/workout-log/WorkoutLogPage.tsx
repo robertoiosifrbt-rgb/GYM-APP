@@ -117,7 +117,7 @@ export function WorkoutLogPage() {
     return true
   }
 
-  function handleUpdateEntry(sessionId: string, entryId: string, entry: any): boolean {
+  function handleUpdateEntry(_sessionId: string, entryId: string, entry: any): boolean {
     return updateEntry(entryId, entry)
   }
 
@@ -182,7 +182,7 @@ export function WorkoutLogPage() {
           historyFieldTypes={allFieldTypes}
           getLastEntry={getLastEntry}
           onToggle={() => handleToggle(session.id)}
-          onUpdateSession={(date, name, durationSeconds) => handleUpdateSession(session.id, date, name)}
+          onUpdateSession={(date, name) => handleUpdateSession(session.id, date, name)}
           onFinishSession={() => handleFinishSession(session.id)}
           onDeleteSession={() => handleDeleteSession(session.id)}
           onAddEntry={(entry) => addEntry({ ...entry, sessionId: session.id, date: session.date })}
