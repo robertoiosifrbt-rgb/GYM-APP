@@ -92,7 +92,7 @@ Buton închis „Finish Exercise ›". Card „Next" cu exercițiul următor.
 mușchi. Noi avem un bloc cu iconiță + mușchii primari/secundari ca text. Pozele
 reale sunt o decizie separată (vezi „Întrebări deschise").
 
-### 3. Body Overview — ⬜ de făcut
+### 3. Body Overview — ✅ făcut
 
 Tab-uri **Muscles / Body Parts** (pill închis pe cel activ). **Silueta anatomică
 față + spate**, cu grupele musculare colorate după cât au fost lucrate. Legendă cu
@@ -106,9 +106,9 @@ seturi la dreapta. Barele **nu** copiază culorile de pe siluetă (în mockup,
 umerii sunt roșii pe corp dar bara „Shoulders" e galbenă) — sunt un gradient
 după volum, de la grupa cea mai lucrată spre cea mai puțin lucrată.
 
-*Azi:* există barele, dar fără siluetă, fără tab-uri și fără selector de perioadă.
+*Făcut în etapa 2 și 2c.*
 
-### 4. Workout Log — ⬜ de făcut
+### 4. Workout Log — 🟡 aproape
 
 Header cu `‹` și titlu centrat. **Calendar lunar** cu navigare `‹ May 2025 ›`,
 zilele pe rânduri Mon–Sun, zilele cu antrenament marcate (cerc plin pe ziua
@@ -116,17 +116,19 @@ selectată, cerc colorat pe zilele cu sesiune). Sub calendar, lista de sesiuni:
 dată, nume, `n exercises · durată`, volum, bară colorată la stânga pe sesiunea
 selectată.
 
-*Azi:* lista de sesiuni există (`SessionCard`, accordion). Calendarul lipsește.
+*Azi:* calendarul e făcut (etapa 3). **Rândul de sesiune e incomplet**: arată
+`2026-08-12 | Legs | 6 exercises`, deci fără durată, fără volum, cu data brută în
+loc de forma citibilă, și fără bara colorată la stânga pe sesiunea selectată.
 
-### 5. Exercises — ⬜ de făcut
+### 5. Exercises — ✅ făcut
 
 Titlu, **bară de căutare** cu lupă, buton de filtru la dreapta. **Chips** de
 categorie (All, Chest, Back, Legs, Shoulders…) cu cel activ închis. Listă de
 rânduri: thumbnail, nume, eticheta categoriei, **steluță de favorit**. **FAB**
 coral rotund, jos-dreapta.
 
-*Azi:* chips-urile de categorie există. Lipsesc căutarea, thumbnail-urile,
-favoritele și FAB-ul.
+*Făcut în etapa 4. Diferență acceptată: thumbnail-ul e harta de mușchi, nu o
+fotografie — vezi „Întrebări deschise", punctul 1.*
 
 ### 6. Detaliu exercițiu — ✅ făcut
 
@@ -137,7 +139,7 @@ Category · Equipment · Primary Muscles · Secondary Muscles. Tab-uri
 
 *Diferență acceptată:* fără fotografie (același punct ca la ecranul 2).
 
-### 7. Body Stats — ⬜ de făcut
+### 7. Body Stats — ⬜ de făcut (singurul ecran neînceput)
 
 Tab-uri **Measurements / Composition / History**. Card **Key Measurements** cu data
 sub titlu și rânduri: iconiță, nume, valoare + unitate, și **delta față de
@@ -146,14 +148,14 @@ măsurătoarea anterioară** (săgeată sus/jos, verde). Buton închis
 
 *Azi:* formular + tabel de istoric. Lipsesc tab-urile, cardul de sumar și deltele.
 
-### 8. Progress Photos — ✅ făcut (aproape)
+### 8. Progress Photos — ✅ făcut
 
 Titlu + `+`. Chips **All Photos / Front / Side / Back**. Grilă de 3 coloane,
 grupată pe dată, cu data sub fiecare grup.
 
-*Rămas:* data e afișată brut (`2026-08-12`), în mockup e „May 18, 2025".
+*Data citibilă a fost rezolvată — se afișează „15 July 2026".*
 
-### 9. Settings — ⬜ de făcut
+### 9. Settings — 🟡 cât se poate fără decizii
 
 Card de profil: avatar, nume, **Level** și **bară de XP** (`2,450 / 5,000 XP`).
 Secțiunea **Preferences**: Units (`kg, cm`), Workout Reminders (`On`),
@@ -161,7 +163,11 @@ Rest Timer (`60 sec`), Default Rest Time (`90 sec`) — fiecare rând cu iconiț
 valoare la dreapta și chevron. Secțiunea **Data**: Export Data, Import Data.
 Secțiunea **About**.
 
-*Azi:* rândurile există, dar cu alt conținut și fără avatar, level sau XP.
+*Azi:* cardul de profil există, cu avatar, nume și „Level 1"; sunt și
+Preferences (Appearance, Units), Data (Export, Restore from JSON) și About.
+**Ce lipsește e blocat de „Întrebări deschise", nu de muncă**: bara de XP
+(punctul 2), Rest Timer și Default Rest Time (punctul 3), Workout Reminders
+(punctul 4, marcat „Soon" în ecran).
 
 ---
 
