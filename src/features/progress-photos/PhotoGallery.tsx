@@ -1,47 +1,13 @@
-import { useEffect, useState } from 'react'
-import { PHOTO_ANGLES, type ProgressPhotoSet } from './types'
+import { useEffect, useMemo, useState } from 'react'
+import { PHOTO_ANGLES, type ProgressPhotoSet, type PhotoAngle } from './types'
 
-interface PhotoGalleryProps {
-  photoSets: ProgressPhotoSet[]
-}
+interface PhotoGalleryProps { photoSets:ProgressPhotoSet[]; filter?:'all'|'front'|'side'|'back' }
+const angleLabels:Record<PhotoAngle,string>={front:'Front',back:'Back',left:'Left side',right:'Right side'}
 
-const angleLabels = { front: 'Front', back: 'Back', left: 'Left', right: 'Right' }
-
-export function PhotoGallery({ photoSets }: PhotoGalleryProps) {
-  const [urls, setUrls] = useState<Record<string, string>>({})
-
-  useEffect(() => {
-    const nextUrls: Record<string, string> = {}
-    for (const set of photoSets) {
-      for (const angle of PHOTO_ANGLES) {
-        nextUrls[`${set.id}-${angle}`] = URL.createObjectURL(set.photos[angle])
-      }
-    }
-    setUrls(nextUrls)
-    return () => {
-      Object.values(nextUrls).forEach((url) => URL.revokeObjectURL(url))
-    }
-  }, [photoSets])
-
-  if (photoSets.length === 0) {
-    return <p>No photos yet.</p>
-  }
-
-  return (
-    <div className="photo-sets">
-      {photoSets.map((set) => (
-        <div className="photo-set" key={set.id}>
-          <h3>{set.date}</h3>
-          <div className="photo-grid">
-            {PHOTO_ANGLES.map((angle) => (
-              <figure key={angle}>
-                <img src={urls[`${set.id}-${angle}`]} alt={`${angleLabels[angle]} photo from ${set.date}`} />
-                <figcaption>{angleLabels[angle]}</figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
+export function PhotoGallery({ photoSets, filter='all' }: PhotoGalleryProps) {
+  const [urls,setUrls]=useState<Record<string,string>>({})
+  useEffect(()=>{const next:Record<string,string>={};for(const set of photoSets)for(const angle of PHOTO_ANGLES)next[`${set.id}-${angle}`]=URL.createObjectURL(set.photos[angle]);setUrls(next);return()=>Object.values(next).forEach(url=>URL.revokeObjectURL(url))},[photoSets])
+  const visibleAngles=useMemo<PhotoAngle[]>(()=>filter==='front'?['front']:filter==='back'?['back']:filter==='side'?['left','right']:['front','left','back'],[filter])
+  if(photoSets.length===0)return <p>No photos yet.</p>
+  return <div className="progress-photo-groups">{photoSets.map(set=><section className="progress-photo-group" key={set.id}><h2>{set.date}</h2><div className="progress-photo-grid">{visibleAngles.map(angle=><figure className="progress-photo-tile" key={angle}><img src={urls[`${set.id}-${angle}`]} alt={`${angleLabels[angle]} photo from ${set.date}`}/><figcaption>{angleLabels[angle]}</figcaption></figure>)}</div></section>)}</div>
 }

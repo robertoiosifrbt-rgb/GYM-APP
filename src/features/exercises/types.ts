@@ -5,6 +5,8 @@ export interface FieldType {
   id: string
   label: string
   unit: string
+  /** Archived tracks are hidden from new exercise configuration but kept so old logs stay readable. */
+  archived?: boolean
 }
 
 export const DEFAULT_FIELD_TYPES: FieldType[] = [
@@ -17,7 +19,6 @@ export const DEFAULT_FIELD_TYPES: FieldType[] = [
 export const DEFAULT_CATEGORIES = ['Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Cardio', 'Full Body']
 
 export type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced'
-
 export const DIFFICULTIES: Difficulty[] = ['Beginner', 'Intermediate', 'Advanced']
 
 export interface ExerciseDetails {
@@ -42,21 +43,14 @@ function isDifficulty(value: unknown): value is Difficulty {
 export function parseFieldType(entry: unknown): ParsedEntry<FieldType> {
   if (!isRecord(entry)) return null
   if (!isNonEmptyString(entry.id) || !isNonEmptyString(entry.label)) return null
-  return { value: { id: entry.id, label: entry.label, unit: asString(entry.unit) } }
+  return { value: { id: entry.id, label: entry.label, unit: asString(entry.unit), archived: entry.archived === true || undefined } }
 }
 
-/**
- * Rebuilds one stored exercise. A name and at least one tracked field are what
- * make it usable, so those are required; the descriptive details are optional
- * free text and fall back to empty rather than dropping the exercise.
- */
 export function parseExercise(entry: unknown): ParsedEntry<Exercise> {
   if (!isRecord(entry)) return null
   if (!isNonEmptyString(entry.id) || !isNonEmptyString(entry.name)) return null
 
   const fields = Array.isArray(entry.fields) ? entry.fields.filter(isNonEmptyString) : []
-  if (fields.length === 0) return null
-
   const lossy =
     fields.length !== (Array.isArray(entry.fields) ? entry.fields.length : 0) ||
     (entry.difficulty !== undefined && entry.difficulty !== '' && !isDifficulty(entry.difficulty))

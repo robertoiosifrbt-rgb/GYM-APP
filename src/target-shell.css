@@ -1,0 +1,23 @@
+/* Global shell overrides for the approved visual target. */
+:root{
+  --color-bg:#f7f8fb;
+  --color-surface:#fff;
+  --color-surface-alt:#f5f7fa;
+  --color-surface-strong:#10192b;
+  --color-text:#171b25;
+  --color-text-secondary:#7f8694;
+  --color-border:#eceef2;
+  --color-accent:#ff6553;
+  --color-accent-soft:#fff0ed;
+  --shadow-card:0 5px 18px rgba(16,24,40,.055);
+  --shadow-floating:0 -3px 20px rgba(16,24,40,.07);
+  --page-gutter:14px;
+}
+html,body,#root{width:100%;min-height:100%;overflow-x:hidden}
+body{background:#f7f8fb}.app-shell{width:100%;max-width:430px;min-height:100dvh;background:#f7f8fb}.app-content{padding:calc(env(safe-area-inset-top) + 10px) var(--page-gutter) calc(env(safe-area-inset-bottom) + 82px)}
+.app-shell.page-home .app-content{padding-top:calc(env(safe-area-inset-top) + 8px)}
+.app-content>section{margin-bottom:0}
+.target-bottom-nav{width:min(430px,100%);padding:5px 10px calc(env(safe-area-inset-bottom) + 5px);border-top:1px solid #eceef2;background:rgba(255,255,255,.98);box-shadow:0 -4px 16px rgba(16,24,40,.055)}
+.target-bottom-nav button{min-height:51px;gap:2px;padding:4px 2px;border:0!important;border-radius:0!important;background:transparent!important;color:#9a9faa!important;font-weight:700;box-shadow:none!important}
+.target-bottom-nav button.active{color:var(--color-accent)!important}.target-bottom-nav .nav-icon{width:22px;height:22px;font-size:1.16rem;font-weight:800}.target-bottom-nav .nav-label{font-size:.58rem;font-weight:750}
+@media(prefers-color-scheme:dark){:root{--color-bg:#f7f8fb;--color-surface:#fff;--color-surface-alt:#f5f7fa;--color-surface-strong:#10192b;--color-text:#171b25;--color-text-secondary:#7f8694;--color-border:#eceef2;--color-accent:#ff6553;--color-accent-soft:#fff0ed}body,.app-shell{background:#f7f8fb}}
