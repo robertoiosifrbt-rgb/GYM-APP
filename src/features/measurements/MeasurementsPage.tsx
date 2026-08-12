@@ -3,6 +3,7 @@ import { StorageNotice } from '../../shared/StorageNotice'
 import { useMeasurements } from './useMeasurements'
 import { MeasurementForm } from './MeasurementForm'
 import { MeasurementHistory } from './MeasurementHistory'
+import './measurements-redesign.css'
 
 export function MeasurementsPage() {
   const { measurements, addMeasurement, error, dismissError } = useMeasurements()
