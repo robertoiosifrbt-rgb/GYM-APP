@@ -8,49 +8,25 @@ const EXERCISES_KEY = 'gym-app:exercises'
 const SESSIONS_KEY = 'gym-app:workout-sessions'
 const LOG_KEY = 'gym-app:workout-log'
 
-const BENCH = {
-  id: 'ex-bench',
-  name: 'Bench Press',
-  fields: ['reps', 'kg'],
-  category: '',
-  difficulty: '',
-  equipment: '',
-  primaryMuscles: '',
-  secondaryMuscles: '',
-  instructions: '',
-}
-
+const BENCH = { id: 'ex-bench', name: 'Bench Press', fields: ['reps', 'kg'], category: '', difficulty: '', equipment: '', primaryMuscles: '', secondaryMuscles: '', instructions: '' }
 const SQUAT = { ...BENCH, id: 'ex-squat', name: 'Squat' }
-
 const storedSessions = (): WorkoutSession[] => JSON.parse(localStorage.getItem(SESSIONS_KEY) ?? '[]')
 const storedEntries = (): WorkoutEntry[] => JSON.parse(localStorage.getItem(LOG_KEY) ?? '[]')
 
 function seedSession(over: Partial<WorkoutSession> = {}) {
-  const session: WorkoutSession = {
-    id: 's1',
-    date: todayLocal(),
-    name: 'Push Day',
-    createdAt: '2026-07-15T07:00:00.000Z',
-    ...over,
-  }
+  const session: WorkoutSession = { id: 's1', date: todayLocal(), name: 'Push Day', createdAt: '2026-07-15T07:00:00.000Z', ...over }
   localStorage.setItem(SESSIONS_KEY, JSON.stringify([session]))
   return session
 }
-
 function logExercise(exerciseName: string, reps: string, kg: string) {
-  fireEvent.change(screen.getByLabelText('Exercise'), {
-    target: { value: exerciseName === 'Squat' ? SQUAT.id : BENCH.id },
-  })
+  fireEvent.change(screen.getByLabelText('Exercise'), { target: { value: exerciseName === 'Squat' ? SQUAT.id : BENCH.id } })
   const inputs = screen.getAllByPlaceholderText('Reps')
   fireEvent.change(inputs[inputs.length - 1], { target: { value: reps } })
   const kgInputs = screen.getAllByPlaceholderText('Weight (kg)')
   fireEvent.change(kgInputs[kgInputs.length - 1], { target: { value: kg } })
   fireEvent.click(screen.getByRole('button', { name: 'Log exercise' }))
 }
-
-beforeEach(() => {
-  localStorage.setItem(EXERCISES_KEY, JSON.stringify([BENCH, SQUAT]))
-})
+beforeEach(() => { localStorage.setItem(EXERCISES_KEY, JSON.stringify([BENCH, SQUAT])) })
 
 describe('WorkoutLogPage', () => {
   it('creates a session dated with the local calendar day', () => {
@@ -62,106 +38,40 @@ describe('WorkoutLogPage', () => {
     expect(storedSessions()).toHaveLength(1)
     expect(storedSessions()[0]).toMatchObject({ date: todayLocal(), name: 'Push Day' })
   })
-
   it('stamps a new session with a creation time', () => {
-    render(<WorkoutLogPage />)
-    fireEvent.click(screen.getByRole('button', { name: '+ New session' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Start session' }))
-    expect(storedSessions()[0].createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/)
+    render(<WorkoutLogPage />); fireEvent.click(screen.getByRole('button', { name: '+ New session' })); fireEvent.click(screen.getByRole('button', { name: 'Start session' })); expect(storedSessions()[0].createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/)
   })
-
   it('holds several exercises in one session', () => {
-    seedSession()
-    render(<WorkoutLogPage />)
-    logExercise('Bench Press', '8', '60')
-    logExercise('Squat', '5', '100')
-    expect(storedEntries()).toHaveLength(2)
-    expect(storedEntries().map((e) => e.exerciseName).sort()).toEqual(['Bench Press', 'Squat'])
-    expect(storedEntries().every((e) => e.sessionId === 's1')).toBe(true)
+    seedSession(); render(<WorkoutLogPage />); logExercise('Bench Press', '8', '60'); logExercise('Squat', '5', '100'); expect(storedEntries()).toHaveLength(2); expect(storedEntries().map((e) => e.exerciseName).sort()).toEqual(['Bench Press', 'Squat']); expect(storedEntries().every((e) => e.sessionId === 's1')).toBe(true)
   })
-
   it('stores the exercise name alongside its id so history survives a deletion', () => {
-    seedSession()
-    render(<WorkoutLogPage />)
-    logExercise('Bench Press', '8', '60')
-    expect(storedEntries()[0]).toMatchObject({ exerciseId: BENCH.id, exerciseName: 'Bench Press' })
+    seedSession(); render(<WorkoutLogPage />); logExercise('Bench Press', '8', '60'); expect(storedEntries()[0]).toMatchObject({ exerciseId: BENCH.id, exerciseName: 'Bench Press' })
   })
-
   it('shows the most recently logged sets when two exist on the same day', () => {
-    seedSession()
-    localStorage.setItem(LOG_KEY, JSON.stringify([
-      { id: 'morning', sessionId: 's1', date: '2026-07-15', exerciseId: BENCH.id, exerciseName: 'Bench Press', sets: [{ reps: 5, kg: 50 }], createdAt: '2026-07-15T07:00:00.000Z' },
-      { id: 'evening', sessionId: 's1', date: '2026-07-15', exerciseId: BENCH.id, exerciseName: 'Bench Press', sets: [{ reps: 12, kg: 70 }], createdAt: '2026-07-15T18:00:00.000Z' },
-    ]))
-    render(<WorkoutLogPage />)
-    fireEvent.change(screen.getByLabelText('Exercise'), { target: { value: BENCH.id } })
-    const hint = screen.getByText(/Last time/)
-    expect(hint).toHaveTextContent('70kg')
-    expect(hint).not.toHaveTextContent('50kg')
+    const date = todayLocal(); seedSession({ date }); localStorage.setItem(LOG_KEY, JSON.stringify([
+      { id: 'morning', sessionId: 's1', date, exerciseId: BENCH.id, exerciseName: 'Bench Press', sets: [{ reps: 5, kg: 50 }], createdAt: `${date}T07:00:00.000Z` },
+      { id: 'evening', sessionId: 's1', date, exerciseId: BENCH.id, exerciseName: 'Bench Press', sets: [{ reps: 12, kg: 70 }], createdAt: `${date}T18:00:00.000Z` },
+    ])); render(<WorkoutLogPage />); fireEvent.change(screen.getByLabelText('Exercise'), { target: { value: BENCH.id } }); const hint = screen.getByText(/Last time/); expect(hint).toHaveTextContent('70kg'); expect(hint).not.toHaveTextContent('50kg')
   })
-
   it('moves a session and its logged exercises to the new date together', () => {
-    seedSession({ date: '2026-07-15' })
-    render(<WorkoutLogPage />)
-    logExercise('Bench Press', '8', '60')
-    fireEvent.click(screen.getByRole('button', { name: /Edit session/ }))
-    fireEvent.change(screen.getByLabelText('Date'), { target: { value: '2026-07-16' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }))
-    expect(storedSessions()[0].date).toBe('2026-07-16')
-    expect(storedEntries()[0].date).toBe('2026-07-16')
+    const originalDate = todayLocal(); const next = new Date(`${originalDate}T12:00:00`); next.setDate(next.getDate() + 1); const newDate = next.toISOString().slice(0, 10); seedSession({ date: originalDate }); render(<WorkoutLogPage />); logExercise('Bench Press', '8', '60'); fireEvent.click(screen.getByRole('button', { name: /Edit session/ })); fireEvent.change(screen.getByLabelText('Date'), { target: { value: newDate } }); fireEvent.click(screen.getByRole('button', { name: 'Save changes' })); expect(storedSessions()[0].date).toBe(newDate); expect(storedEntries()[0].date).toBe(newDate)
   })
-
   it('gives entries saved before sessions existed a session of their own', () => {
-    localStorage.setItem(LOG_KEY, JSON.stringify([{ id: 'legacy', date: '2026-07-15', exerciseId: BENCH.id, exerciseName: 'Bench Press', sets: [{ reps: 8 }] }]))
-    render(<WorkoutLogPage />)
-    expect(storedSessions()).toHaveLength(1)
-    expect(storedSessions()[0].date).toBe('2026-07-15')
-    expect(storedEntries()[0].sessionId).toBe(storedSessions()[0].id)
+    localStorage.setItem(LOG_KEY, JSON.stringify([{ id: 'legacy', date: '2026-07-15', exerciseId: BENCH.id, exerciseName: 'Bench Press', sets: [{ reps: 8 }] }])); render(<WorkoutLogPage />); expect(storedSessions()).toHaveLength(1); expect(storedSessions()[0].date).toBe('2026-07-15'); expect(storedEntries()[0].sessionId).toBe(storedSessions()[0].id)
   })
-
   it('refuses impossible set values when the browser check is bypassed', () => {
-    seedSession()
-    render(<WorkoutLogPage />)
-    fireEvent.change(screen.getByLabelText('Exercise'), { target: { value: BENCH.id } })
-    fireEvent.change(screen.getAllByPlaceholderText('Reps')[0], { target: { value: '-3' } })
-    const form = screen.getByRole('button', { name: 'Log exercise' }).closest('form')!
-    fireEvent.submit(form)
-    expect(screen.getByRole('alert')).toHaveTextContent(/must be between 0 and 100000/)
-    expect(storedEntries()).toHaveLength(0)
+    seedSession(); render(<WorkoutLogPage />); fireEvent.change(screen.getByLabelText('Exercise'), { target: { value: BENCH.id } }); fireEvent.change(screen.getAllByPlaceholderText('Reps')[0], { target: { value: '-3' } }); const form = screen.getByRole('button', { name: 'Log exercise' }).closest('form')!; fireEvent.submit(form); expect(screen.getByRole('alert')).toHaveTextContent(/must be between 0 and 100000/); expect(storedEntries()).toHaveLength(0)
   })
-
   it('will not log an exercise with no values filled in', () => {
-    seedSession()
-    render(<WorkoutLogPage />)
-    fireEvent.change(screen.getByLabelText('Exercise'), { target: { value: BENCH.id } })
-    fireEvent.click(screen.getByRole('button', { name: 'Log exercise' }))
-    expect(screen.getByRole('alert')).toHaveTextContent(/at least one set/i)
-    expect(storedEntries()).toHaveLength(0)
+    seedSession(); render(<WorkoutLogPage />); fireEvent.change(screen.getByLabelText('Exercise'), { target: { value: BENCH.id } }); fireEvent.click(screen.getByRole('button', { name: 'Log exercise' })); expect(screen.getByRole('alert')).toHaveTextContent(/at least one set/i); expect(storedEntries()).toHaveLength(0)
   })
-
   it('reports a refused write and keeps the sets on screen', () => {
-    seedSession()
-    render(<WorkoutLogPage />)
-    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new DOMException('exceeded', 'QuotaExceededError') })
-    logExercise('Bench Press', '8', '60')
-    expect(screen.getByText(/out of storage space/i)).toBeInTheDocument()
-    expect(screen.getAllByPlaceholderText('Reps')[0]).toHaveValue(8)
-    expect(localStorage.getItem(LOG_KEY)).toBeNull()
-    setItem.mockRestore()
+    seedSession(); render(<WorkoutLogPage />); const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new DOMException('exceeded', 'QuotaExceededError') }); logExercise('Bench Press', '8', '60'); expect(screen.getByText(/out of storage space/i)).toBeInTheDocument(); expect(screen.getAllByPlaceholderText('Reps')[0]).toHaveValue(8); expect(localStorage.getItem(LOG_KEY)).toBeNull(); setItem.mockRestore()
   })
-
   it('still renders when the stored sessions are corrupt', () => {
-    localStorage.setItem(SESSIONS_KEY, 'nonsense{')
-    render(<WorkoutLogPage />)
-    expect(screen.getByRole('heading', { name: 'Daily log' })).toBeInTheDocument()
-    expect(screen.getByText(/unreadable/i)).toBeInTheDocument()
+    localStorage.setItem(SESSIONS_KEY, 'nonsense{'); render(<WorkoutLogPage />); expect(screen.getByRole('heading', { name: 'Daily log' })).toBeInTheDocument(); expect(screen.getByText(/unreadable/i)).toBeInTheDocument()
   })
-
   it('still renders when the stored entries are corrupt', () => {
-    seedSession()
-    localStorage.setItem(LOG_KEY, '[{"id":')
-    render(<WorkoutLogPage />)
-    expect(screen.getByRole('heading', { name: 'Daily log' })).toBeInTheDocument()
-    expect(screen.getByText(/unreadable/i)).toBeInTheDocument()
+    seedSession(); localStorage.setItem(LOG_KEY, '[{"id":'); render(<WorkoutLogPage />); expect(screen.getByRole('heading', { name: 'Daily log' })).toBeInTheDocument(); expect(screen.getByText(/unreadable/i)).toBeInTheDocument()
   })
 })
