@@ -75,12 +75,15 @@ export function HomePage({ onStartWorkout, onOpenExercises, onOpenBody, onOpenPh
   const todayEntries = todaySession ? entries.filter((entry) => entry.sessionId === todaySession.id) : []
   const recentSessions = sessions.slice(0, 3)
 
+  const circumference = 2 * Math.PI * 45
+  const strokeDashoffset = circumference - (weeklyPercent / 100) * circumference
+
   return <section className="target-home">
     <header className="target-home-header"><div><h1><span className="hello-wave" aria-hidden="true">👋</span> Hey Roberto</h1><p>Ready to crush your goals?</p></div><button type="button" className="icon-button" aria-label="Notifications"><Icon name="bell"/></button></header>
 
     <section className="target-card weekly-progress-card" aria-label="Weekly Progress">
       <h2>Weekly Progress</h2>
-      <div className="weekly-progress-layout"><div className="progress-ring" style={{ '--progress': `${weeklyPercent * 3.6}deg` } as React.CSSProperties}><div><strong>{weeklyPercent}%</strong></div></div><dl className="weekly-metrics"><div><dt>Workouts</dt><dd>{weeklyWorkouts} / 5</dd></div><div><dt>Volume</dt><dd>{weeklyVolume ? `${(weeklyVolume / 1000).toFixed(1)}k kg` : '—'}</dd></div><div><dt>Duration</dt><dd>{formatDuration(weeklyDuration)}</dd></div></dl></div>
+      <div className="weekly-progress-layout"><div className="progress-ring"><svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="45" className="progress-ring-bg"/><circle cx="60" cy="60" r="45" className="progress-ring-fill" style={{strokeDashoffset}} strokeDasharray={circumference}/></svg><div className="progress-ring-text"><strong>{weeklyPercent}%</strong></div></div><dl className="weekly-metrics"><div><dt>Workouts</dt><dd>{weeklyWorkouts} / 5</dd></div><div><dt>Volume</dt><dd>{weeklyVolume ? `${(weeklyVolume / 1000).toFixed(1)}k kg` : '—'}</dd></div><div><dt>Duration</dt><dd>{formatDuration(weeklyDuration)}</dd></div></dl></div>
     </section>
 
     <section className="target-card today-workout-card"><h2>Today's Workout</h2><strong className="today-workout-name">{todaySession?.name || (todaySession ? 'Workout' : 'No workout started')}</strong><span className="today-workout-meta">{todaySession ? `${todayEntries.length} ${todayEntries.length === 1 ? 'exercise' : 'exercises'}${todaySession.endedAt ? ` · ${formatDuration(sessionDurationSeconds(todaySession))}` : ' · in progress'}` : 'Start a session when you are ready'}</span><button type="button" className="coral-action" onClick={onStartWorkout}><span className="button-icon"><Icon name="workout"/></span>{todaySession && !todaySession.endedAt ? 'Continue Workout' : 'Start Workout'}</button></section>
