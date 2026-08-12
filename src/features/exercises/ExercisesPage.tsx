@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { StorageNotice } from '../../shared/StorageNotice'
 import { PageHeader } from '../../shared/PageHeader'
 import { useExercises } from './useExercises'
@@ -10,7 +10,12 @@ import type { ExerciseDetails } from './types'
 import { SearchIcon, StarIcon } from './icons'
 import './exercises.css'
 
-export function ExercisesPage() {
+interface ExercisesPageProps {
+  /** Rândul de tab-uri Log / Exercises, randat sub titlu. Vezi `WorkoutLogPage`. */
+  tabs?: ReactNode
+}
+
+export function ExercisesPage({ tabs }: ExercisesPageProps = {}) {
   const {
     exercises,
     addExercise,
@@ -73,6 +78,8 @@ export function ExercisesPage() {
         align="left"
         subtitle={`${exercises.length} ${exercises.length === 1 ? 'exercise' : 'exercises'} in your library`}
       />
+
+      {tabs}
 
       <StorageNotice message={exercisesError ?? fieldTypesError} onDismiss={dismissAll} />
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useExercises, useFieldTypes } from '../exercises'
 import { StorageNotice } from '../../shared/StorageNotice'
 import { todayLocal } from '../../shared/localDate'
@@ -11,7 +11,18 @@ import { currentMonth, monthLabel, monthOf } from './calendarMonth'
 import './workout-log.css'
 import { PageHeader } from '../../shared/PageHeader'
 
-export function WorkoutLogPage() {
+interface WorkoutLogPageProps {
+  /**
+   * Rândul de tab-uri Log / Exercises, dat de shell.
+   *
+   * Se randează **sub** titlu, nu deasupra lui: fiecare ecran din target începe
+   * cu propriul titlu, iar tab-urile stau sub el — ca la Body. Deasupra, ele
+   * arătau ca un al doilea header global, exact lucrul scos în etapa 1.
+   */
+  tabs?: ReactNode
+}
+
+export function WorkoutLogPage({ tabs }: WorkoutLogPageProps = {}) {
   const { exercises } = useExercises()
   const { fieldTypes, allFieldTypes } = useFieldTypes()
   const {
@@ -183,6 +194,8 @@ export function WorkoutLogPage() {
         title="Workout Log"
         subtitle={`${sessions.length} ${sessions.length === 1 ? 'session' : 'sessions'} recorded`}
       />
+
+      {tabs}
 
       <WorkoutCalendar
         month={month}

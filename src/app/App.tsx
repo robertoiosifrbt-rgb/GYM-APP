@@ -25,6 +25,17 @@ function AppScreens() {
   const [runner, setRunner] = useState<RunnerState>(null)
   const updateAvailable = useVersionCheck()
 
+  const workoutTabs = (
+    <SubNav
+      tabs={[
+        { key: 'log', label: 'Log' },
+        { key: 'exercises', label: 'Exercises' },
+      ]}
+      current={workoutSubPage}
+      onChange={setWorkoutSubPage}
+    />
+  )
+
   function openWorkoutLog() {
     setPage('workout')
     setWorkoutSubPage('log')
@@ -68,17 +79,15 @@ function AppScreens() {
           {page === 'body' && <BodyPage />}
 
           {page === 'workout' && (
+            /*
+             * Tab-urile intră **în** ecran, sub titlul lui. Randate aici, ele
+             * apăreau deasupra lui „Workout Log" — adică o a doua bară care
+             * traversa toate ecranele tab-ului, exact forma scoasă în etapa 1.
+             * Body își ține tab-urile sub titlu de la bun început.
+             */
             <>
-              <SubNav
-                tabs={[
-                  { key: 'log', label: 'Log' },
-                  { key: 'exercises', label: 'Exercises' },
-                ]}
-                current={workoutSubPage}
-                onChange={setWorkoutSubPage}
-              />
-              {workoutSubPage === 'log' && <WorkoutLogPage />}
-              {workoutSubPage === 'exercises' && <ExercisesPage />}
+              {workoutSubPage === 'log' && <WorkoutLogPage tabs={workoutTabs} />}
+              {workoutSubPage === 'exercises' && <ExercisesPage tabs={workoutTabs} />}
             </>
           )}
 
