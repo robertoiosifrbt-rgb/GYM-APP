@@ -70,7 +70,7 @@ export function HomePage({ onStartWorkout, onOpenExercises, onOpenBody, onOpenPh
   const weeklyWorkouts = Math.min(weeklySessions.length, 5)
   const weeklyPercent = Math.round((weeklyWorkouts / 5) * 100)
   const weeklyVolume = weeklySessions.reduce((sum, session) => sum + sessionVolume(entries, session.id), 0)
-  const weeklyDuration = weeklySessions.reduce((sum, session) => sum + sessionDurationSeconds(session), 0)
+  const weeklyDuration = weeklySessions.filter((s) => s.endedAt).reduce((sum, session) => sum + sessionDurationSeconds(session), 0)
   const todaySession = sessions.find((session) => session.date === today && !session.endedAt) ?? sessions.find((session) => session.date === today)
   const todayEntries = todaySession ? entries.filter((entry) => entry.sessionId === todaySession.id) : []
   const recentSessions = sessions.slice(0, 3)
