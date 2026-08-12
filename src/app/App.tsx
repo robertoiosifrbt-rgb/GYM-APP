@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { MeasurementsPage } from '../features/measurements'
-import { ProgressPhotosPage } from '../features/progress-photos'
+import { BodyPage } from '../features/body'
 import { ExercisesPage } from '../features/exercises'
 import { WorkoutLogPage } from '../features/workout-log'
 import { SettingsPage } from '../features/settings'
@@ -12,12 +11,10 @@ import { UpdateBanner } from './UpdateBanner'
 import { useVersionCheck } from './useVersionCheck'
 
 export type Page = 'home' | 'body' | 'workout' | 'settings'
-type BodySubPage = 'measurements' | 'photos'
 type WorkoutSubPage = 'log' | 'exercises'
 
 function App() {
   const [page, setPage] = useState<Page>('home')
-  const [bodySubPage, setBodySubPage] = useState<BodySubPage>('measurements')
   const [workoutSubPage, setWorkoutSubPage] = useState<WorkoutSubPage>('log')
   const updateAvailable = useVersionCheck()
 
@@ -38,20 +35,7 @@ function App() {
         <ErrorBoundary>
           {page === 'home' && <HomePage onStartWorkout={handleStartWorkout} />}
 
-          {page === 'body' && (
-            <>
-              <SubNav
-                tabs={[
-                  { key: 'measurements', label: 'Measurements' },
-                  { key: 'photos', label: 'Photos' },
-                ]}
-                current={bodySubPage}
-                onChange={setBodySubPage}
-              />
-              {bodySubPage === 'measurements' && <MeasurementsPage />}
-              {bodySubPage === 'photos' && <ProgressPhotosPage />}
-            </>
-          )}
+          {page === 'body' && <BodyPage />}
 
           {page === 'workout' && (
             <>
