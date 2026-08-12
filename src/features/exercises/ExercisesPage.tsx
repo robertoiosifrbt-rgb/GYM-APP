@@ -29,8 +29,18 @@ export function ExercisesPage() {
 
   return (
     <section>
-      <h2>Exercises</h2>
+      <div className="page-header">
+        <div>
+          <h1>Exercises</h1>
+          <p>{exercises.length} {exercises.length === 1 ? 'exercise' : 'exercises'} in your library</p>
+        </div>
+      </div>
+
       <StorageNotice message={exercisesError ?? fieldTypesError} onDismiss={dismissAll} />
+
+      <div className="section-header">
+        <h2>Add New Exercise</h2>
+      </div>
       <ExerciseForm
         exercises={exercises}
         fieldTypes={fieldTypes}
@@ -38,6 +48,10 @@ export function ExercisesPage() {
         submitLabel="Add exercise"
         onSubmit={addExercise}
       />
+
+      <div className="section-header">
+        <h2>Your Exercises</h2>
+      </div>
       <ExerciseList
         exercises={exercises}
         fieldTypes={fieldTypes}
