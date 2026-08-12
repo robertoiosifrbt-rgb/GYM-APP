@@ -23,7 +23,11 @@ export function WorkoutTimer({ startedAt, endedAt, sessionDate, onFinish }: Work
   const isHistoricalWithoutEnd = Boolean(startedAt && !endedAt && sessionDate !== todayLocal())
 
   useEffect(() => {
-    if (!startedAt || endedAt || isHistoricalWithoutEnd) return
+    if (endedAt) {
+      setNow(Date.now())
+      return
+    }
+    if (!startedAt || isHistoricalWithoutEnd) return
     const interval = window.setInterval(() => setNow(Date.now()), 1000)
     return () => window.clearInterval(interval)
   }, [startedAt, endedAt, isHistoricalWithoutEnd])
