@@ -795,3 +795,54 @@ button.session-card-header {
   font-size: 1.1rem;
   color: var(--color-accent);
 }
+
+/* Settings page */
+
+.settings-section {
+  margin-bottom: 1.5rem;
+}
+
+.settings-section h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.75rem;
+  color: var(--color-text);
+}
+
+.settings-section p {
+  margin: 0 0 1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.settings-button {
+  background: var(--color-accent) !important;
+  color: var(--color-accent-contrast) !important;
+  border: none !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.settings-button:hover {
+  opacity: 0.9;
+}
+
+.settings-help {
+  background: var(--color-surface-alt);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem !important;
+  color: var(--color-text-secondary);
+  margin: 0 !important;
+}
+
+.settings-help code {
+  background: var(--color-border);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.8rem;
+}
