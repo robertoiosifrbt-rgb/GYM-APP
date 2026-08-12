@@ -34,6 +34,9 @@ export function WorkoutTimer({ startedAt, endedAt, sessionDate, onFinish }: Work
     if (endedAt || !startedAt || isHistoricalWithoutEnd) return
     if (intervalRef.current) window.clearInterval(intervalRef.current)
     intervalRef.current = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current)
+    }
   }, [startedAt, endedAt, isHistoricalWithoutEnd])
 
   useEffect(() => {
