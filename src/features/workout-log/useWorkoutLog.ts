@@ -41,6 +41,10 @@ export function useWorkoutLog() {
     )
   }
 
+  function deleteEntry(entryId: string): boolean {
+    return update((prev) => prev.filter((entry) => entry.id !== entryId))
+  }
+
   function getLastEntry(exerciseId: string): WorkoutEntry | undefined {
     // Already stored sorted, but sorting the filtered copy keeps this correct
     // regardless of how the array got here.
@@ -63,6 +67,7 @@ export function useWorkoutLog() {
     entries,
     addEntry,
     updateEntry,
+    deleteEntry,
     getLastEntry,
     backfillSessionIds,
     updateEntriesDate,
