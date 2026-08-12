@@ -1,6 +1,6 @@
 import { recoverArray } from '../../shared/storage'
 import { usePersistedState } from '../../shared/usePersistedState'
-import { byRecencyDesc, parseWorkoutEntry, type WorkoutEntry } from './types'
+import { byRecencyDesc, parseWorkoutEntry, type NewExerciseEntry, type WorkoutEntry } from './types'
 
 const STORAGE_KEY = 'gym-app:workout-log'
 
@@ -24,6 +24,23 @@ export function useWorkoutLog() {
     return update((prev) => [...prev, newEntry].sort(byRecencyDesc))
   }
 
+  function updateEntry(entryId: string, entry: NewExerciseEntry): boolean {
+    return update((prev) =>
+      prev
+        .map((existing) =>
+          existing.id === entryId
+            ? {
+                ...existing,
+                exerciseId: entry.exerciseId,
+                exerciseName: entry.exerciseName,
+                sets: entry.sets,
+              }
+            : existing,
+        )
+        .sort(byRecencyDesc),
+    )
+  }
+
   function getLastEntry(exerciseId: string): WorkoutEntry | undefined {
     // Already stored sorted, but sorting the filtered copy keeps this correct
     // regardless of how the array got here.
@@ -42,5 +59,14 @@ export function useWorkoutLog() {
     )
   }
 
-  return { entries, addEntry, getLastEntry, backfillSessionIds, updateEntriesDate, error, dismissError }
+  return {
+    entries,
+    addEntry,
+    updateEntry,
+    getLastEntry,
+    backfillSessionIds,
+    updateEntriesDate,
+    error,
+    dismissError,
+  }
 }
