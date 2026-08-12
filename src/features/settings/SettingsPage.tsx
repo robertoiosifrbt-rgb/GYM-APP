@@ -1,41 +1,47 @@
 import { useDataExport } from './useDataExport'
 
+function Chevron() {
+  return <span className="settings-chevron" aria-hidden="true">›</span>
+}
+
 export function SettingsPage() {
   const { downloadAsJson } = useDataExport()
 
   return (
-    <section className="settings-page">
-      <div className="module-toolbar settings-toolbar">
-        <div><span className="card-kicker">SETTINGS</span><h2>Data & backup</h2></div>
-      </div>
+    <section className="settings-page target-settings-page">
+      <header className="target-settings-header"><h1>Settings</h1></header>
 
-      <div className="settings-group card">
-        <div className="settings-group-heading"><span className="card-kicker">BACKUP</span><h2>Your app data</h2></div>
-        <div className="settings-row settings-action-row">
-          <div><strong>Export JSON backup</strong><span>Exercises, Tracks, workout sessions, logged sets and measurements.</span></div>
-          <button type="button" className="primary-action" onClick={downloadAsJson}>Export JSON</button>
+      <section className="settings-profile-card">
+        <div className="settings-avatar" aria-hidden="true">R</div>
+        <div className="settings-profile-copy"><strong>Roberto</strong><span>GYM APP profile</span></div>
+        <span className="settings-level">Level 1</span>
+      </section>
+
+      <section className="target-settings-section">
+        <h2>Preferences</h2>
+        <div className="target-settings-list">
+          <div className="target-settings-row"><span className="settings-row-icon">◐</span><div><strong>Appearance</strong><span>System default</span></div><Chevron /></div>
+          <div className="target-settings-row"><span className="settings-row-icon">◎</span><div><strong>Units</strong><span>Metric</span></div><Chevron /></div>
+          <div className="target-settings-row"><span className="settings-row-icon">◌</span><div><strong>Notifications</strong><span>Workout reminders</span></div><Chevron /></div>
         </div>
-      </div>
+      </section>
 
-      <div className="settings-group card warning-card">
-        <div className="settings-group-heading"><span className="card-kicker">PHOTOS</span><h2>Progress photos need separate backup</h2></div>
-        <div className="settings-warning-copy">
-          <strong>Not included in JSON</strong>
-          <p>Progress photos live separately in this browser. Save important photos somewhere else before clearing browser data, deleting site data or changing devices.</p>
+      <section className="target-settings-section">
+        <h2>Data</h2>
+        <div className="target-settings-list">
+          <button type="button" className="target-settings-row settings-row-button" onClick={downloadAsJson}><span className="settings-row-icon">⇩</span><div><strong>Export data</strong><span>Exercises, Tracks, workouts and measurements</span></div><Chevron /></button>
+          <div className="target-settings-row"><span className="settings-row-icon">⇧</span><div><strong>Restore from JSON</strong><span>Coming later</span></div><span className="status-pill">Soon</span></div>
+          <div className="target-settings-row"><span className="settings-row-icon">▣</span><div><strong>Progress photos</strong><span>Stored separately on this device</span></div><Chevron /></div>
         </div>
-      </div>
+      </section>
 
-      <div className="settings-group card">
-        <div className="settings-row static-row">
-          <div><strong>Restore from JSON</strong><span>Backup import is not available yet.</span></div>
-          <span className="status-pill" aria-label="Restore status">Coming later</span>
+      <section className="target-settings-section">
+        <h2>About</h2>
+        <div className="target-settings-list">
+          <div className="target-settings-row"><span className="settings-row-icon">i</span><div><strong>Storage</strong><span>Workout and body data stay in browser storage</span></div><Chevron /></div>
+          <div className="target-settings-row"><span className="settings-row-icon">?</span><div><strong>GYM APP</strong><span>Personal training log</span></div><Chevron /></div>
         </div>
-      </div>
-
-      <div className="settings-group card settings-info-card">
-        <div className="settings-group-heading"><span className="card-kicker">STORAGE</span><h2>How your data is kept</h2></div>
-        <p>Workout and body data stay on this device in browser storage. Export regularly if the data matters to you.</p>
-      </div>
+      </section>
     </section>
   )
 }
