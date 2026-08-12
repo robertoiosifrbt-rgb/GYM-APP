@@ -4,25 +4,25 @@ export function SettingsPage() {
   const { downloadAsJson } = useDataExport()
 
   return (
-    <section>
-      <h2>Settings</h2>
+    <section className="settings-page">
+      <div className="settings-group card">
+        <div className="settings-group-heading"><span className="card-kicker">BACKUP</span><h2>Your data</h2></div>
+        <div className="settings-row">
+          <div><strong>Export app data</strong><span>Exercises, sessions, workouts and measurements</span></div>
+          <button type="button" onClick={downloadAsJson}>Export JSON</button>
+        </div>
+      </div>
 
-      <div className="field">
-        <h3>Data Export</h3>
-        <p>
-          Export your workout data (exercises, sessions, workouts, measurements) as a JSON file.
-        </p>
-        <button type="button" onClick={downloadAsJson}>
-          📥 Download Export
-        </button>
-        <p className="field-help">
-          Creates a file like: gym-app-backup-2026-08-08.json
-          <br />
-          <strong>Note:</strong> Export does NOT include progress photos. Photos are stored in browser IndexedDB and
-          cannot be recovered once cleared. For full backup, manually save photo files before clearing site data.
-          <br />
-          <strong>Note:</strong> Import/restore from JSON is not yet available.
-        </p>
+      <div className="settings-group card warning-card">
+        <div className="settings-group-heading"><span className="card-kicker">IMPORTANT</span><h2>Progress photos</h2></div>
+        <p>Progress photos are stored separately in this browser and are not included in the JSON export. Save important photos elsewhere before clearing browser or site data.</p>
+      </div>
+
+      <div className="settings-group card">
+        <div className="settings-row static-row">
+          <div><strong>Restore from backup</strong><span>Import from JSON is not available yet</span></div>
+          <span className="status-pill">Coming later</span>
+        </div>
       </div>
     </section>
   )
