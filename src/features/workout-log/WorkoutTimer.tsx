@@ -1,15 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { todayLocal } from '../../shared/localDate'
-
-function formatTime(totalSeconds: number) {
-  const safeSeconds = Math.max(0, totalSeconds)
-  const hours = Math.floor(safeSeconds / 3600)
-  const minutes = Math.floor((safeSeconds % 3600) / 60)
-  const seconds = safeSeconds % 60
-  return hours > 0
-    ? `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-    : `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-}
+import { formatClock } from '../../shared/formatClock'
 
 interface WorkoutTimerProps {
   startedAt?: string
@@ -64,7 +55,7 @@ export function WorkoutTimer({ startedAt, endedAt, sessionDate, onFinish }: Work
   return <section className={`workout-timer ${endedAt ? 'is-finished' : 'is-running'}`} aria-label="Workout timer">
     <div className="workout-timer-copy">
       <span>{endedAt ? 'Workout duration' : 'Session time'}</span>
-      <strong aria-live="polite">{formatTime(seconds)}</strong>
+      <strong aria-live="polite">{formatClock(seconds)}</strong>
     </div>
     {!endedAt && onFinish && <div className="workout-timer-controls">
       <button type="button" className="workout-timer-main" onClick={onFinish}>Finish session</button>

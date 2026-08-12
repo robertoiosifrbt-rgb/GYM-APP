@@ -110,4 +110,47 @@ describe('parseWorkoutSession', () => {
     expect(parseWorkoutSession({ id: '', date: '2026-07-15' })).toBeNull()
     expect(parseWorkoutSession({ id: 's1', date: '2026-99-01' })).toBeNull()
   })
+
+  /*
+   * `endedAt` used to be written by "finish session" and then thrown away on
+   * the next load, so finished workouts came back as still running and their
+   * duration disappeared.
+   */
+  it('keeps the end of a finished session', () => {
+    const session = {
+      id: 's1',
+      date: '2026-07-15',
+      name: 'Push Day',
+      createdAt: '2026-07-15T07:00:00.000Z',
+      endedAt: '2026-07-15T08:12:00.000Z',
+    }
+    expect(parseWorkoutSession(session)?.value.endedAt).toBe('2026-07-15T08:12:00.000Z')
+  })
+
+  it('keeps the runner plan in order', () => {
+    const parsed = parseWorkoutSession({
+      id: 's1',
+      date: '2026-07-15',
+      name: '',
+      plannedExerciseIds: ['x2', 'x1'],
+    })
+    expect(parsed?.value.plannedExerciseIds).toEqual(['x2', 'x1'])
+    expect(parsed?.lossy).toBe(false)
+  })
+
+  it('keeps the session but reports a repair when the plan holds junk', () => {
+    const parsed = parseWorkoutSession({
+      id: 's1',
+      date: '2026-07-15',
+      plannedExerciseIds: ['x1', 42, '', null],
+    })
+    expect(parsed?.value.plannedExerciseIds).toEqual(['x1'])
+    expect(parsed?.lossy).toBe(true)
+  })
+
+  it('leaves the plan off entirely for sessions saved before the runner', () => {
+    expect(parseWorkoutSession({ id: 's1', date: '2026-07-15' })?.value).not.toHaveProperty(
+      'plannedExerciseIds',
+    )
+  })
 })

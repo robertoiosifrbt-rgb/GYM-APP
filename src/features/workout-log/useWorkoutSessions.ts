@@ -30,9 +30,14 @@ export function useWorkoutSessions() {
     return update((prev) => prev.map((s) => (s.id === id && !s.endedAt ? { ...s, endedAt } : s)).sort(bySessionRecencyDesc))
   }
 
+  /** Replaces the runner's exercise queue. Order is the order you train in. */
+  function setSessionPlan(id: string, plannedExerciseIds: string[]): boolean {
+    return update((prev) => prev.map((s) => (s.id === id ? { ...s, plannedExerciseIds } : s)))
+  }
+
   function deleteSession(id: string): boolean {
     return update((prev) => prev.filter((session) => session.id !== id))
   }
 
-  return { sessions, addSession, updateSession, finishSession, deleteSession, error, dismissError }
+  return { sessions, addSession, updateSession, setSessionPlan, finishSession, deleteSession, error, dismissError }
 }

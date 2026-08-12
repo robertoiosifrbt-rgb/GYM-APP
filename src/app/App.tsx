@@ -4,6 +4,7 @@ import { ExercisesPage } from '../features/exercises'
 import { WorkoutLogPage } from '../features/workout-log'
 import { ProgressPhotosPage } from '../features/progress-photos'
 import { SettingsPage } from '../features/settings'
+import { WorkoutRunnerScreen } from '../features/workout-runner'
 import { HomePage } from './HomePage'
 import { Nav } from './Nav'
 import { SubNav } from './SubNav'
@@ -14,14 +15,32 @@ import { useVersionCheck } from './useVersionCheck'
 export type Page = 'home' | 'body' | 'workout' | 'progress' | 'settings'
 type WorkoutSubPage = 'log' | 'exercises'
 
+/** `null` when the runner is closed; `sessionId` is empty while picking exercises for a new one. */
+type RunnerState = { sessionId: string } | null
+
 function App() {
   const [page, setPage] = useState<Page>('home')
   const [workoutSubPage, setWorkoutSubPage] = useState<WorkoutSubPage>('log')
+  const [runner, setRunner] = useState<RunnerState>(null)
   const updateAvailable = useVersionCheck()
 
-  function handleStartWorkout() {
+  function openWorkoutLog() {
     setPage('workout')
     setWorkoutSubPage('log')
+  }
+
+  // The runner takes over the whole screen — no app header and no bottom nav,
+  // the way the session screen is meant to be used mid-set. Closing it
+  // remounts the pages underneath, so they re-read what the runner saved.
+  if (runner) {
+    return (
+      <ErrorBoundary>
+        <WorkoutRunnerScreen
+          sessionId={runner.sessionId || undefined}
+          onExit={() => setRunner(null)}
+        />
+      </ErrorBoundary>
+    )
   }
 
   return (
@@ -36,7 +55,8 @@ function App() {
         <ErrorBoundary>
           {page === 'home' && (
             <HomePage
-              onStartWorkout={handleStartWorkout}
+              onStartWorkout={(sessionId) => setRunner({ sessionId: sessionId ?? '' })}
+              onOpenWorkoutLog={openWorkoutLog}
               onOpenExercises={() => {
                 setPage('workout')
                 setWorkoutSubPage('exercises')
@@ -47,8 +67,6 @@ function App() {
           )}
 
           {page === 'body' && <BodyPage />}
-
-          {page === 'progress' && <ProgressPhotosPage />}
 
           {page === 'workout' && (
             <>

@@ -27,6 +27,12 @@ export interface WorkoutSession {
    * ISO instant, written when the session ends. Optional for ongoing sessions.
    */
   endedAt?: string
+  /**
+   * The exercises picked for this session, in the order the runner walks
+   * through them. Optional: sessions logged before the runner existed have no
+   * plan, and the log page works the same with or without one.
+   */
+  plannedExerciseIds?: string[]
 }
 
 export type NewWorkoutSession = Omit<WorkoutSession, 'id' | 'createdAt'>
@@ -119,12 +125,23 @@ export function parseWorkoutSession(entry: unknown): ParsedEntry<WorkoutSession>
   if (!isNonEmptyString(entry.id)) return null
   if (!isCalendarDate(entry.date)) return null
 
+  // A plan is a list of exercise ids. Anything else in there is unusable, so
+  // it is dropped and reported as a repair rather than losing the session.
+  const rawPlan = Array.isArray(entry.plannedExerciseIds) ? entry.plannedExerciseIds : []
+  const plannedExerciseIds = rawPlan.filter(isNonEmptyString)
+  const lossy =
+    plannedExerciseIds.length !== rawPlan.length ||
+    (entry.plannedExerciseIds !== undefined && !Array.isArray(entry.plannedExerciseIds))
+
   return {
     value: {
       id: entry.id,
       date: entry.date,
       name: asString(entry.name),
       ...(isNonEmptyString(entry.createdAt) ? { createdAt: entry.createdAt } : {}),
+      ...(isNonEmptyString(entry.endedAt) ? { endedAt: entry.endedAt } : {}),
+      ...(plannedExerciseIds.length ? { plannedExerciseIds } : {}),
     },
+    lossy,
   }
 }

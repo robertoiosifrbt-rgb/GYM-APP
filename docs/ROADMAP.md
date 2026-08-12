@@ -23,7 +23,18 @@ Reparații și redesign. Etapele 1–5 din audit sunt gata și verificate (`npm 
 - [x] **Redesign Home**: weekly progress ring, today's workout, quick actions, recent workouts
 - [x] **Body page tabs**: Overview (muscle groups) și Measurements
 - [x] **Muscle visualization**: bar chart cu workout volume per muscle group
+- [x] **Ecran de antrenament activ** (`workout-runner`): cronometru, progres pe exerciții, tabel de seturi cu bifă
 - [ ] **Etapa 6 — ramura stabilă**: review și merge în `main` când e gata
+
+## Restul target-ului vizual
+
+Ecranele din mockup care încă nu arată ca acolo, în ordinea impactului:
+
+- [ ] **Body Overview**: silueta anatomică față/spate cu mușchii colorați, tabs Muscles/Body Parts, selector de perioadă („This Week")
+- [ ] **Workout Log**: calendar lunar sus, cu zilele de antrenament marcate
+- [ ] **Exercises**: bară de căutare, thumbnail-uri, favorite (steluță), buton rotund „+"
+- [ ] **Body Stats**: tabs Measurements/Composition/History + card „Key Measurements" cu delta față de măsurătoarea anterioară
+- [ ] **Settings**: avatar, Level + bară XP, Units / Workout Reminders / Rest Timer / Default Rest Time, Import Data
 
 ## Funcționalități
 
