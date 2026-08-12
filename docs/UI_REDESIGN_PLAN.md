@@ -8,9 +8,9 @@ Refacem complet interfața aplicației de sală, fără să aruncăm logica și 
 
 ## Progress
 
-**Overall: 65% complete — Phase 4 data-safety work is next**
+**Overall: 95% complete — final consistency/audit pass remains**
 
-`[#############-------] 13 / 20`
+`[###################-] 19 / 20`
 
 Status legend:
 - [ ] Not started
@@ -44,27 +44,29 @@ Home now uses the dashboard hero, quick actions, direct navigation to the main m
 - [x] 12. Redesign exercise library: searchable compact cards and clearer edit/add flow.
 - [x] 13. Redesign exercise details/edit screen so Category / Equipment / Muscles / Instructions / Tracks are grouped and easier to scan.
 
-The exercise editor is grouped into Basics / Muscles / Tracks. Tracks can be selected, custom Tracks can be added, and each Track now has a dedicated removal control. Mobile styling keeps the editor compact and the save action reachable.
+The exercise editor is grouped into Basics / Muscles / Tracks. Tracks can be selected, custom Tracks can be added, and each Track has a dedicated removal control. Mobile styling keeps the editor compact and the save action reachable.
 
 ## Phase 4 — Tracks data safety
 
-- [~] 14. Fix Track deletion so removing a Track from future use does not make historical logged values disappear.
-- [~] 15. Clean removed Track references from current exercise definitions safely.
-- [ ] 16. Add tests for Track deletion, historical values, and existing exercises.
+- [x] 14. Fix Track deletion so removing a Track from future use does not make historical logged values disappear.
+- [x] 15. Clean removed Track references from current exercise definitions safely.
+- [x] 16. Add tests for Track deletion, historical values, and existing exercises.
 
-Track removal currently removes the Track from future exercise definitions while workout history retains saved set values. This phase remains in progress until dedicated regression tests prove that historical values remain readable after deletion.
+Removed Tracks are archived instead of being destroyed, current exercise definitions are cleaned, and workout history continues to render the archived Track label/value. Dedicated regression tests are in place and passing.
 
 ## Phase 5 — Body / Progress
 
-- [~] 17. Redesign Measurements as a body-stats dashboard plus clean add/edit flow.
+- [x] 17. Redesign Measurements as a body-stats dashboard plus clean add/edit flow.
 - [x] 18. Redesign Progress Photos as a mobile gallery grouped by date, with clearer front/side/back views.
 
-Progress Photos now uses dated check-in cards with Front / Back / Left side / Right side views and a two-column iPhone layout. Measurements already has the dashboard shell and still needs the final add/edit polish before being marked complete.
+Measurements now has a dashboard summary, compact mobile entry form, optional expanded measurements, and controlled history scrolling. Progress Photos uses dated check-in cards with Front / Back / Left side / Right side views and a two-column iPhone layout.
 
 ## Phase 6 — Settings / polish
 
-- [~] 19. Redesign Settings into grouped mobile rows/cards; keep export/backup warnings clear.
-- [ ] 20. Final consistency pass: responsive iPhone layout, accessibility, destructive confirmations, empty states, loading/error states, dark mode, tests, lint, build and deploy verification.
+- [x] 19. Redesign Settings into grouped mobile rows/cards; keep export/backup warnings clear.
+- [~] 20. Final consistency pass: responsive iPhone layout, accessibility, destructive confirmations, empty states, loading/error states, dark mode, tests, lint, build and deploy verification.
+
+Settings now separates backup/export, progress-photo storage warnings, restore status and local-storage information into mobile-friendly cards.
 
 ## Navigation target
 
@@ -94,7 +96,7 @@ Progress contains progress photos and later progress analytics if added.
 
 ## Data we are keeping
 
-The redesign must preserve the current storage model unless a migration is explicitly required:
+The redesign preserves the current storage model unless a migration is explicitly required:
 
 - Exercises and their details
 - Custom Track types
@@ -104,6 +106,17 @@ The redesign must preserve the current storage model unless a migration is expli
 - Progress photos in IndexedDB
 - Settings / export behaviour
 - Version update banner logic
+
+## Final pass checklist
+
+Before marking 20/20 complete:
+
+- verify every main screen at narrow iPhone width without page-level horizontal overflow
+- verify focus-visible states and keyboard navigation for buttons, inputs, selects, summaries and bottom nav
+- verify dark-mode contrast on cards, accent states, warnings and sticky action bars
+- verify all destructive actions still require confirmation
+- verify empty, storage-error and corrupt-data states remain readable
+- run lint, full test suite, production build and GitHub Pages deploy
 
 ## Implementation strategy
 
