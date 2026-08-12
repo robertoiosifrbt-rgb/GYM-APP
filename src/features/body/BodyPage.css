@@ -1,0 +1,58 @@
+.body-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.body-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  overflow: hidden;
+}
+
+.body-tabs button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.body-tabs button:hover {
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+}
+
+.body-tabs button.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+  background: none;
+}
+
+.body-tab-content {
+  background: var(--color-surface);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 1.25rem;
+}
+
+.body-tab-content > section {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.body-tab-content h2 {
+  margin-top: 0;
+}

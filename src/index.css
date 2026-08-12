@@ -188,3 +188,393 @@ button.session-card-header { display: block; width: 100%; min-height: 60px; padd
   .photo-grid { grid-template-columns: repeat(2, 1fr); }
   .new-field-row { grid-template-columns: 1fr; }
 }
+
+
+/* Home page styles */
+
+.target-home {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.target-home-header {
+  padding: 1rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.target-home-header h1 {
+  font-size: 1.8rem;
+  margin: 0 0 0.25rem;
+  font-weight: 800;
+}
+
+.target-home-header p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.target-home-header div {
+  flex: 1;
+}
+
+.hello-wave {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 1.3rem;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.target-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 1.25rem;
+}
+
+.weekly-progress-card h2 {
+  margin: 0 0 1.25rem;
+}
+
+.weekly-progress-layout {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.progress-ring {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: conic-gradient(var(--color-accent) var(--progress, 0deg), var(--color-border) 0deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.progress-ring > div {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring strong {
+  font-size: 1.5rem;
+}
+
+.weekly-metrics {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 0;
+}
+
+.weekly-metrics > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.weekly-metrics dt {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.weekly-metrics dd {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.today-workout-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.today-workout-card h2 {
+  margin: 0;
+}
+
+.today-workout-name {
+  font-size: 1.25rem;
+  display: block;
+}
+
+.today-workout-meta {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  display: block;
+}
+
+.coral-action {
+  background: var(--color-accent) !important;
+  color: var(--color-accent-contrast) !important;
+  border: none !important;
+  padding: 0.75rem 1.25rem !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 700 !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+}
+
+.button-icon {
+  display: flex;
+  align-items: center;
+}
+
+.home-block {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 1.25rem;
+}
+
+.home-block h2 {
+  margin: 0;
+}
+
+.quick-actions-block h2 {
+  margin-bottom: 1rem;
+}
+
+.target-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.target-quick-grid button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem !important;
+  background: var(--color-surface-alt) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md) !important;
+  cursor: pointer;
+  color: var(--color-text) !important;
+}
+
+.target-quick-grid button span {
+  font-size: 1.5rem;
+}
+
+.target-quick-grid button strong {
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.target-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.target-section-title h2 {
+  margin: 0;
+  flex: 1;
+}
+
+.target-section-title button {
+  background: none !important;
+  border: none !important;
+  color: var(--color-accent) !important;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 !important;
+  font-size: 0.95rem;
+}
+
+.recent-workout-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recent-workout-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem !important;
+  background: var(--color-surface-alt) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md) !important;
+  cursor: pointer;
+  color: var(--color-text) !important;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+}
+
+.recent-workout-icon {
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recent-workout-row span {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.recent-workout-row strong {
+  font-size: 1rem;
+}
+
+.recent-workout-row small {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.recent-workout-volume {
+  font-weight: 700;
+  margin-left: auto;
+  font-size: 0.95rem;
+}
+
+.recent-workout-done {
+  margin-left: auto;
+  font-size: 1.1rem;
+  color: var(--color-accent);
+}
+
+/* Settings page */
+
+.settings-section {
+  margin-bottom: 1.5rem;
+}
+
+.settings-section h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.75rem;
+  color: var(--color-text);
+}
+
+.settings-section p {
+  margin: 0 0 1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.settings-button {
+  background: var(--color-accent) !important;
+  color: var(--color-accent-contrast) !important;
+  border: none !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.settings-button:hover {
+  opacity: 0.9;
+}
+
+.settings-help {
+  background: var(--color-surface-alt);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem !important;
+  color: var(--color-text-secondary);
+  margin: 0 !important;
+}
+
+.settings-help code {
+  background: var(--color-border);
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+/* Page headers */
+
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  font-size: 1.8rem;
+  margin: 0 0 0.25rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.page-header p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.section-header {
+  margin-bottom: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  flex: 1;
+}
+
+.add-button {
+  background: var(--color-accent) !important;
+  color: var(--color-accent-contrast) !important;
+  border: none !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: var(--radius-md) !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+}

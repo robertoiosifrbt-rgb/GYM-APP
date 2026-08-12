@@ -1,0 +1,159 @@
+.body-overview-page {
+  padding: 0;
+}
+
+.body-overview-header {
+  margin-bottom: 1.5rem;
+}
+
+.body-overview-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.body-view-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.body-view-tabs button {
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.body-view-tabs button.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+.body-visual {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  margin-bottom: 1.5rem;
+}
+
+.body-figure {
+  font-size: 6rem;
+  margin-bottom: 1rem;
+}
+
+.body-visual-label {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.muscle-legend {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.legend-item::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-item.primary::before {
+  background: #FF6B6B;
+}
+
+.legend-item.secondary::before {
+  background: #FFA500;
+}
+
+.legend-item.untargeted::before {
+  background: #D0D0D0;
+}
+
+.muscle-focus-section {
+  margin-top: 0;
+}
+
+.muscle-focus-section h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.3rem 0;
+  color: var(--color-text);
+}
+
+.muscle-focus-period {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.muscle-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.muscle-bar-item {
+  display: grid;
+  grid-template-columns: 90px 1fr 70px;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.2rem;
+}
+
+.muscle-bar-item:last-child {
+  margin-bottom: 0;
+}
+
+.muscle-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: right;
+  color: var(--color-text);
+}
+
+.muscle-bar-container {
+  height: 10px;
+  background: var(--color-border);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.muscle-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FF6B6B 0%, #FFA500 100%);
+  border-radius: 5px;
+  transition: width 0.4s ease-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.muscle-sets {
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}

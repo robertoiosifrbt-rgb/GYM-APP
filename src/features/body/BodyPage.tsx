@@ -1,17 +1,17 @@
 import { useState } from 'react'
-import { BodyOverview } from '../body-overview'
-import { BodyPage as StatsPage } from '../measurements'
+import { BodyOverview } from '../body-overview/BodyOverview'
+import { MeasurementsPage } from '../measurements'
+import './BodyPage.css'
 
-type BodyTab = 'overview' | 'stats'
+type BodyTab = 'overview' | 'measurements'
 
 export function BodyPage() {
   const [tab, setTab] = useState<BodyTab>('overview')
 
   return (
-    <div className="body-page-container">
+    <div className="body-page-wrapper">
       <div className="body-tabs" role="tablist">
         <button
-          type="button"
           role="tab"
           aria-selected={tab === 'overview'}
           className={tab === 'overview' ? 'active' : ''}
@@ -20,18 +20,19 @@ export function BodyPage() {
           Overview
         </button>
         <button
-          type="button"
           role="tab"
-          aria-selected={tab === 'stats'}
-          className={tab === 'stats' ? 'active' : ''}
-          onClick={() => setTab('stats')}
+          aria-selected={tab === 'measurements'}
+          className={tab === 'measurements' ? 'active' : ''}
+          onClick={() => setTab('measurements')}
         >
-          Stats
+          Measurements
         </button>
       </div>
 
-      {tab === 'overview' && <BodyOverview />}
-      {tab === 'stats' && <StatsPage />}
+      <div className="body-tab-content">
+        {tab === 'overview' && <BodyOverview />}
+        {tab === 'measurements' && <MeasurementsPage />}
+      </div>
     </div>
   )
 }

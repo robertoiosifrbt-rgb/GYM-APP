@@ -1,63 +1,85 @@
+import { useMemo } from 'react'
 import { useWorkoutLog } from '../workout-log/useWorkoutLog'
+import './BodyOverview.css'
+
+const MUSCLE_GROUPS = {
+  chest: { label: 'Chest', color: '#FF6B6B' },
+  back: { label: 'Back', color: '#FF6B6B' },
+  shoulders: { label: 'Shoulders', color: '#FFA500' },
+  biceps: { label: 'Biceps', color: '#FFA500' },
+  triceps: { label: 'Triceps', color: '#FFA500' },
+  forearms: { label: 'Forearms', color: '#FFA500' },
+  legs: { label: 'Legs', color: '#FF6B6B' },
+  quads: { label: 'Quads', color: '#FF6B6B' },
+  hamstrings: { label: 'Hamstrings', color: '#FF6B6B' },
+  calves: { label: 'Calves', color: '#FFA500' },
+  core: { label: 'Core', color: '#E0E0E0' },
+}
 
 export function BodyOverview() {
   const { entries } = useWorkoutLog()
 
-  const muscleSets = {
-    chest: entries.filter((e) => e.exerciseName?.toLowerCase().includes('chest')).length,
-    back: entries.filter((e) => e.exerciseName?.toLowerCase().includes('back')).length,
-    shoulders: entries.filter((e) => e.exerciseName?.toLowerCase().includes('shoulder')).length,
-    arms: entries.filter((e) => e.exerciseName?.toLowerCase().includes('arm') || e.exerciseName?.toLowerCase().includes('bicep') || e.exerciseName?.toLowerCase().includes('tricep')).length,
-    legs: entries.filter((e) => e.exerciseName?.toLowerCase().includes('leg') || e.exerciseName?.toLowerCase().includes('squat') || e.exerciseName?.toLowerCase().includes('deadlift')).length,
-  }
+  const muscleSets = useMemo(() => {
+    const stats: Record<string, number> = {}
+    Object.keys(MUSCLE_GROUPS).forEach((muscle) => {
+      stats[muscle] = 0
+    })
 
-  const total = Object.values(muscleSets).reduce((a, b) => a + b, 0)
-  const maxSets = Math.max(...Object.values(muscleSets), 1)
+    entries.forEach((entry) => {
+      const name = (entry.exerciseName || '').toLowerCase()
+      Object.keys(MUSCLE_GROUPS).forEach((muscle) => {
+        if (name.includes(muscle)) {
+          stats[muscle] += entry.sets.length
+        }
+      })
+    })
+
+    return stats
+  }, [entries])
+
+  const maxSets = useMemo(() => Math.max(...Object.values(muscleSets), 1), [muscleSets])
 
   return (
     <section className="body-overview-page">
-      <header className="body-overview-header">
+      <div className="body-overview-header">
         <h1>Body Overview</h1>
-      </header>
-
-      <div className="body-view-tabs">
-        <button type="button" className="active">Muscles</button>
-        <button type="button">Body Parts</button>
-      </div>
-
-      <div className="body-visual">
-        <div className="body-figure">💪</div>
-        <p className="body-visual-label">Front view</p>
       </div>
 
       <div className="muscle-legend">
-        <div className="legend-item primary">Primary</div>
-        <div className="legend-item secondary">Secondary</div>
-        <div className="legend-item untargeted">Untargeted</div>
+        <div className="legend-item primary">
+          <span>Primary Focus</span>
+        </div>
+        <div className="legend-item secondary">
+          <span>Secondary Focus</span>
+        </div>
+        <div className="legend-item untargeted">
+          <span>Untargeted</span>
+        </div>
       </div>
 
       <div className="muscle-focus-section">
-        <h2>Muscle Focus</h2>
-        <p className="muscle-focus-period">This Week</p>
+        <h2>Muscle Groups</h2>
+        <p className="muscle-focus-period">Based on your workout history</p>
 
-        {total === 0 ? (
-          <p className="empty-state">No workouts logged yet. Start training to see muscle focus breakdown.</p>
-        ) : (
-          <div className="muscle-bars">
-            {Object.entries(muscleSets).map(([muscle, sets]) => (
+        <div className="muscle-bars">
+          {Object.entries(MUSCLE_GROUPS).map(([muscle, config]) => {
+            const sets = muscleSets[muscle] || 0
+            const percentage = (sets / maxSets) * 100
+
+            return (
               <div key={muscle} className="muscle-bar-item">
-                <span className="muscle-name">{muscle.charAt(0).toUpperCase() + muscle.slice(1)}</span>
+                <span className="muscle-name">{config.label}</span>
                 <div className="muscle-bar-container">
                   <div
                     className="muscle-bar-fill"
-                    style={{ width: `${(sets / maxSets) * 100}%` }}
+                    style={{ width: `${percentage}%` }}
                   />
                 </div>
                 <span className="muscle-sets">{sets} sets</span>
               </div>
-            ))}
-          </div>
-        )}
+            )
+          })}
+        </div>
       </div>
     </section>
   )

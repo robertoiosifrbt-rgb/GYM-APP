@@ -1,56 +1,71 @@
 import { useState } from 'react'
 import { BodyPage } from '../features/body'
-import { ProgressPhotosPage } from '../features/progress-photos'
 import { ExercisesPage } from '../features/exercises'
 import { WorkoutLogPage } from '../features/workout-log'
 import { SettingsPage } from '../features/settings'
 import { HomePage } from './HomePage'
 import { Nav } from './Nav'
+import { SubNav } from './SubNav'
 import { ErrorBoundary } from './ErrorBoundary'
 import { UpdateBanner } from './UpdateBanner'
 import { useVersionCheck } from './useVersionCheck'
 
-export type Page = 'home' | 'body' | 'workout' | 'progress' | 'settings'
-type WorkoutView = 'log' | 'exercises'
+export type Page = 'home' | 'body' | 'workout' | 'settings'
+type WorkoutSubPage = 'log' | 'exercises'
 
 function App() {
   const [page, setPage] = useState<Page>('home')
-  const [workoutView, setWorkoutView] = useState<WorkoutView>('log')
+  const [workoutSubPage, setWorkoutSubPage] = useState<WorkoutSubPage>('log')
   const updateAvailable = useVersionCheck()
 
-  function navigate(pageTarget: Page) {
-    if (pageTarget === 'workout') setWorkoutView('log')
-    setPage(pageTarget)
-  }
-
-  function openWorkout(view: WorkoutView = 'log') {
-    setWorkoutView(view)
+  function handleStartWorkout() {
     setPage('workout')
+    setWorkoutSubPage('log')
   }
 
   return (
-    <div className={`app-shell page-${page} workout-view-${workoutView}`}>
+    <div className="app-shell">
+      <header className="app-header">
+        <span className="app-title">Gym App</span>
+      </header>
+
       {updateAvailable && <UpdateBanner />}
 
       <main className="app-content">
         <ErrorBoundary>
           {page === 'home' && (
             <HomePage
-              onStartWorkout={() => openWorkout('log')}
-              onOpenExercises={() => openWorkout('exercises')}
-              onOpenBody={() => navigate('body')}
-              onOpenProgress={() => navigate('progress')}
+              onStartWorkout={handleStartWorkout}
+              onOpenExercises={() => {
+                setPage('workout')
+                setWorkoutSubPage('exercises')
+              }}
+              onOpenBody={() => setPage('body')}
             />
           )}
+
           {page === 'body' && <BodyPage />}
-          {page === 'progress' && <ProgressPhotosPage />}
-          {page === 'workout' && workoutView === 'log' && <WorkoutLogPage />}
-          {page === 'workout' && workoutView === 'exercises' && <ExercisesPage />}
+
+          {page === 'workout' && (
+            <>
+              <SubNav
+                tabs={[
+                  { key: 'log', label: 'Log' },
+                  { key: 'exercises', label: 'Exercises' },
+                ]}
+                current={workoutSubPage}
+                onChange={setWorkoutSubPage}
+              />
+              {workoutSubPage === 'log' && <WorkoutLogPage />}
+              {workoutSubPage === 'exercises' && <ExercisesPage />}
+            </>
+          )}
+
           {page === 'settings' && <SettingsPage />}
         </ErrorBoundary>
       </main>
 
-      <Nav current={page} onNavigate={navigate} />
+      <Nav current={page} onNavigate={setPage} />
     </div>
   )
 }

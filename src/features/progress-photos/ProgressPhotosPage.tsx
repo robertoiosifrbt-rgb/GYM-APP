@@ -1,23 +1,33 @@
-import { useState } from 'react'
 import { StorageNotice } from '../../shared/StorageNotice'
 import { usePhotos } from './usePhotos'
 import { PhotoUploadForm } from './PhotoUploadForm'
 import { PhotoGallery } from './PhotoGallery'
-import type { PhotoAngle } from './types'
-import './progress-photos-target.css'
-
-type PhotoFilter='all'|'front'|'side'|'back'
 
 export function ProgressPhotosPage() {
   const { photoSets, addPhotoSet, error, dismissError } = usePhotos()
-  const [adding,setAdding]=useState(false)
-  const [filter,setFilter]=useState<PhotoFilter>('all')
 
-  return <section className="progress-photos-target">
-    <StorageNotice message={error} onDismiss={dismissError}/>
-    <header className="progress-photos-header"><h1>Progress Photos</h1><button type="button" aria-label={adding?'Close photo form':'Add photos'} onClick={()=>setAdding(value=>!value)}>{adding?'×':'+'}</button></header>
-    <div className="progress-photo-filters" role="tablist" aria-label="Photo filters">{(['all','front','side','back'] as PhotoFilter[]).map(item=><button type="button" role="tab" aria-selected={filter===item} className={filter===item?'active':''} key={item} onClick={()=>setFilter(item)}>{item==='all'?'All Photos':item[0].toUpperCase()+item.slice(1)}</button>)}</div>
-    {adding&&<div className="editor-panel card progress-photo-editor"><div className="editor-panel-heading"><h3>New progress check-in</h3><p>Add front, back, left and right photos for a consistent comparison.</p></div><PhotoUploadForm onAdd={async(date:string,photos:Record<PhotoAngle,Blob>)=>{const saved=await addPhotoSet(date,photos);if(saved)setAdding(false);return saved}}/></div>}
-    {photoSets.length===0?<div className="empty-state card progress-photo-target-empty"><strong>No progress photos yet</strong><span>Your photo timeline will appear here after the first check-in.</span></div>:<PhotoGallery photoSets={photoSets} filter={filter}/>} 
-  </section>
+  return (
+    <section>
+      <div className="page-header">
+        <div>
+          <h1>Progress Photos</h1>
+          <p>{photoSets.length} {photoSets.length === 1 ? 'set' : 'sets'} uploaded</p>
+        </div>
+      </div>
+
+      <StorageNotice message={error} onDismiss={dismissError} />
+
+      <div className="section-header">
+        <h2>Upload New Photos</h2>
+      </div>
+      <PhotoUploadForm onAdd={addPhotoSet} />
+
+      {photoSets.length > 0 && (
+        <div className="section-header">
+          <h2>Photo Gallery</h2>
+        </div>
+      )}
+      <PhotoGallery photoSets={photoSets} />
+    </section>
+  )
 }

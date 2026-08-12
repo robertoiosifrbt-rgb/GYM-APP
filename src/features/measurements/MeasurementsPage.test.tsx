@@ -15,15 +15,10 @@ function submit() {
 
 const stored = () => JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')
 
-function openForm() {
-  fireEvent.click(screen.getByRole('button', { name: /Add Measurements/i }))
-}
-
 describe('MeasurementsPage', () => {
   it('saves a measurement and shows it in the history', () => {
     render(<MeasurementsPage />)
 
-    openForm()
     fireEvent.change(screen.getByLabelText('Date'), { target: { value: '2026-07-15' } })
     fillWeight('82.4')
     fireEvent.change(screen.getByLabelText('Waist (cm)'), { target: { value: '84' } })
@@ -31,16 +26,14 @@ describe('MeasurementsPage', () => {
 
     expect(stored()).toHaveLength(1)
     expect(stored()[0]).toMatchObject({ date: '2026-07-15', weightKg: 82.4, waistCm: 84 })
+    expect(screen.getByRole('table')).toHaveTextContent('82.4')
   })
 
   it('clears the form after a successful save', () => {
     render(<MeasurementsPage />)
-    openForm()
     fillWeight('82.4')
     submit()
 
-    // Form closes after save. Opening it again should show a cleared form.
-    openForm()
     expect(screen.getByLabelText('Weight (kg)')).toHaveValue(null)
   })
 
@@ -54,13 +47,13 @@ describe('MeasurementsPage', () => {
     })
     render(<MeasurementsPage />)
 
-    openForm()
     fillWeight('82.4')
     submit()
 
     expect(screen.getByText(/out of storage space/i)).toBeInTheDocument()
     // The value is still in the form, and nothing pretends to be in history.
     expect(screen.getByLabelText('Weight (kg)')).toHaveValue(82.4)
+    expect(screen.getByText('No measurements logged yet.')).toBeInTheDocument()
 
     setItem.mockRestore()
   })
@@ -72,7 +65,6 @@ describe('MeasurementsPage', () => {
     })
     render(<MeasurementsPage />)
 
-    openForm()
     fillWeight('82.4')
     submit()
     expect(screen.getByText(/out of storage space/i)).toBeInTheDocument()
@@ -92,7 +84,7 @@ describe('MeasurementsPage', () => {
 
     render(<MeasurementsPage />)
 
-    expect(screen.getByRole('heading', { name: 'Body Stats' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Body Measurements' })).toBeInTheDocument()
     expect(screen.getByText(/unreadable/i)).toBeInTheDocument()
     // The unreadable original is preserved rather than thrown away.
     expect(localStorage.getItem(`${STORAGE_KEY}${CORRUPT_SUFFIX}`)).toBe('[{"id":"m1",')
@@ -108,7 +100,6 @@ describe('MeasurementsPage', () => {
     )
 
     render(<MeasurementsPage />)
-    fireEvent.click(screen.getByRole('tab', { name: 'History' }))
 
     expect(screen.getByRole('table')).toHaveTextContent('82.4')
     expect(screen.getByText(/1 saved entry could not be read/i)).toBeInTheDocument()
@@ -117,7 +108,6 @@ describe('MeasurementsPage', () => {
   it('marks impossible values as invalid in the browser and stores nothing', () => {
     render(<MeasurementsPage />)
 
-    openForm()
     fillWeight('-5')
     submit()
 
@@ -132,7 +122,6 @@ describe('MeasurementsPage', () => {
    */
   it('refuses impossible values even when the browser check is bypassed', () => {
     render(<MeasurementsPage />)
-    openForm()
     const form = screen.getByRole('button', { name: 'Add measurement' }).closest('form')!
 
     fillWeight('-5')
@@ -144,7 +133,6 @@ describe('MeasurementsPage', () => {
 
   it('refuses a body fat percentage above 100', () => {
     render(<MeasurementsPage />)
-    openForm()
     const form = screen.getByRole('button', { name: 'Add measurement' }).closest('form')!
 
     fillWeight('82')
@@ -162,7 +150,6 @@ describe('MeasurementsPage', () => {
    */
   it('refuses an empty weight rather than storing it as zero', () => {
     render(<MeasurementsPage />)
-    openForm()
     const form = screen.getByRole('button', { name: 'Add measurement' }).closest('form')!
 
     fireEvent.submit(form)
@@ -173,7 +160,6 @@ describe('MeasurementsPage', () => {
 
   it('defaults the date to the local calendar day, not the UTC one', () => {
     render(<MeasurementsPage />)
-    openForm()
 
     const now = new Date()
     const expected = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
