@@ -28,5 +28,9 @@ export function useFieldTypes() {
     return update((prev) => [...prev, fieldType]) ? fieldType : null
   }
 
-  return { fieldTypes, addFieldType, error, dismissError }
+  function removeFieldType(id: string): boolean {
+    return update((prev) => prev.filter((fieldType) => fieldType.id !== id))
+  }
+
+  return { fieldTypes, addFieldType, removeFieldType, error, dismissError }
 }
