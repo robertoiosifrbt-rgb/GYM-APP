@@ -4,6 +4,17 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-12 — etapa 3: calendar în Workout Log
+
+- **`calendarMonth.ts`** — logica pură a grilei, deci complet testabilă. O lună e un șir `YYYY-MM`, o zi `YYYY-MM-DD`: aceeași formă în care sunt salvate sesiunile, deci potrivirea e egalitate de șiruri, fără `Date` și fără fus orar la mijloc. Săptămâna începe **luni** (`getDay()` numără de duminică — e off-by-one-ul clasic al calendarelor scrise de mână, acoperit de test: o lună care începe duminica are nevoie de șase zile de umplutură în față, nu de zero). Grila are doar câte săptămâni atinge luna, nu șase fixe.
+- **`WorkoutCalendar.tsx`** — zilele antrenate pline cu accent, azi cu inel, ziua selectată închisă. Zilele din lunile vecine sunt afișate dar **nu se pot apăsa**: ar muta luna de sub deget.
+- **Lista urmează calendarul.** Altfel cele două ar arăta lucruri diferite. Apăsarea unei zile restrânge la ea, reapăsarea revine la lună.
+- **Două comportamente descoperite prin teste, nu prin gândire**: pagina se deschidea pe luna curentă, deci o sesiune veche nu se vedea deloc (acum se deschide pe luna ultimului antrenament); iar dacă schimbai data unei sesiuni în altă lună, ea dispărea în clipa salvării (acum vederea o urmează). Primul a fost semnalat de un test existent care a picat.
+- **Etichete de zi citibile** (`15 July 2026`, nu `2026-07-15`): mai bune pentru cititorul de ecran și, în plus, nu se mai ciocnesc cu datele brute de pe cardurile de sesiune.
+- **Teste**: +24 (14 pentru logica de grilă, 10 pentru pagină), validate cu **7 mutații** — săptămâna pornită duminica, grila fixată la 6 săptămâni, zilele lucrate nemarcate, lista care nu mai urmează luna, deschiderea forțată pe luna curentă, sesiunea mutată neurmărită, zilele din afara lunii devenite apăsabile — toate au picat suita.
+- **CSS**: `workout-log.css` lângă modul, fără `!important`. Calendarul randat local ca să-i verific așezarea.
+- Verificat: `lint` ✅, 227 de teste ✅, `build` ✅.
+
 ## 2026-08-12 — etapa 2c: reparații pe Body Overview
 
 Patru probleme raportate de proprietar dintr-o singură poză a ecranului.
@@ -48,16 +59,3 @@ Semnalat de proprietar: Home nu arăta ca în mockup. Cauza s-a dovedit a fi exa
 - **Aici aspectul se schimbă intenționat**, spre deosebire de etapa 0: titluri uniforme și mai mici, subtitluri de la 0.95rem la 0.75rem, tot conținutul urcă pe ecran. Deci plasa de siguranță nu mai e diff-ul de cascadă (aspectul *trebuie* să se schimbe), ci testele. Cascada a fost folosită doar ca să confirme că ștergerile au scos exact regulile moarte — printre ele un `justify-content: space-between` din `index.css` care încă se aplica peste noul header.
 - **Teste**: +10 (5 pentru `PageHeader`, 5 pentru shell, inclusiv „un singur `h1` per ecran" — forma în care markup-ul vechi tot aluneca). Verificate cu 4 mutații: header-ul global readus, un ecran fără titlu, subtitlul randat când lipsește, `align` ignorat — toate au picat suita.
 - Verificat: `lint` ✅, 134 de teste ✅, `build` ✅.
-
-## 2026-08-12 — etapa 0: fundația CSS
-
-Prima etapă din drumul spre target-ul vizual. Fără nicio schimbare de aspect în light mode — și, important, **dovedită**, nu presupusă.
-
-- **Metoda de verificare**, fiindcă nu ne uităm la poze: se construiește (`npm run build`), se parsează `dist/assets/*.css` cu postcss și se scoate lista ordonată de `(media, selector, proprietate, valoare)` — adică exact declarațiile pe care le aplică browserul. Dacă lista e identică înainte și după, randarea e identică. Baseline: 2536 de declarații, 552 de selectori.
-- **Ștearsă pagina duplicată** `features/measurements/BodyPage.tsx` — o a doua copie a ecranului Body, nerandată niciodată. Nu o importa nimeni, dar exportul din `index.ts` o trăgea în bundle, deci foaia ei de stil se încărca și restila pe furiș header-ul real din `features/body-overview`. Cu ea au plecat și `measurements-redesign.css` + `progress-photos-target.css`, care n-aveau niciun importator.
-  - Instrumentul a prins imediat efectul secundar: din 183 de declarații schimbate, 4 atingeau clase vii. Două chiar contau (titlul creștea 1.28rem → 1.5rem, containerul pierdea `display:flex`) — mutate în `BodyOverview.css`, ca ecranul să arate identic. Celelalte două (`p`, `>button`) nu se potrivesc cu niciun element din markup-ul viu.
-- **`src/styles/tokens.css`** — o singură sursă pentru paletă. Înainte: `index.css` o declara, `target-shell.css` o suprascria integral.
-- **Light-only, explicit.** Dark mode-ul era deja anulat pe jumătate: blocul `prefers-color-scheme` din `target-shell.css` redeclara valorile *light*. Rămâneau doar `--color-danger` și cele două umbre în varianta închisă, peste o interfață altfel deschisă. Singura schimbare de aspect din toată etapa e aici, și e intenționată.
-- **Cele 6 fișiere minificate pe un rând** (unul avea 7 KB fără niciun `\n`) re-scrise citibil cu un formator postcss: 10 → 3387 de linii, cascadă identică bit cu bit.
-- **Ce NU s-a făcut, intenționat**: 232 de `!important` și 36 de selectori dubli. Un `!important` nu poate fi scos în siguranță cât timp regula concurentă există — se scoate odată cu ea, iar regulile concurente sunt straturile per ecran. Deci se curăță în etapele 1–6, per ecran, unde ștergerea e verificabilă. Forțarea acum ar însemna schimbări de aspect nedovedibile.
-- Verificat: `lint` ✅, 124 de teste ✅, `build` ✅.

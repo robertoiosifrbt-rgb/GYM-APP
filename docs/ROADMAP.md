@@ -60,7 +60,9 @@ Regula pentru fiecare etapă: nu se trece la următoarea până când `npm run l
   `index.css` punea `flex-direction: column`, iar `redesign.css` seta doar `display: flex`. Home are
   acum o singură foaie proprie, `src/app/HomePage.css` — 96 de reguli șterse din fișierele comune,
   zero `!important`, plus un test care blochează revenirea la două surse.
-- [ ] **Etapa 3 — Workout Log**: calendar lunar cu zilele de antrenament marcate
+- [x] **Etapa 3 — Workout Log**: calendar lunar cu zilele de antrenament marcate. Lista urmează
+  luna de pe ecran (altfel calendarul și lista arătau lucruri diferite), iar apăsarea unei zile
+  restrânge la ea. Se deschide pe luna ultimului antrenament, nu pe cea curentă.
 - [ ] **Etapa 4 — Exercises**: căutare, thumbnail-uri, favorite, FAB
 - [ ] **Etapa 5 — Body Stats**: tab-uri Measurements/Composition/History + „Key Measurements" cu delta față de măsurătoarea anterioară
 - [ ] **Etapa 6 — Settings**: avatar, Units, Import Data (Level/XP și Rest Timer depind de deciziile din `DESIGN_TARGET.md` → „Întrebări deschise")

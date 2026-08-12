@@ -6,6 +6,9 @@ import { useWorkoutLog } from './useWorkoutLog'
 import { useWorkoutSessions } from './useWorkoutSessions'
 import { SessionCard } from './SessionCard'
 import { SessionForm } from './SessionForm'
+import { WorkoutCalendar } from './WorkoutCalendar'
+import { currentMonth, monthLabel, monthOf } from './calendarMonth'
+import './workout-log.css'
 import { PageHeader } from '../../shared/PageHeader'
 
 export function WorkoutLogPage() {
@@ -33,6 +36,12 @@ export function WorkoutLogPage() {
     dismissError: dismissEntriesError,
   } = useWorkoutLog()
   const [openSessionId, setOpenSessionId] = useState('')
+  // Opens on the month you last trained in, not on today's: coming back after
+  // a few weeks off, an empty current month is the least useful thing to show.
+  const [month, setMonth] = useState(() =>
+    sessions[0] ? monthOf(sessions[0].date) : currentMonth(),
+  )
+  const [selectedDay, setSelectedDay] = useState('')
   const [creating, setCreating] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
   const migrated = useRef(false)
@@ -72,6 +81,16 @@ export function WorkoutLogPage() {
     }
   }, [sessions, openSessionId])
 
+  /**
+   * Keeps the calendar on the session you just touched. Without this, giving a
+   * session a date in another month makes it vanish: the list follows the
+   * month on screen, and the session is no longer in it.
+   */
+  function followSession(date: string) {
+    setMonth(monthOf(date))
+    setSelectedDay((current) => (current && current !== date ? '' : current))
+  }
+
   function handleCreate(date: string, name: string): boolean {
     autoOpened.current = true
     const created = addSession({ date, name })
@@ -79,6 +98,7 @@ export function WorkoutLogPage() {
     setActionError(null)
     setOpenSessionId(created.id)
     setCreating(false)
+    followSession(date)
     return true
   }
 
@@ -115,6 +135,7 @@ export function WorkoutLogPage() {
       return false
     }
     setActionError(null)
+    followSession(date)
     return true
   }
 
@@ -142,11 +163,30 @@ export function WorkoutLogPage() {
     setActionError(null)
   }
 
+  const trainedDays = new Set(sessions.map((session) => session.date))
+  // The calendar and the list have to agree, so the list follows the month on
+  // screen — and narrows to one day once you tap it.
+  const visibleSessions = sessions.filter((session) =>
+    selectedDay ? session.date === selectedDay : monthOf(session.date) === month,
+  )
+
   return (
     <section>
       <PageHeader
         title="Workout Log"
         subtitle={`${sessions.length} ${sessions.length === 1 ? 'session' : 'sessions'} recorded`}
+      />
+
+      <WorkoutCalendar
+        month={month}
+        trainedDays={trainedDays}
+        selected={selectedDay}
+        today={todayLocal()}
+        onMonthChange={(next) => {
+          setMonth(next)
+          setSelectedDay('')
+        }}
+        onSelect={setSelectedDay}
       />
 
       <StorageNotice message={sessionsError ?? entriesError ?? actionError} onDismiss={dismissAll} />
@@ -156,7 +196,7 @@ export function WorkoutLogPage() {
           <h2>New Session</h2>
         ) : (
           <>
-            <h2>Sessions</h2>
+            <h2>{selectedDay || monthLabel(month)}</h2>
             <button type="button" className="add-button" onClick={() => setCreating(true)}>
               + New session
             </button>
@@ -170,7 +210,15 @@ export function WorkoutLogPage() {
 
       {sessions.length === 0 && !creating && <p>No sessions yet.</p>}
 
-      {sessions.map((session) => (
+      {sessions.length > 0 && visibleSessions.length === 0 && !creating && (
+        <p className="workout-log-empty">
+          {selectedDay
+            ? `No workout logged on ${selectedDay}.`
+            : `No workouts logged in ${monthLabel(month)}.`}
+        </p>
+      )}
+
+      {visibleSessions.map((session) => (
         <SessionCard
           key={session.id}
           session={session}
