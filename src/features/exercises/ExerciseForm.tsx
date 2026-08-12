@@ -31,7 +31,13 @@ export function ExerciseForm({ exercises, fieldTypes, onAddFieldType, onRemoveFi
     const usedBy = exercises.filter((exercise) => exercise.fields.includes(id)).length
     const message = `Remove "${label}" from Tracks?\n\nThis removes it from future exercise tracking${usedBy ? ` and from ${usedBy} existing ${usedBy === 1 ? 'exercise' : 'exercises'}` : ''}. Values already saved in workout history will stay readable.`
     if (!window.confirm(message)) return
-    if (onRemoveFieldType(id)) setFields((prev) => prev.filter((f) => f !== id))
+    if (onRemoveFieldType(id)) {
+      const updatedFields = fields.filter((f) => f !== id)
+      setFields(updatedFields)
+      if (initial) {
+        onSubmit(name, updatedFields, details)
+      }
+    }
   }
   function handleAddFieldType() {
     if (!newFieldLabel.trim()) return
