@@ -24,7 +24,7 @@ Reparații și redesign. Etapele 1–5 din audit sunt gata și verificate (`npm 
 - [x] **Body page tabs**: Overview (muscle groups) și Measurements
 - [x] **Muscle visualization**: bar chart cu workout volume per muscle group
 - [x] **Ecran de antrenament activ** (`workout-runner`): cronometru, progres pe exerciții, tabel de seturi cu bifă
-- [ ] **Etapa 6 — ramura stabilă**: review și merge în `main` când e gata
+- [x] **Ramura stabilă**: fluxul `dev` → `main` e în funcțiune; `main` e ramura live, publicată de `deploy.yml`
 
 ## Drumul până la target-ul vizual
 
@@ -34,12 +34,19 @@ Planul de mai jos e drumul până acolo, **o etapă per sesiune de lucru**.
 Regula pentru fiecare etapă: nu se trece la următoarea până când `npm run lint`,
 `npm test` și `npm run build` nu trec, iar etapa e promovată `dev` → `main`.
 
-- [ ] **Etapa 0 — fundația CSS** (fără nicio schimbare de funcționalitate)
-  - un singur fișier de token-uri, cu valorile din `DESIGN_TARGET.md`
-  - desființate cele 13 fișiere CSS actuale (~78 KB, 289 `!important`, 41 de selectori definiți în mai multe fișiere)
-  - șters CSS-ul mort (`measurements-redesign.css`, `progress-photos-target.css`) și pagina duplicată `features/measurements/BodyPage.tsx`
-  - CSS colocat per modul, ca la `workout-runner`
-  - *De ce prima:* bug-uri ca inelul de progres (două implementări care se băteau) vin din stratul ăsta și vor tot reapărea până nu e curățat.
+- [x] **Etapa 0 — fundația CSS** (fără nicio schimbare de aspect în light mode)
+  - [x] `src/styles/tokens.css` — singura sursă pentru culori, raze, umbre, spațiere
+  - [x] ștearsă pagina duplicată `features/measurements/BodyPage.tsx` + cele 3 foi de stil moarte
+  - [x] cele 6 fișiere minificate pe un rând re-scrise citibil (10 → 3387 de linii)
+  - [x] aplicația e explicit **light-only** — dark mode-ul era deja anulat pe jumătate
+  - **Restul s-a mutat în etapele 1–6, intenționat** (vezi mai jos): 232 de `!important` și 36 de selectori definiți în mai multe fișiere.
+
+  *De ce restul nu s-a făcut acum:* un `!important` nu poate fi scos în siguranță
+  cât timp regula concurentă încă există — se scoate odată cu ea. Iar regulile
+  concurente sunt exact straturile per ecran, care dispar când ecranul e refăcut.
+  Deci `!important`-urile și selectorii dubli se curăță **per ecran**, în etapele
+  de mai jos, unde ștergerea e verificabilă. A le forța acum ar însemna schimbări
+  de aspect pe care nu le pot dovedi.
 - [ ] **Etapa 1 — shell**: scos header-ul global „Gym App" (nu există în mockup), titluri per ecran
 - [ ] **Etapa 2 — Body Overview**: siluetă anatomică față/spate cu mușchii colorați, tab-uri Muscles/Body Parts, selector de perioadă
 - [ ] **Etapa 3 — Workout Log**: calendar lunar cu zilele de antrenament marcate
@@ -47,10 +54,16 @@ Regula pentru fiecare etapă: nu se trece la următoarea până când `npm run l
 - [ ] **Etapa 5 — Body Stats**: tab-uri Measurements/Composition/History + „Key Measurements" cu delta față de măsurătoarea anterioară
 - [ ] **Etapa 6 — Settings**: avatar, Units, Import Data (Level/XP și Rest Timer depind de deciziile din `DESIGN_TARGET.md` → „Întrebări deschise")
 
-La fiecare etapă se rescrie și componenta atinsă ca să fie lizibilă — 7 componente
-sunt încă scrise pe rânduri de până la 1168 de caractere. Stratul de date
-(`src/shared/`, hooks, `types.ts`, parsere) și testele **nu** se rescriu: sunt
-partea verificată prin audit și prin teste de mutație.
+La fiecare etapă, pe lângă ecranul în sine:
+
+- se șterg regulile vechi care îl vizau din `index.css` / `*-target.css` /
+  `redesign.css`, iar `!important`-urile rămase fără concurent dispar odată cu
+  ele — fiecare etapă scade numărătoarea de 232;
+- se rescrie componenta atinsă ca să fie lizibilă (7 componente sunt încă scrise
+  pe rânduri de până la 1168 de caractere).
+
+Stratul de date (`src/shared/`, hooks, `types.ts`, parsere) și testele **nu** se
+rescriu: sunt partea verificată prin audit și prin teste de mutație.
 
 ## Funcționalități
 

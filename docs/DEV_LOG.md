@@ -4,6 +4,19 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-12 — etapa 0: fundația CSS
+
+Prima etapă din drumul spre target-ul vizual. Fără nicio schimbare de aspect în light mode — și, important, **dovedită**, nu presupusă.
+
+- **Metoda de verificare**, fiindcă nu ne uităm la poze: se construiește (`npm run build`), se parsează `dist/assets/*.css` cu postcss și se scoate lista ordonată de `(media, selector, proprietate, valoare)` — adică exact declarațiile pe care le aplică browserul. Dacă lista e identică înainte și după, randarea e identică. Baseline: 2536 de declarații, 552 de selectori.
+- **Ștearsă pagina duplicată** `features/measurements/BodyPage.tsx` — o a doua copie a ecranului Body, nerandată niciodată. Nu o importa nimeni, dar exportul din `index.ts` o trăgea în bundle, deci foaia ei de stil se încărca și restila pe furiș header-ul real din `features/body-overview`. Cu ea au plecat și `measurements-redesign.css` + `progress-photos-target.css`, care n-aveau niciun importator.
+  - Instrumentul a prins imediat efectul secundar: din 183 de declarații schimbate, 4 atingeau clase vii. Două chiar contau (titlul creștea 1.28rem → 1.5rem, containerul pierdea `display:flex`) — mutate în `BodyOverview.css`, ca ecranul să arate identic. Celelalte două (`p`, `>button`) nu se potrivesc cu niciun element din markup-ul viu.
+- **`src/styles/tokens.css`** — o singură sursă pentru paletă. Înainte: `index.css` o declara, `target-shell.css` o suprascria integral.
+- **Light-only, explicit.** Dark mode-ul era deja anulat pe jumătate: blocul `prefers-color-scheme` din `target-shell.css` redeclara valorile *light*. Rămâneau doar `--color-danger` și cele două umbre în varianta închisă, peste o interfață altfel deschisă. Singura schimbare de aspect din toată etapa e aici, și e intenționată.
+- **Cele 6 fișiere minificate pe un rând** (unul avea 7 KB fără niciun `\n`) re-scrise citibil cu un formator postcss: 10 → 3387 de linii, cascadă identică bit cu bit.
+- **Ce NU s-a făcut, intenționat**: 232 de `!important` și 36 de selectori dubli. Un `!important` nu poate fi scos în siguranță cât timp regula concurentă există — se scoate odată cu ea, iar regulile concurente sunt straturile per ecran. Deci se curăță în etapele 1–6, per ecran, unde ștergerea e verificabilă. Forțarea acum ar însemna schimbări de aspect nedovedibile.
+- Verificat: `lint` ✅, 124 de teste ✅, `build` ✅.
+
 ## 2026-08-12 — destinația vizuală, documentată + plan pe etape
 
 Fără cod. Sesiune de decizii, ca să nu se mai reconstruiască contextul la fiecare pornire.
@@ -56,14 +69,3 @@ Nicio funcție nouă. Sesiune de reparații pe baza auditului (2 HIGH, 8 MEDIUM,
 - **Teste** (MEDIUM 8): `vitest` + `@testing-library/react`, 99 de teste, `npm test`. Fiecare reparație a fost verificată prin reintroducerea defectului — toate 8 mutații testate au picat suita, deci testele chiar prind regresia, nu doar trec.
 - **Nereproductibil**: LOW 3 (favicon). Vite rescrie deja `/favicon.svg` → `/GYM-APP/favicon.svg` în `dist/index.html`, deci nu e 404 pe Pages. `index.html` a rămas neschimbat.
 - **Rămas de decis** (LOW 1 / etapa 6): `main` e încă gol. Codul verificat trebuie mutat pe ramura stabilă — decizie de proprietar, nu s-a atins nimic.
-
-## 2026-08-05
-
-- Șters tot codul vechi (`main` + branch de lucru), repornit de la zero: scaffold React + TypeScript + Vite curat, plus documentele de continuitate (`CLAUDE.md`, `docs/ARCHITECTURE.md`, `docs/ROADMAP.md`, `docs/DEV_LOG.md` cu regula de rotație de mai sus).
-- Modul **măsurători corporale**: height, greutate, % grăsime, neck/chest/waist/hips, arms/thighs separat stânga-dreapta. Persistat în `localStorage`.
-- Modul **poze de progres**: un set de 4 poze/dată (front/back/left/right), comprimate automat la selectare, persistate în `IndexedDB`.
-- Deploy static pe **GitHub Pages**: https://robertoiosifrbt-rgb.github.io/GYM-APP/. Detectare automată de versiune nouă (`useVersionCheck.ts`) — rezolvă cache-ul aplicației salvate pe ecranul principal (iOS). `ErrorBoundary.tsx` ca erorile să apară pe ecran, nu ca gol/negru.
-- Module **exercises** (bibliotecă goală, completată de utilizator: nume, category, difficulty, equipment, muscles, instructions, tracks configurabile — extensibile de utilizator) + **workout-log**, organizat pe **sesiuni** (dată + nume opțional), editabile. UI final pentru sesiuni, după câteva iterații (dropdown → chips → simplu): **`SessionCard`** — o listă de carduri, un card per sesiune, apăsat se deschide separat (accordion) cu exercițiile ei, editare și formular de adăugare. Fără `<select>`/chips cu toate sesiunile (nescalabil la sute).
-- Design: sistem de culori pe variabile CSS (light/dark), layout de aplicație mobilă (header sticky + bottom tab bar), carduri rotunjite, `viewport-fit=cover` pentru iOS.
-- Log e prima pagină (tab Home, nu placeholder). Corecție: am restructurat și tab-ul Workout fără să fie cerut (mutat Log de acolo, redenumit în Exercises) — revenit la structura corectă: 3 tab-uri Home/Body/Workout, Workout păstrează Log + Exercises cu `SubNav`, ca înainte. Doar Home s-a schimbat.
-- Home nu mai duplică tot conținutul Log-ului — e doar un buton "Start workout" (`HomePage.tsx`), care navighează la tab-ul Workout, pe sub-pagina Log.

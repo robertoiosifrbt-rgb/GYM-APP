@@ -61,6 +61,11 @@ _(Istoric: la un moment dat `claude/**` publica direct, ca să nu fie nevoie de 
 
 ## Design
 
-- `src/index.css` conține un mic sistem de design pe variabile CSS (`--color-*`, `--radius-*`, `--shadow-card`), cu variantă light/dark automată (`prefers-color-scheme`). Orice culoare/colț rotunjit nou ar trebui să folosească variabilele existente, nu valori hardcodate.
+Destinația vizuală e în `docs/DESIGN_TARGET.md`. Ce urmează descrie cum e organizat CSS-ul azi.
+
+- **`src/styles/tokens.css` e singura sursă** pentru culori, raze, umbre și spațiere (`--color-*`, `--radius-*`, `--shadow-*`, `--page-gutter`). Se importă primul în `main.tsx`. Orice culoare sau colț rotunjit nou folosește un token de aici, nu o valoare scrisă direct.
+- **Aplicația e light-only**, explicit (`color-scheme: light`, fără bloc `prefers-color-scheme`). Target-ul vizual e integral deschis. Înainte existau două palete care se suprascriau, iar blocul de dark mode redeclara valorile light — rămăseseră doar umbrele și culoarea de eroare în varianta închisă, peste o interfață altfel deschisă.
+- **Restul CSS-ului e încă în tranziție**: 11 fișiere, 232 de `!important`, 36 de selectori definiți în mai multe fișiere. Se curăță per ecran, în etapele din `docs/ROADMAP.md` — un `!important` se scoate odată cu regula concurentă, nu înainte. Modelul spre care mergem e `src/features/workout-runner/workout-runner.css`: un fișier per modul, lângă modul, fără `!important`.
+- **Cum verifici că un refactor de CSS n-a schimbat aspectul**, fără să te uiți la ecran: `npm run build`, apoi parsezi `dist/assets/*.css` cu postcss și scoți lista ordonată de `(media, selector, proprietate, valoare)`. Dacă lista e identică înainte și după, randarea e identică. Așa au fost verificate ștergerile din etapa 0.
 - Layout de aplicație mobilă: `.app-shell` (header sticky sus + conținut scrollabil + bottom nav fix), definit în `App.tsx`/`Nav.tsx`. Fiecare pagină e un `<section>` la rădăcină — stilat generic ca "card" prin `.app-content > section`, fără să fie nevoie de o clasă separată per pagină.
 - `index.html` are `viewport-fit=cover` + `theme-color`, pentru zona sigură (notch) pe iOS.
