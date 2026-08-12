@@ -7,7 +7,7 @@ const FIELD_TYPES_KEY = 'gym-app:field-types'
 const WORKOUT_LOG_KEY = 'gym-app:workout-log'
 
 function openCreate() {
-  if (!screen.queryByLabelText('Name')) fireEvent.click(screen.getByRole('button', { name: '+ Add exercise' }))
+  if (!screen.queryByLabelText('Name')) fireEvent.click(screen.getByRole('button', { name: 'Add exercise' }))
 }
 
 function addExercise(name: string, trackLabels: string[] = ['Reps']) {
