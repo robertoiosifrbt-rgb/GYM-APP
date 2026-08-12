@@ -16,7 +16,7 @@ export function MeasurementsPage() {
       <StorageNotice message={error} onDismiss={dismissError} />
 
       <div className="module-toolbar">
-        <div><span className="card-kicker">BODY</span><h2>Your measurements</h2></div>
+        <div><span className="card-kicker">BODY</span><h2>Body measurements</h2></div>
         <button type="button" className="primary-action" onClick={() => setAdding((value) => !value)}>{adding ? 'Close' : '+ Add'}</button>
       </div>
 
@@ -31,7 +31,7 @@ export function MeasurementsPage() {
 
       {adding && <div className="editor-panel card"><div className="editor-panel-heading"><h3>Add measurements</h3><p>Only weight is required. Fill in what you want to track.</p></div><MeasurementForm onAdd={addMeasurement} /></div>}
 
-      {measurements.length > 0 && <div className="history-panel"><div className="section-heading"><div><span className="card-kicker">HISTORY</span><h2>Previous check-ins</h2></div></div><MeasurementHistory measurements={measurements} /></div>}
+      <div className="history-panel"><div className="section-heading"><div><span className="card-kicker">HISTORY</span><h2>Previous check-ins</h2></div></div><MeasurementHistory measurements={measurements} /></div>
     </section>
   )
 }
