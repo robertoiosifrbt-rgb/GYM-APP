@@ -6,7 +6,7 @@ import { MeasurementHistory } from './MeasurementHistory'
 
 export function MeasurementsPage() {
   const { measurements, addMeasurement, error, dismissError } = useMeasurements()
-  const [adding, setAdding] = useState(false)
+  const [adding, setAdding] = useState(true)
   const latest = measurements[0]
   const previous = measurements[1]
   const weightChange = latest && previous ? latest.weightKg - previous.weightKg : null
@@ -29,7 +29,7 @@ export function MeasurementsPage() {
         </div>
       ) : <div className="empty-state card"><strong>No body stats yet</strong><span>Add your first measurement to start tracking change.</span></div>}
 
-      {adding && <div className="editor-panel card"><div className="editor-panel-heading"><h3>Add measurements</h3><p>Only weight is required. Fill in what you want to track.</p></div><MeasurementForm onAdd={(entry) => { const saved = addMeasurement(entry); if (saved) setAdding(false); return saved }} /></div>}
+      {adding && <div className="editor-panel card"><div className="editor-panel-heading"><h3>Add measurements</h3><p>Only weight is required. Fill in what you want to track.</p></div><MeasurementForm onAdd={addMeasurement} /></div>}
 
       {measurements.length > 0 && <div className="history-panel"><div className="section-heading"><div><span className="card-kicker">HISTORY</span><h2>Previous check-ins</h2></div></div><MeasurementHistory measurements={measurements} /></div>}
     </section>
