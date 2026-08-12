@@ -8,9 +8,7 @@ We keep the existing working data/storage logic where possible, but rebuild the 
 
 ## Progress
 
-**Overall: 10% complete — target plan established; implementation starts with Home + global shell**
-
-`[##------------------] 2 / 20`
+**Overall: implementation in progress — status below reflects the current code, not the original 10% baseline.**
 
 Status legend:
 - [ ] Not started
@@ -23,32 +21,32 @@ Status legend:
 - [x] 1. Lock the supplied 9-screen image as the visual target and reset progress honestly.
 - [x] 2. Preserve existing data model, storage, Track history safety and working tests during the visual rebuild.
 - [~] 3. Rebuild global iPhone shell: white/light background, compact headers, reference typography, card radius/shadows, coral accent, dark navy primary actions, safe areas.
-- [ ] 4. Rebuild bottom navigation to visually match the reference: Home / Body / Workout / Progress / Settings, compact icons/labels, coral active state.
+- [~] 4. Rebuild bottom navigation to visually match the reference: Home / Body / Workout / Progress / Settings, compact icons/labels, coral active state.
 
 ## Phase B — Home screen
 
 Target: top-left screen in reference.
 
-- [ ] 5. Header: greeting, subtitle and notification action.
-- [ ] 6. Weekly Progress card: circular percentage plus Workouts / Volume / Duration metrics.
-- [ ] 7. Today's Workout card: workout name, exercise/time summary and coral Start Workout CTA.
-- [ ] 8. Quick Actions 2x2 cards: Log Workout / Exercises / Body Stats / Progress Photos.
-- [ ] 9. Recent Workouts compact list with date, duration/volume and completion state.
+- [~] 5. Header: greeting, subtitle and notification action.
+- [~] 6. Weekly Progress card: circular percentage plus Workouts / Volume / Duration metrics.
+- [~] 7. Today's Workout card: workout name, exercise/time summary and coral Start Workout CTA.
+- [~] 8. Quick Actions 2x2 cards: Log Workout / Exercises / Body Stats / Progress Photos.
+- [~] 9. Recent Workouts compact list with date, duration/volume and completion state.
 
 ## Phase C — Workout
 
 Target: top-middle + middle-left screens.
 
-- [ ] 10. Active Workout screen: dark navy header, elapsed timer, exercise progress, progress bar, current exercise card, set table, completion controls, next-exercise card.
-- [ ] 11. Workout Log screen: real month calendar at top, selected-day state, workout cards underneath, totals aligned like reference.
+- [~] 10. Active Workout screen: dark navy header, elapsed session timer from Start session to Finish session, exercise progress, progress bar, current exercise card, set table, completion controls, next-exercise card.
+- [~] 11. Workout Log screen: real month calendar at top, selected-day state, workout cards underneath, totals aligned like reference.
 
 ## Phase D — Exercises
 
 Target: middle-middle + middle-right screens.
 
-- [ ] 12. Exercise Library: search, filter button, category chips, compact illustrated rows, favourite action, floating add button.
+- [~] 12. Exercise Library: search, filter button, category chips, compact rows/cards, floating add button.
 - [ ] 13. Exercise Detail: dark hero header, exercise visual area, muscle visual area, metadata cards, Instructions/Muscles tabs and Add to Workout CTA.
-- [ ] 14. Exercise create/edit: retain all current editable fields and removable Tracks, but style the flow consistently with the target rather than exposing a large technical form by default.
+- [~] 14. Exercise create/edit: retain all current editable fields and removable Tracks, but style the flow consistently with the target rather than exposing a large technical form by default.
 
 ## Phase E — Body
 
@@ -67,7 +65,7 @@ Target: bottom-middle screen.
 
 Target: bottom-right screen.
 
-- [ ] 18. Settings: profile/level card, Preferences grouped rows, Data rows, About section; preserve current Export/Restore/storage functionality behind this visual structure.
+- [~] 18. Settings: profile/level card, Preferences grouped rows, Data rows, About section; preserve current Export/Restore/storage functionality behind this visual structure.
 
 ## Phase H — Fidelity + safety audit
 
@@ -96,4 +94,4 @@ Target: bottom-right screen.
 
 ## Progress rule
 
-Update this file after each completed target screen. Percentage is based on these 20 target tasks, not on the old restyle plan.
+Update this file after each completed target screen. Percentage is based only on tasks explicitly marked [x]. Items marked [~] remain in progress and do not count as complete.
