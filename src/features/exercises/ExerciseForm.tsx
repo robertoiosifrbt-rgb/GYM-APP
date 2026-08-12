@@ -9,233 +9,65 @@ import {
 
 interface ExerciseFormProps {
   exercises: Exercise[]
-  /**
-   * Passed in rather than read from `useFieldTypes` here: the page owns the one
-   * live copy, so a type added below shows up immediately in the list above.
-   */
   fieldTypes: FieldType[]
   onAddFieldType: (label: string, unit: string) => FieldType | null
+  onRemoveFieldType: (id: string) => boolean
   initial?: Exercise
   submitLabel: string
-  /** Returns false when the exercise could not be saved; the form keeps its values. */
   onSubmit: (name: string, fields: string[], details: ExerciseDetails) => boolean
   onCancel?: () => void
 }
 
 const emptyDetails: ExerciseDetails = {
-  category: '',
-  difficulty: '',
-  equipment: '',
-  primaryMuscles: '',
-  secondaryMuscles: '',
-  instructions: '',
+  category: '', difficulty: '', equipment: '', primaryMuscles: '', secondaryMuscles: '', instructions: '',
 }
 
-export function ExerciseForm({
-  exercises,
-  fieldTypes,
-  onAddFieldType,
-  initial,
-  submitLabel,
-  onSubmit,
-  onCancel,
-}: ExerciseFormProps) {
+export function ExerciseForm({ exercises, fieldTypes, onAddFieldType, onRemoveFieldType, initial, submitLabel, onSubmit, onCancel }: ExerciseFormProps) {
   const [name, setName] = useState(initial?.name ?? '')
-  const [details, setDetails] = useState<ExerciseDetails>(
-    initial
-      ? {
-          category: initial.category,
-          difficulty: initial.difficulty,
-          equipment: initial.equipment,
-          primaryMuscles: initial.primaryMuscles,
-          secondaryMuscles: initial.secondaryMuscles,
-          instructions: initial.instructions,
-        }
-      : emptyDetails,
-  )
+  const [details, setDetails] = useState<ExerciseDetails>(initial ? {
+    category: initial.category, difficulty: initial.difficulty, equipment: initial.equipment,
+    primaryMuscles: initial.primaryMuscles, secondaryMuscles: initial.secondaryMuscles, instructions: initial.instructions,
+  } : emptyDetails)
   const [fields, setFields] = useState<string[]>(initial?.fields ?? [])
   const [addingField, setAddingField] = useState(false)
   const [newFieldLabel, setNewFieldLabel] = useState('')
   const [newFieldUnit, setNewFieldUnit] = useState('')
   const [error, setError] = useState<string | null>(null)
-
   const formId = initial?.id ?? 'new'
-  const categorySuggestions = [
-    ...new Set([...DEFAULT_CATEGORIES, ...exercises.map((e) => e.category).filter(Boolean)]),
-  ]
+  const categorySuggestions = [...new Set([...DEFAULT_CATEGORIES, ...exercises.map((e) => e.category).filter(Boolean)])]
 
-  function updateDetail(key: keyof ExerciseDetails, value: string) {
-    setDetails((prev) => ({ ...prev, [key]: value }))
+  function updateDetail(key: keyof ExerciseDetails, value: string) { setDetails((prev) => ({ ...prev, [key]: value })) }
+  function toggleField(id: string) { setFields((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]) }
+  function handleRemoveField(id: string, label: string) {
+    if (!window.confirm(`Remove "${label}" from Tracks?`)) return
+    if (onRemoveFieldType(id)) setFields((prev) => prev.filter((f) => f !== id))
   }
-
-  function toggleField(id: string) {
-    setFields((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]))
-  }
-
   function handleAddFieldType() {
     if (!newFieldLabel.trim()) return
     const created = onAddFieldType(newFieldLabel.trim(), newFieldUnit.trim())
-    if (!created) {
-      // Storage refused the write; keep what was typed so it can be retried.
-      setError('Could not save the new type — see the message above.')
-      return
-    }
-    setError(null)
-    setFields((prev) => [...prev, created.id])
-    setNewFieldLabel('')
-    setNewFieldUnit('')
-    setAddingField(false)
+    if (!created) { setError('Could not save the new type — see the message above.'); return }
+    setError(null); setFields((prev) => [...prev, created.id]); setNewFieldLabel(''); setNewFieldUnit(''); setAddingField(false)
   }
-
   function handleSubmit(event: React.FormEvent) {
-    event.preventDefault()
-    if (!name.trim() || fields.length === 0) return
-
-    if (!onSubmit(name.trim(), fields, details)) {
-      setError('Could not save this exercise — see the message above. Your entries are still here.')
-      return
-    }
-
-    setError(null)
-    if (!initial) {
-      setName('')
-      setDetails(emptyDetails)
-      setFields([])
-    }
+    event.preventDefault(); if (!name.trim() || fields.length === 0) return
+    if (!onSubmit(name.trim(), fields, details)) { setError('Could not save this exercise — see the message above. Your entries are still here.'); return }
+    setError(null); if (!initial) { setName(''); setDetails(emptyDetails); setFields([]) }
   }
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <div className="field">
-        <label htmlFor={`exercise-name-${formId}`}>Name</label>
-        <input
-          id={`exercise-name-${formId}`}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor={`exercise-category-${formId}`}>Category</label>
-        <input
-          id={`exercise-category-${formId}`}
-          list={`exercise-categories-${formId}`}
-          value={details.category}
-          onChange={(e) => updateDetail('category', e.target.value)}
-          placeholder="e.g. Chest, Back, Cardio"
-        />
-        <datalist id={`exercise-categories-${formId}`}>
-          {categorySuggestions.map((c) => (
-            <option key={c} value={c} />
-          ))}
-        </datalist>
-      </div>
-
-      <div className="field">
-        <label htmlFor={`exercise-difficulty-${formId}`}>Difficulty</label>
-        <select
-          id={`exercise-difficulty-${formId}`}
-          value={details.difficulty}
-          onChange={(e) => updateDetail('difficulty', e.target.value)}
-        >
-          <option value="">—</option>
-          {DIFFICULTIES.map((d) => (
-            <option key={d} value={d}>
-              {d}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="field">
-        <label htmlFor={`exercise-equipment-${formId}`}>Equipment</label>
-        <input
-          id={`exercise-equipment-${formId}`}
-          value={details.equipment}
-          onChange={(e) => updateDetail('equipment', e.target.value)}
-          placeholder="e.g. Barbell, Dumbbell"
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor={`exercise-primary-muscles-${formId}`}>Primary muscles</label>
-        <input
-          id={`exercise-primary-muscles-${formId}`}
-          value={details.primaryMuscles}
-          onChange={(e) => updateDetail('primaryMuscles', e.target.value)}
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor={`exercise-secondary-muscles-${formId}`}>Secondary muscles</label>
-        <input
-          id={`exercise-secondary-muscles-${formId}`}
-          value={details.secondaryMuscles}
-          onChange={(e) => updateDetail('secondaryMuscles', e.target.value)}
-        />
-      </div>
-
-      <div className="field field-wide">
-        <label htmlFor={`exercise-instructions-${formId}`}>Instructions</label>
-        <textarea
-          id={`exercise-instructions-${formId}`}
-          value={details.instructions}
-          onChange={(e) => updateDetail('instructions', e.target.value)}
-          rows={3}
-        />
-      </div>
-
-      <div className="field field-wide">
-        <span>Tracks</span>
-        <div className="checkbox-row">
-          {fieldTypes.map(({ id, label }) => (
-            <label key={id}>
-              <input type="checkbox" checked={fields.includes(id)} onChange={() => toggleField(id)} />
-              {label}
-            </label>
-          ))}
-          <button type="button" onClick={() => setAddingField(true)}>
-            + Add
-          </button>
-        </div>
-
-        {addingField && (
-          <div className="new-field-row">
-            <input
-              placeholder="Name (e.g. Incline)"
-              value={newFieldLabel}
-              onChange={(e) => setNewFieldLabel(e.target.value)}
-            />
-            <input
-              placeholder="Unit (optional, e.g. %)"
-              value={newFieldUnit}
-              onChange={(e) => setNewFieldUnit(e.target.value)}
-            />
-            <button type="button" onClick={handleAddFieldType}>
-              Save
-            </button>
-            <button type="button" onClick={() => setAddingField(false)}>
-              Cancel
-            </button>
-          </div>
-        )}
-      </div>
-
-      {error && (
-        <p className="form-error" role="alert">
-          {error}
-        </p>
-      )}
-
-      <button type="submit" disabled={fields.length === 0}>
-        {submitLabel}
-      </button>
-      {onCancel && (
-        <button type="button" onClick={onCancel}>
-          Cancel
-        </button>
-      )}
-    </form>
-  )
+  return <form onSubmit={handleSubmit}>
+    <div className="field"><label htmlFor={`exercise-name-${formId}`}>Name</label><input id={`exercise-name-${formId}`} value={name} onChange={(e) => setName(e.target.value)} required /></div>
+    <div className="field"><label htmlFor={`exercise-category-${formId}`}>Category</label><input id={`exercise-category-${formId}`} list={`exercise-categories-${formId}`} value={details.category} onChange={(e) => updateDetail('category', e.target.value)} placeholder="e.g. Chest, Back, Cardio" /><datalist id={`exercise-categories-${formId}`}>{categorySuggestions.map((c) => <option key={c} value={c} />)}</datalist></div>
+    <div className="field"><label htmlFor={`exercise-difficulty-${formId}`}>Difficulty</label><select id={`exercise-difficulty-${formId}`} value={details.difficulty} onChange={(e) => updateDetail('difficulty', e.target.value)}><option value="">—</option>{DIFFICULTIES.map((d) => <option key={d} value={d}>{d}</option>)}</select></div>
+    <div className="field"><label htmlFor={`exercise-equipment-${formId}`}>Equipment</label><input id={`exercise-equipment-${formId}`} value={details.equipment} onChange={(e) => updateDetail('equipment', e.target.value)} placeholder="e.g. Barbell, Dumbbell" /></div>
+    <div className="field"><label htmlFor={`exercise-primary-muscles-${formId}`}>Primary muscles</label><input id={`exercise-primary-muscles-${formId}`} value={details.primaryMuscles} onChange={(e) => updateDetail('primaryMuscles', e.target.value)} /></div>
+    <div className="field"><label htmlFor={`exercise-secondary-muscles-${formId}`}>Secondary muscles</label><input id={`exercise-secondary-muscles-${formId}`} value={details.secondaryMuscles} onChange={(e) => updateDetail('secondaryMuscles', e.target.value)} /></div>
+    <div className="field field-wide"><label htmlFor={`exercise-instructions-${formId}`}>Instructions</label><textarea id={`exercise-instructions-${formId}`} value={details.instructions} onChange={(e) => updateDetail('instructions', e.target.value)} rows={3} /></div>
+    <div className="field field-wide"><span>Tracks</span><div className="checkbox-row">
+      {fieldTypes.map(({ id, label }) => <span key={id} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><label><input type="checkbox" checked={fields.includes(id)} onChange={() => toggleField(id)} />{label}</label><button type="button" aria-label={`Remove ${label} from Tracks`} title={`Remove ${label}`} onClick={() => handleRemoveField(id, label)}>×</button></span>)}
+      <button type="button" onClick={() => setAddingField(true)}>+ Add</button>
+    </div>
+    {addingField && <div className="new-field-row"><input placeholder="Name (e.g. Incline)" value={newFieldLabel} onChange={(e) => setNewFieldLabel(e.target.value)} /><input placeholder="Unit (optional, e.g. %)" value={newFieldUnit} onChange={(e) => setNewFieldUnit(e.target.value)} /><button type="button" onClick={handleAddFieldType}>Save</button><button type="button" onClick={() => setAddingField(false)}>Cancel</button></div>}</div>
+    {error && <p className="form-error" role="alert">{error}</p>}
+    <button type="submit" disabled={fields.length === 0}>{submitLabel}</button>{onCancel && <button type="button" onClick={onCancel}>Cancel</button>}
+  </form>
 }
