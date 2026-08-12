@@ -16,6 +16,7 @@ interface SessionCardProps {
   /** Both return false when storage refused the write, so forms keep their input. */
   onUpdateSession: (date: string, name: string) => boolean
   onAddEntry: (entry: NewExerciseEntry) => boolean
+  onUpdateEntry: (entryId: string, entry: NewExerciseEntry) => boolean
 }
 
 const sessionLabel = (s: WorkoutSession) => `${s.date}${s.name ? ` — ${s.name}` : ''}`
@@ -30,8 +31,10 @@ export function SessionCard({
   onToggle,
   onUpdateSession,
   onAddEntry,
+  onUpdateEntry,
 }: SessionCardProps) {
   const [editing, setEditing] = useState(false)
+  const [editingEntryId, setEditingEntryId] = useState('')
 
   return (
     <div className="session-card">
@@ -45,8 +48,24 @@ export function SessionCard({
             <ul>
               {entries.map((entry) => (
                 <li key={entry.id}>
-                  <strong>{entry.exerciseName}</strong>:{' '}
-                  {entry.sets.map((set) => formatSet(set, fieldTypes)).join(', ')}
+                  {editingEntryId === entry.id ? (
+                    <ExerciseEntryForm
+                      exercises={exercises}
+                      fieldTypes={fieldTypes}
+                      getLastEntry={getLastEntry}
+                      initialEntry={entry}
+                      onUpdate={(updated) => onUpdateEntry(entry.id, updated)}
+                      onCancel={() => setEditingEntryId('')}
+                    />
+                  ) : (
+                    <>
+                      <strong>{entry.exerciseName}</strong>:{' '}
+                      {entry.sets.map((set) => formatSet(set, fieldTypes)).join(', ')}{' '}
+                      <button type="button" onClick={() => setEditingEntryId(entry.id)}>
+                        Edit
+                      </button>
+                    </>
+                  )}
                 </li>
               ))}
             </ul>
