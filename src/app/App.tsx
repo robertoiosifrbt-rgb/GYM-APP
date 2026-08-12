@@ -6,26 +6,30 @@ import { WorkoutLogPage } from '../features/workout-log'
 import { SettingsPage } from '../features/settings'
 import { HomePage } from './HomePage'
 import { Nav } from './Nav'
-import { SubNav } from './SubNav'
 import { ErrorBoundary } from './ErrorBoundary'
 import { UpdateBanner } from './UpdateBanner'
 import { useVersionCheck } from './useVersionCheck'
 
 export type Page = 'home' | 'body' | 'workout' | 'progress' | 'settings'
-type WorkoutSubPage = 'log' | 'exercises'
+type WorkoutView = 'log' | 'exercises'
 
 function App() {
   const [page, setPage] = useState<Page>('home')
-  const [workoutSubPage, setWorkoutSubPage] = useState<WorkoutSubPage>('log')
+  const [workoutView, setWorkoutView] = useState<WorkoutView>('log')
   const updateAvailable = useVersionCheck()
 
-  function openWorkout(subPage: WorkoutSubPage = 'log') {
+  function navigate(pageTarget: Page) {
+    if (pageTarget === 'workout') setWorkoutView('log')
+    setPage(pageTarget)
+  }
+
+  function openWorkout(view: WorkoutView = 'log') {
+    setWorkoutView(view)
     setPage('workout')
-    setWorkoutSubPage(subPage)
   }
 
   return (
-    <div className={`app-shell page-${page}`}>
+    <div className={`app-shell page-${page} workout-view-${workoutView}`}>
       {updateAvailable && <UpdateBanner />}
 
       <main className="app-content">
@@ -34,33 +38,19 @@ function App() {
             <HomePage
               onStartWorkout={() => openWorkout('log')}
               onOpenExercises={() => openWorkout('exercises')}
-              onOpenBody={() => setPage('body')}
-              onOpenProgress={() => setPage('progress')}
+              onOpenBody={() => navigate('body')}
+              onOpenProgress={() => navigate('progress')}
             />
           )}
           {page === 'body' && <MeasurementsPage />}
           {page === 'progress' && <ProgressPhotosPage />}
-
-          {page === 'workout' && (
-            <>
-              <SubNav
-                tabs={[
-                  { key: 'log', label: 'Log' },
-                  { key: 'exercises', label: 'Exercises' },
-                ]}
-                current={workoutSubPage}
-                onChange={setWorkoutSubPage}
-              />
-              {workoutSubPage === 'log' && <WorkoutLogPage />}
-              {workoutSubPage === 'exercises' && <ExercisesPage />}
-            </>
-          )}
-
+          {page === 'workout' && workoutView === 'log' && <WorkoutLogPage />}
+          {page === 'workout' && workoutView === 'exercises' && <ExercisesPage />}
           {page === 'settings' && <SettingsPage />}
         </ErrorBoundary>
       </main>
 
-      <Nav current={page} onNavigate={setPage} />
+      <Nav current={page} onNavigate={navigate} />
     </div>
   )
 }
