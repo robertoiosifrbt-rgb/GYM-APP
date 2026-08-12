@@ -26,15 +26,31 @@ Reparații și redesign. Etapele 1–5 din audit sunt gata și verificate (`npm 
 - [x] **Ecran de antrenament activ** (`workout-runner`): cronometru, progres pe exerciții, tabel de seturi cu bifă
 - [ ] **Etapa 6 — ramura stabilă**: review și merge în `main` când e gata
 
-## Restul target-ului vizual
+## Drumul până la target-ul vizual
 
-Ecranele din mockup care încă nu arată ca acolo, în ordinea impactului:
+Destinația e în `docs/DESIGN_TARGET.md` (+ mockup-ul în `docs/design/target-screens.png`).
+Planul de mai jos e drumul până acolo, **o etapă per sesiune de lucru**.
 
-- [ ] **Body Overview**: silueta anatomică față/spate cu mușchii colorați, tabs Muscles/Body Parts, selector de perioadă („This Week")
-- [ ] **Workout Log**: calendar lunar sus, cu zilele de antrenament marcate
-- [ ] **Exercises**: bară de căutare, thumbnail-uri, favorite (steluță), buton rotund „+"
-- [ ] **Body Stats**: tabs Measurements/Composition/History + card „Key Measurements" cu delta față de măsurătoarea anterioară
-- [ ] **Settings**: avatar, Level + bară XP, Units / Workout Reminders / Rest Timer / Default Rest Time, Import Data
+Regula pentru fiecare etapă: nu se trece la următoarea până când `npm run lint`,
+`npm test` și `npm run build` nu trec, iar etapa e promovată `dev` → `main`.
+
+- [ ] **Etapa 0 — fundația CSS** (fără nicio schimbare de funcționalitate)
+  - un singur fișier de token-uri, cu valorile din `DESIGN_TARGET.md`
+  - desființate cele 13 fișiere CSS actuale (~78 KB, 289 `!important`, 41 de selectori definiți în mai multe fișiere)
+  - șters CSS-ul mort (`measurements-redesign.css`, `progress-photos-target.css`) și pagina duplicată `features/measurements/BodyPage.tsx`
+  - CSS colocat per modul, ca la `workout-runner`
+  - *De ce prima:* bug-uri ca inelul de progres (două implementări care se băteau) vin din stratul ăsta și vor tot reapărea până nu e curățat.
+- [ ] **Etapa 1 — shell**: scos header-ul global „Gym App" (nu există în mockup), titluri per ecran
+- [ ] **Etapa 2 — Body Overview**: siluetă anatomică față/spate cu mușchii colorați, tab-uri Muscles/Body Parts, selector de perioadă
+- [ ] **Etapa 3 — Workout Log**: calendar lunar cu zilele de antrenament marcate
+- [ ] **Etapa 4 — Exercises**: căutare, thumbnail-uri, favorite, FAB
+- [ ] **Etapa 5 — Body Stats**: tab-uri Measurements/Composition/History + „Key Measurements" cu delta față de măsurătoarea anterioară
+- [ ] **Etapa 6 — Settings**: avatar, Units, Import Data (Level/XP și Rest Timer depind de deciziile din `DESIGN_TARGET.md` → „Întrebări deschise")
+
+La fiecare etapă se rescrie și componenta atinsă ca să fie lizibilă — 7 componente
+sunt încă scrise pe rânduri de până la 1168 de caractere. Stratul de date
+(`src/shared/`, hooks, `types.ts`, parsere) și testele **nu** se rescriu: sunt
+partea verificată prin audit și prin teste de mutație.
 
 ## Funcționalități
 

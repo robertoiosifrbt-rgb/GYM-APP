@@ -22,8 +22,11 @@ React + TypeScript + Vite.
 
 | Document | Ce conține | Cum se schimbă |
 |---|---|---|
+| `docs/DESIGN_TARGET.md` | **Destinația**: cum trebuie să arate aplicația când e gata — token-uri de design + cele 9 ecrane | Doar dacă proprietarul schimbă target-ul |
+| `docs/ROADMAP.md` | Stadiul curent și drumul până la destinație, pe etape | Se editează în loc, mereu scurt |
 | `docs/ARCHITECTURE.md` | Structura de foldere, convenția pentru module noi | Doar când se schimbă structura |
-| `docs/ROADMAP.md` | Stadiul curent: ce e făcut, ce urmează | Se editează în loc, mereu scurt |
 | `docs/DEV_LOG.md` | Ultimele 5 sesiuni de lucru | Append, cu rotație în `docs/archive/dev-log/` |
 
-La începutul unei sesiuni noi (alt cont/context), citește acest fișier + `docs/ROADMAP.md`. Deschide `docs/DEV_LOG.md` sau `docs/ARCHITECTURE.md` doar dacă ai nevoie de detalii.
+La începutul unei sesiuni noi (alt cont/context), citește acest fișier + `docs/DESIGN_TARGET.md` + `docs/ROADMAP.md` — primul îți spune **unde mergem**, al doilea **unde am ajuns**. Deschide `docs/DEV_LOG.md` sau `docs/ARCHITECTURE.md` doar dacă ai nevoie de detalii.
+
+Mockup-ul aprobat stă în `docs/design/target-screens.png`. E reper de **aspect**; verificarea că ceva funcționează rămâne în text (vezi regula fără poze de mai sus).
