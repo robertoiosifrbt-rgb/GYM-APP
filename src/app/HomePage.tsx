@@ -55,13 +55,20 @@ export function HomePage({ onStartWorkout, onOpenExercises, onOpenBody, onOpenPr
         </button>
       </div>
 
-      <div className="home-summary-grid">
-        <button type="button" className="home-stat-card card" onClick={onStartWorkout}>
-          <span className="card-kicker">LAST WORKOUT</span>
+      <div className="section-heading">
+        <div>
+          <span className="card-kicker">LATEST</span>
+          <h2>Your progress</h2>
+        </div>
+      </div>
+
+      <div className="quick-action-grid">
+        <button type="button" className="quick-action-card" onClick={onStartWorkout}>
+          <span className="quick-action-icon" aria-hidden="true">↺</span>
           {latestSession ? (
             <>
               <strong>{latestSession.name || 'Workout session'}</strong>
-              <span>{latestSession.date}</span>
+              <span>Last workout · {latestSession.date}</span>
             </>
           ) : (
             <>
@@ -71,12 +78,12 @@ export function HomePage({ onStartWorkout, onOpenExercises, onOpenBody, onOpenPr
           )}
         </button>
 
-        <button type="button" className="home-stat-card card" onClick={onOpenBody}>
-          <span className="card-kicker">LATEST WEIGHT</span>
+        <button type="button" className="quick-action-card" onClick={onOpenBody}>
+          <span className="quick-action-icon" aria-hidden="true">kg</span>
           {latestMeasurement ? (
             <>
               <strong>{latestMeasurement.weightKg} kg</strong>
-              <span>{latestMeasurement.date}</span>
+              <span>Latest weight · {latestMeasurement.date}</span>
             </>
           ) : (
             <>
