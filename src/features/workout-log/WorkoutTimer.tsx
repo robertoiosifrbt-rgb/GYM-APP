@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { todayLocal } from '../../shared/localDate'
 
 function formatTime(totalSeconds: number) {
@@ -20,17 +20,20 @@ interface WorkoutTimerProps {
 
 export function WorkoutTimer({ startedAt, endedAt, sessionDate, onFinish }: WorkoutTimerProps) {
   const [now, setNow] = useState(() => Date.now())
+  const intervalRef = useRef<number | null>(null)
   const isHistoricalWithoutEnd = Boolean(startedAt && !endedAt && sessionDate !== todayLocal())
 
   useEffect(() => {
-    if (endedAt) {
-      setNow(Date.now())
-      return
-    }
-    if (!startedAt || isHistoricalWithoutEnd) return
-    const interval = window.setInterval(() => setNow(Date.now()), 1000)
-    return () => window.clearInterval(interval)
+    if (intervalRef.current) window.clearInterval(intervalRef.current)
+    if (endedAt || !startedAt || isHistoricalWithoutEnd) return
+    intervalRef.current = window.setInterval(() => setNow(Date.now()), 1000)
   }, [startedAt, endedAt, isHistoricalWithoutEnd])
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current)
+    }
+  }, [])
 
   if (!startedAt) return null
 
