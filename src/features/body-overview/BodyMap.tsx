@@ -13,8 +13,7 @@ import { LEVEL_COLORS, type MuscleLevel } from './muscleStats'
  * cannot be checked in text.
  */
 
-const BODY_FILL = '#e9edf3'
-const BODY_STROKE = '#dbe1ea'
+const BODY_FILL = '#e6eaf1'
 
 interface Ellipse {
   cx: number
@@ -31,12 +30,12 @@ function mirror({ cx, ...rest }: Ellipse): Ellipse {
 /** The outline both views share: head, neck, torso and limbs. */
 const BODY: Ellipse[] = [
   { cx: 50, cy: 17, rx: 10.5, ry: 12.5 },
-  { cx: 21, cy: 64, rx: 6.5, ry: 20 },
-  { cx: 79, cy: 64, rx: 6.5, ry: 20 },
-  { cx: 16, cy: 101, rx: 5.5, ry: 19 },
-  { cx: 84, cy: 101, rx: 5.5, ry: 19 },
-  { cx: 14, cy: 124, rx: 4.5, ry: 6 },
-  { cx: 86, cy: 124, rx: 4.5, ry: 6 },
+  { cx: 23, cy: 64, rx: 7, ry: 21 },
+  { cx: 77, cy: 64, rx: 7, ry: 21 },
+  { cx: 18, cy: 101, rx: 5.5, ry: 19 },
+  { cx: 82, cy: 101, rx: 5.5, ry: 19 },
+  { cx: 16.5, cy: 124, rx: 4.5, ry: 6 },
+  { cx: 83.5, cy: 124, rx: 4.5, ry: 6 },
   { cx: 41, cy: 148, rx: 9.5, ry: 30 },
   { cx: 59, cy: 148, rx: 9.5, ry: 30 },
   { cx: 40, cy: 197, rx: 7, ry: 26 },
@@ -46,7 +45,24 @@ const BODY: Ellipse[] = [
 ]
 
 const NECK = { x: 45, y: 26, width: 10, height: 11, rx: 4 }
-const TORSO = 'M 31 37 Q 50 33 69 37 L 73 55 Q 75 78 70 96 L 67 118 Q 50 124 33 118 L 30 96 Q 25 78 27 55 Z'
+/*
+ * Widest across the chest, narrowest at the waist, flaring again at the hips.
+ * The first version was widest at the waist, which is what made the figure
+ * read as a barrel rather than a torso.
+ */
+const TORSO = [
+  'M 32 37',
+  'Q 50 33 68 37',
+  'C 72 40 73 46 73.5 54',
+  'C 74 64 71 74 69 84',
+  'C 68 92 69 100 70.5 110',
+  'C 71 117 62 124 50 124',
+  'C 38 124 29 117 29.5 110',
+  'C 31 100 32 92 31 84',
+  'C 29 74 26 64 26.5 54',
+  'C 27 46 28 40 32 37',
+  'Z',
+].join(' ')
 
 type Shape =
   | { kind: 'ellipse'; muscle: MuscleId; shape: Ellipse }
@@ -60,26 +76,26 @@ function pair(muscle: MuscleId, shape: Ellipse): Shape[] {
 }
 
 const FRONT: Shape[] = [
-  ...pair('shoulders', { cx: 29, cy: 43, rx: 7, ry: 6.5 }),
-  ...pair('chest', { cx: 41.5, cy: 51, rx: 8, ry: 6 }),
-  { kind: 'rect', muscle: 'abs', x: 43, y: 62, width: 14, height: 32, rx: 6 },
-  ...pair('obliques', { cx: 36, cy: 78, rx: 4, ry: 12 }),
-  ...pair('biceps', { cx: 21.5, cy: 60, rx: 5.5, ry: 13 }),
-  ...pair('forearms', { cx: 16.5, cy: 99, rx: 5, ry: 15 }),
-  ...pair('quads', { cx: 41, cy: 143, rx: 8, ry: 24 }),
-  ...pair('calves', { cx: 40, cy: 193, rx: 6, ry: 20 }),
+  ...pair('shoulders', { cx: 27.5, cy: 48, rx: 8.5, ry: 8.5 }),
+  ...pair('chest', { cx: 40, cy: 59, rx: 10, ry: 8 }),
+  { kind: 'rect', muscle: 'abs', x: 41.5, y: 70, width: 17, height: 29, rx: 7 },
+  ...pair('obliques', { cx: 33.5, cy: 83, rx: 5, ry: 13 }),
+  ...pair('biceps', { cx: 23.5, cy: 62, rx: 6.5, ry: 15 }),
+  ...pair('forearms', { cx: 18.5, cy: 100, rx: 5.2, ry: 16 }),
+  ...pair('quads', { cx: 41, cy: 145, rx: 9, ry: 26 }),
+  ...pair('calves', { cx: 40, cy: 194, rx: 6.5, ry: 21 }),
 ]
 
 const BACK: Shape[] = [
-  { kind: 'rect', muscle: 'traps', x: 38, y: 38, width: 24, height: 13, rx: 6 },
-  ...pair('shoulders', { cx: 29, cy: 43, rx: 7, ry: 6.5 }),
-  ...pair('lats', { cx: 40, cy: 64, rx: 9, ry: 13 }),
-  { kind: 'rect', muscle: 'lowerBack', x: 44, y: 84, width: 12, height: 20, rx: 5 },
-  ...pair('triceps', { cx: 21.5, cy: 60, rx: 5.5, ry: 13 }),
-  ...pair('forearms', { cx: 16.5, cy: 99, rx: 5, ry: 15 }),
-  ...pair('glutes', { cx: 43, cy: 116, rx: 8, ry: 8 }),
-  ...pair('hamstrings', { cx: 41, cy: 148, rx: 8, ry: 23 }),
-  ...pair('calves', { cx: 40, cy: 193, rx: 6, ry: 20 }),
+  { kind: 'rect', muscle: 'traps', x: 34, y: 38, width: 32, height: 15, rx: 7 },
+  ...pair('shoulders', { cx: 27.5, cy: 48, rx: 8.5, ry: 8.5 }),
+  ...pair('lats', { cx: 38.5, cy: 68, rx: 11, ry: 16 }),
+  { kind: 'rect', muscle: 'lowerBack', x: 43, y: 87, width: 14, height: 20, rx: 6 },
+  ...pair('triceps', { cx: 23.5, cy: 62, rx: 6.5, ry: 15 }),
+  ...pair('forearms', { cx: 18.5, cy: 100, rx: 5.2, ry: 16 }),
+  ...pair('glutes', { cx: 42.5, cy: 117, rx: 8, ry: 8.5 }),
+  ...pair('hamstrings', { cx: 41, cy: 150, rx: 8.5, ry: 24 }),
+  ...pair('calves', { cx: 40, cy: 194, rx: 6.5, ry: 21 }),
 ]
 
 interface FigureProps {
@@ -105,14 +121,14 @@ function Figure({ view, levelFor }: FigureProps) {
             ))}
           </clipPath>
         </defs>
-        <g fill={BODY_FILL} stroke={BODY_STROKE} strokeWidth="0.8">
+        <g fill={BODY_FILL}>
           <rect {...NECK} />
           <path d={TORSO} />
           {BODY.map((shape, index) => (
             <ellipse key={index} {...shape} />
           ))}
         </g>
-        <g clipPath={`url(#body-clip-${view})`} stroke="rgba(255,255,255,.5)" strokeWidth="0.6">
+        <g clipPath={`url(#body-clip-${view})`}>
           {shapes.map((shape, index) => {
             const level = levelFor(shape.muscle)
             const common = {
