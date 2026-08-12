@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { Exercise, FieldType } from '../exercises'
 import { parseBounded } from '../../shared/numbers'
 import { SET_VALUE_BOUNDS, type NewExerciseEntry, type SetValues, type WorkoutEntry } from './types'
@@ -16,6 +16,7 @@ interface ExerciseEntryFormProps {
 }
 
 type DraftSet = Record<string, string>
+type TrackGridStyle = CSSProperties & { '--track-count': number }
 function entrySetsToDraft(entry?: WorkoutEntry): DraftSet[] { if (!entry) return [{}]; return entry.sets.map((set) => Object.fromEntries(Object.entries(set).map(([fieldId, value]) => [fieldId, String(value)]))) }
 
 export function ExerciseEntryForm({ exercises, fieldTypes, historyFieldTypes = fieldTypes, getLastEntry, initialEntry, onAdd, onUpdate, onCancel }: ExerciseEntryFormProps) {
@@ -25,6 +26,7 @@ export function ExerciseEntryForm({ exercises, fieldTypes, historyFieldTypes = f
   const [error, setError] = useState<string | null>(null)
   const exercise = exercises.find((e) => e.id === exerciseId)
   const lastEntry = !editing && exerciseId ? getLastEntry(exerciseId) : undefined
+  const trackGridStyle: TrackGridStyle | undefined = exercise ? { '--track-count': Math.max(exercise.fields.length, 1) } : undefined
 
   function updateSetField(index: number, fieldId: string, value: string) { setSets((prev) => prev.map((set, i) => { if (i !== index) return set; const next = { ...set }; if (value === '') delete next[fieldId]; else next[fieldId] = value; return next })) }
   function addSetRow() { setSets((prev) => [...prev, {}]) }
@@ -58,7 +60,7 @@ export function ExerciseEntryForm({ exercises, fieldTypes, historyFieldTypes = f
   return <form className="exercise-entry-form" onSubmit={handleSubmit}>
     <div className="field field-wide"><label htmlFor={editing ? `exercise-select-${initialEntry?.id}` : 'exercise-select'}>Exercise</label><select id={editing ? `exercise-select-${initialEntry?.id}` : 'exercise-select'} value={exerciseId} onChange={(e) => handleExerciseChange(e.target.value)} required><option value="" disabled>Select exercise</option>{exercises.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}</select></div>
     {lastEntry && <p className="last-log-hint">Last time ({lastEntry.date}): {lastEntry.sets.map((set) => formatSet(set, historyFieldTypes)).join(', ')}</p>}
-    {exercise && <div className="sets-list"><div className="sets-header" aria-hidden="true"><span>Set</span>{exercise.fields.map((fieldId) => { const field = fieldTypes.find((f) => f.id === fieldId); return field ? <span key={fieldId}>{field.label}</span> : null })}<span /></div>{sets.map((set, index) => <div className="set-row" key={index}><span className="set-number">{index + 1}</span>{exercise.fields.map((fieldId) => { const field = fieldTypes.find((f) => f.id === fieldId); if (!field) return null; return <input key={fieldId} aria-label={`Set ${index + 1} ${field.label}`} inputMode="decimal" type="number" step={0.1} min={SET_VALUE_BOUNDS.min} max={SET_VALUE_BOUNDS.max} placeholder="—" value={set[fieldId] ?? ''} onChange={(e) => updateSetField(index, fieldId, e.target.value)} /> })}<button type="button" className="set-remove" onClick={() => removeSetRow(index)} aria-label={`Remove set ${index + 1}`} disabled={sets.length === 1}>×</button></div>)}<button type="button" className="add-set-button" onClick={addSetRow}>+ Add set</button></div>}
+    {exercise && <div className="sets-list"><div className="sets-header" style={trackGridStyle} aria-hidden="true"><span>Set</span>{exercise.fields.map((fieldId) => { const field = fieldTypes.find((f) => f.id === fieldId); return field ? <span key={fieldId}>{field.label}</span> : null })}<span /></div>{sets.map((set, index) => <div className="set-row" style={trackGridStyle} key={index}><span className="set-number">{index + 1}</span>{exercise.fields.map((fieldId) => { const field = fieldTypes.find((f) => f.id === fieldId); if (!field) return null; return <input key={fieldId} aria-label={`Set ${index + 1} ${field.label}`} inputMode="decimal" type="number" step={0.1} min={SET_VALUE_BOUNDS.min} max={SET_VALUE_BOUNDS.max} placeholder="—" value={set[fieldId] ?? ''} onChange={(e) => updateSetField(index, fieldId, e.target.value)} /> })}<button type="button" className="set-remove" onClick={() => removeSetRow(index)} aria-label={`Remove set ${index + 1}`} disabled={sets.length === 1}>×</button></div>)}<button type="button" className="add-set-button" onClick={addSetRow}>+ Add set</button></div>}
     {error && <p className="form-error" role="alert">{error}</p>}
     <div className="form-actions"><button type="submit" disabled={!exercise}>{editing ? 'Save exercise' : 'Log exercise'}</button>{editing && onCancel && <button type="button" onClick={onCancel}>Cancel</button>}</div>
   </form>
