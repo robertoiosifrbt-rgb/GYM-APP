@@ -104,15 +104,16 @@ describe('BodyOverview', () => {
   })
 
   /*
-   * The body is drawn entirely from anatomical polygons, so parts of it that
-   * are not muscles we track — head, neck, knees — still have to be drawn, or
-   * the figure comes out with holes in it.
+   * The body is drawn entirely from anatomical shapes, so the parts that are
+   * not muscles we track — head, hands, feet, knees — still have to be drawn,
+   * or the figure comes out with holes in it.
    */
   it('draws the structural parts of the body too', () => {
     const { container } = render(<BodyOverview />)
 
-    const all = container.querySelectorAll('polygon')
-    const muscles = container.querySelectorAll('polygon[data-muscle]')
+    const all = container.querySelectorAll('svg path')
+    const muscles = container.querySelectorAll('svg path[data-muscle]')
+    expect(muscles.length).toBeGreaterThan(0)
     expect(all.length).toBeGreaterThan(muscles.length)
   })
 
