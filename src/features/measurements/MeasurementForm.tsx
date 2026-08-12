@@ -38,6 +38,8 @@ const numberFields: Array<{ key: MeasurementNumberField; label: string; required
   { key: 'rightThighCm', label: 'Right thigh (cm)' },
 ]
 
+const quickFields = new Set<MeasurementNumberField>(['heightCm', 'weightKg', 'bodyFatPercent', 'chestCm', 'waistCm'])
+
 export function MeasurementForm({ onAdd }: MeasurementFormProps) {
   const [form, setForm] = useState({ ...emptyForm, date: todayLocal() })
   const [error, setError] = useState<string | null>(null)
@@ -55,8 +57,6 @@ export function MeasurementForm({ onAdd }: MeasurementFormProps) {
       return
     }
 
-    // Validated here rather than trusting `min`/`max` on the inputs: those are
-    // only enforced by the browser's own submit check and are easy to bypass.
     const weight = parseBounded(form.weightKg, 'Weight (kg)', MEASUREMENT_BOUNDS.weightKg)
     if (!weight.ok) {
       setError(weight.error)
@@ -76,8 +76,6 @@ export function MeasurementForm({ onAdd }: MeasurementFormProps) {
     }
 
     if (!onAdd(entry)) {
-      // Storage refused the write. Leave every value where it is so nothing
-      // has to be typed again once there is space.
       setError('Could not save this measurement — see the message above. Your values are still here.')
       return
     }
@@ -85,42 +83,44 @@ export function MeasurementForm({ onAdd }: MeasurementFormProps) {
     setForm({ ...emptyForm, date: todayLocal() })
   }
 
+  const renderField = ({ key, label, required }: { key: MeasurementNumberField; label: string; required?: boolean }) => (
+    <div className="field" key={key}>
+      <label htmlFor={key}>{label}</label>
+      <input
+        id={key}
+        inputMode="decimal"
+        type="number"
+        step="0.1"
+        min={MEASUREMENT_BOUNDS[key].min}
+        max={MEASUREMENT_BOUNDS[key].max}
+        value={form[key]}
+        onChange={(e) => handleChange(key, e.target.value)}
+        required={required}
+      />
+    </div>
+  )
+
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="field">
-        <label htmlFor="date">Date</label>
-        <input
-          id="date"
-          type="date"
-          value={form.date}
-          onChange={(e) => handleChange('date', e.target.value)}
-          required
-        />
+    <form className="measurement-form" onSubmit={handleSubmit}>
+      <div className="measurement-form-section measurement-form-primary">
+        <div className="field field-wide">
+          <label htmlFor="date">Date</label>
+          <input id="date" type="date" value={form.date} onChange={(e) => handleChange('date', e.target.value)} required />
+        </div>
+        <div className="measurement-grid">
+          {numberFields.filter(({ key }) => quickFields.has(key)).map(renderField)}
+        </div>
       </div>
 
-      {numberFields.map(({ key, label, required }) => (
-        <div className="field" key={key}>
-          <label htmlFor={key}>{label}</label>
-          <input
-            id={key}
-            type="number"
-            step="0.1"
-            min={MEASUREMENT_BOUNDS[key].min}
-            max={MEASUREMENT_BOUNDS[key].max}
-            value={form[key]}
-            onChange={(e) => handleChange(key, e.target.value)}
-            required={required}
-          />
+      <details className="measurement-more">
+        <summary>More measurements</summary>
+        <div className="measurement-grid measurement-grid-secondary">
+          {numberFields.filter(({ key }) => !quickFields.has(key)).map(renderField)}
         </div>
-      ))}
+      </details>
 
-      {error && (
-        <p className="form-error" role="alert">
-          {error}
-        </p>
-      )}
-
-      <button type="submit">Add measurement</button>
+      {error && <p className="form-error" role="alert">{error}</p>}
+      <button className="measurement-save" type="submit">Add measurement</button>
     </form>
   )
 }
