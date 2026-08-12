@@ -1,84 +1,131 @@
-import { useMemo } from 'react'
-import { useWorkoutLog } from '../workout-log/useWorkoutLog'
-import './BodyOverview.css'
+import { useMemo, useState } from 'react'
 import { PageHeader } from '../../shared/PageHeader'
+import { useExercises } from '../exercises'
+import { useWorkoutLog } from '../workout-log/useWorkoutLog'
+import { BodyMap } from './BodyMap'
+import { BODY_PARTS, MUSCLES, MUSCLE_IDS, musclesByPart, type BodyPart, type MuscleId } from './muscles'
+import { computeMuscleStats, LEVEL_COLORS, LEVEL_LABELS, PERIODS, type MuscleLevel, type Period } from './muscleStats'
+import './BodyOverview.css'
 
-const MUSCLE_GROUPS = {
-  chest: { label: 'Chest', color: '#FF6B6B' },
-  back: { label: 'Back', color: '#FF6B6B' },
-  shoulders: { label: 'Shoulders', color: '#FFA500' },
-  biceps: { label: 'Biceps', color: '#FFA500' },
-  triceps: { label: 'Triceps', color: '#FFA500' },
-  forearms: { label: 'Forearms', color: '#FFA500' },
-  legs: { label: 'Legs', color: '#FF6B6B' },
-  quads: { label: 'Quads', color: '#FF6B6B' },
-  hamstrings: { label: 'Hamstrings', color: '#FF6B6B' },
-  calves: { label: 'Calves', color: '#FFA500' },
-  core: { label: 'Core', color: '#E0E0E0' },
+type MapMode = 'muscles' | 'parts'
+
+const LEVEL_ORDER: MuscleLevel[] = ['primary', 'secondary', 'untargeted', 'notInvolved']
+
+/** The strongest level among a set of muscles — how a whole body part is coloured. */
+function bestLevel(levels: MuscleLevel[]): MuscleLevel {
+  for (const level of LEVEL_ORDER) {
+    if (levels.includes(level)) return level
+  }
+  return 'notInvolved'
 }
 
 export function BodyOverview() {
   const { entries } = useWorkoutLog()
+  const { exercises } = useExercises()
+  const [mode, setMode] = useState<MapMode>('muscles')
+  const [period, setPeriod] = useState<Period>('week')
 
-  const muscleSets = useMemo(() => {
-    const stats: Record<string, number> = {}
-    Object.keys(MUSCLE_GROUPS).forEach((muscle) => {
-      stats[muscle] = 0
-    })
+  const stats = useMemo(
+    () => computeMuscleStats(entries, exercises, period),
+    [entries, exercises, period],
+  )
 
-    entries.forEach((entry) => {
-      const name = (entry.exerciseName || '').toLowerCase()
-      Object.keys(MUSCLE_GROUPS).forEach((muscle) => {
-        if (name.includes(muscle)) {
-          stats[muscle] += entry.sets.length
-        }
-      })
-    })
+  const partLevels = useMemo(() => {
+    const levels = {} as Record<BodyPart, MuscleLevel>
+    for (const part of BODY_PARTS) {
+      levels[part] = bestLevel(musclesByPart(part).map((id) => stats.byMuscle[id].level))
+    }
+    return levels
+  }, [stats])
 
-    return stats
-  }, [entries])
+  const levelFor = (muscle: MuscleId): MuscleLevel =>
+    mode === 'muscles' ? stats.byMuscle[muscle].level : partLevels[MUSCLES[muscle].part]
 
-  const maxSets = useMemo(() => Math.max(...Object.values(muscleSets), 1), [muscleSets])
+  const worked = MUSCLE_IDS.filter((id) => stats.byMuscle[id].level === 'primary')
+  const summary = worked.length
+    ? `Body map. Trained ${PERIODS.find((p) => p.value === period)?.label.toLowerCase()}: ${worked
+        .map((id) => MUSCLES[id].label)
+        .join(', ')}.`
+    : 'Body map. Nothing logged for this period yet.'
+
+  const maxFocus = stats.focus[0]?.sets ?? 0
 
   return (
     <section className="body-overview-page">
       <PageHeader title="Body Overview" />
 
-      <div className="muscle-legend">
-        <div className="legend-item primary">
-          <span>Primary Focus</span>
-        </div>
-        <div className="legend-item secondary">
-          <span>Secondary Focus</span>
-        </div>
-        <div className="legend-item untargeted">
-          <span>Untargeted</span>
-        </div>
+      <div className="body-mode-tabs" role="tablist" aria-label="Body map detail">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'muscles'}
+          className={mode === 'muscles' ? 'active' : ''}
+          onClick={() => setMode('muscles')}
+        >
+          Muscles
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'parts'}
+          className={mode === 'parts' ? 'active' : ''}
+          onClick={() => setMode('parts')}
+        >
+          Body Parts
+        </button>
       </div>
 
-      <div className="muscle-focus-section">
-        <h2>Muscle Groups</h2>
-        <p className="muscle-focus-period">Based on your workout history</p>
+      <div className="body-map-card">
+        <BodyMap levelFor={levelFor} summary={summary} />
 
-        <div className="muscle-bars">
-          {Object.entries(MUSCLE_GROUPS).map(([muscle, config]) => {
-            const sets = muscleSets[muscle] || 0
-            const percentage = (sets / maxSets) * 100
+        <ul className="body-legend">
+          {LEVEL_ORDER.map((level) => (
+            <li key={level}>
+              <span className="body-legend-dot" style={{ background: LEVEL_COLORS[level] }} />
+              {LEVEL_LABELS[level]}
+            </li>
+          ))}
+        </ul>
+      </div>
 
-            return (
-              <div key={muscle} className="muscle-bar-item">
-                <span className="muscle-name">{config.label}</span>
-                <div className="muscle-bar-container">
-                  <div
-                    className="muscle-bar-fill"
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-                <span className="muscle-sets">{sets} sets</span>
-              </div>
-            )
-          })}
+      <div className="muscle-focus-card">
+        <div className="muscle-focus-head">
+          <h2>Muscle Focus</h2>
+          <label className="muscle-focus-period">
+            <span className="visually-hidden">Period</span>
+            <select value={period} onChange={(event) => setPeriod(event.target.value as Period)}>
+              {PERIODS.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
+
+        {stats.focus.length === 0 ? (
+          <p className="muscle-focus-empty">
+            No sets logged for this period. Finish a workout and your worked muscles show up here.
+          </p>
+        ) : (
+          <ul className="muscle-focus-list">
+            {stats.focus.map(({ part, sets }) => (
+              <li key={part}>
+                <span className="muscle-focus-name">{part}</span>
+                <span className="muscle-focus-track">
+                  <span
+                    className="muscle-focus-bar"
+                    data-part={part}
+                    style={{ width: `${maxFocus ? Math.round((sets / maxFocus) * 100) : 0}%` }}
+                  />
+                </span>
+                <span className="muscle-focus-sets">
+                  {sets} {sets === 1 ? 'set' : 'sets'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </section>
   )

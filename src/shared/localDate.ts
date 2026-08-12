@@ -18,3 +18,20 @@ export function toLocalDateString(date: Date): string {
 export function todayLocal(now: Date = new Date()): string {
   return toLocalDateString(now)
 }
+
+/**
+ * The Monday of the week `now` falls in, as a calendar date. Weeks start on
+ * Monday because that is how a training week is counted, not Sunday as
+ * `getDay()` numbers it.
+ */
+export function startOfWeekLocal(now: Date = new Date()): string {
+  const monday = new Date(now)
+  const weekday = monday.getDay()
+  monday.setDate(monday.getDate() + (weekday === 0 ? -6 : 1 - weekday))
+  return toLocalDateString(monday)
+}
+
+/** The first day of the month `now` falls in, as a calendar date. */
+export function startOfMonthLocal(now: Date = new Date()): string {
+  return toLocalDateString(new Date(now.getFullYear(), now.getMonth(), 1))
+}

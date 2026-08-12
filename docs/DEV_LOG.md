@@ -4,6 +4,18 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-12 — etapa 2: Body Overview cu hartă de mușchi
+
+- **Bug de fond, reparat**: atribuirea mușchilor căuta numele mușchiului **în numele exercițiului** (`entry.exerciseName.includes('chest')`). „Barbell Bench Press" nu contribuia nimic la piept, oricât de atent completai câmpurile Primary/Secondary muscles — care erau pur și simplu ignorate. Acum se citesc din bibliotecă, cu revenire la numele exercițiului doar dacă sunt goale sau exercițiul a fost șters.
+- **`muscles.ts`** — taxonomia: 14 mușchi grupați în 6 părți de corp, plus traducerea textului liber în mușchi. Potrivirea e **pe cuvinte întregi**, nu pe subșir: altfel „Hammer curl" ajungea la hamstrings, „Hip abduction" la abs, „Backpack carry" la spate. Frazele („lower back", „upper body") se verifică înaintea cuvintelor izolate. Cuvintele groase se extind — „Legs" → quads + hamstrings + calves.
+- **`muscleStats.ts`** — seturi per mușchi într-o perioadă și nivelul de colorare. Cele patru niveluri din legenda mockup-ului au primit un înțeles: `primary` / `secondary` / `untargeted` (biblioteca îl poate antrena, dar n-ai făcut-o în perioada asta) / `notInvolved` (niciun exercițiu din bibliotecă nu-l numește). Distincția dintre ultimele două e cea care face harta utilă: „ai sărit peste" vs „n-ai cu ce".
+- **`BodyMap.tsx`** — siluetele față și spate, construite din elipse și dreptunghiuri pe un caroiaj 100×240, oglindite față de axa centrală. Stilizate intenționat, nu anatomice: trebuie să se citească la dimensiune de miniatură pe telefon.
+- **Ecranul**: tab-uri Muscles / Body Parts (a doua colorează regiuni întregi cu nivelul celui mai puternic mușchi din ele), legendă cu cele 4 stări, card Muscle Focus cu selector de perioadă (This Week / This Month / All Time) și bare per parte de corp.
+- **`startOfWeekLocal` / `startOfMonthLocal`** mutate în `shared/localDate.ts` — calculul lunii era duplicat în `HomePage`.
+- **Cum s-a verificat ce nu se poate vedea**: fiecare formă de mușchi poartă `data-muscle` și `data-level`, deci colorarea se testează în jsdom chiar dacă desenul nu. **+33 de teste**, validate cu **7 mutații** — revenirea la căutarea în numele exercițiului, potrivirea pe subșir, confundarea celor două niveluri „liniștite", ignorarea perioadei, frazele care nu mai bat cuvintele, Body Parts care nu mai grupează, ordinea nivelurilor inversată — toate au picat suita.
+- **Nu am putut verifica**: dacă silueta *arată* a om. Asta rămâne de confirmat pe ecran.
+- Verificat: `lint` ✅, 167 de teste ✅, `build` ✅.
+
 ## 2026-08-12 — etapa 1: shell fără header global
 
 - **Scos header-ul global „Gym App"** din `App.tsx`. Niciun ecran din mockup nu are așa ceva — fiecare își poartă propriul titlu. Bara avea și `env(safe-area-inset-top)` propriu, care se aduna cu cel al lui `.app-content`, deci conținutul era împins în jos de două ori.
@@ -51,16 +63,3 @@ Primul pas din target-ul vizual complet (mockup-ul cu 9 ecrane). S-a construit e
 - **`formatClock` mutat în `src/shared/`**, folosit și de `WorkoutTimer` (era duplicat).
 - **Teste**: +18 (14 pentru runner, 4 pentru parser). Verificate prin **7 mutații** — endedAt aruncat, plan cu gunoi acceptat, ordine inversată, duplicat la reeditare, Skip pierdut, reluare de la zero, exercițiu gol salvat — toate au picat suita.
 - **Ramură**: construit pe `claude/ajutor-80fxuy`, mutat apoi pe **`dev`** — decizie de proprietar: se revine la fluxul `dev` → `main`. Corectat și `docs/ARCHITECTURE.md`, care descria o regulă de publicare care nu mai era adevărată: `deploy.yml` publică **doar din `main`**, nu și din `claude/**`.
-
-## 2026-08-12 — redesign UI: home, body overview, tabbed interface, consistent headers
-
-UI overhaul complete pentru a moderniza aplicația cu o interfață atractivă, consistentă și funcțional îmbunătățită. Toate testele trec, build-ul e clean.
-
-- **HomePage redesign**: weekly progress ring cu procent workouts (0-5), today's workout card cu exercițiile și durata, quick actions 3-button grid, recent workouts list cu volume și status. Smooth integration cu workout data.
-- **BodyPage cu tabs**: container cu tabs pentru Overview și Measurements. Styled seamless cu inherited content, tab underline indicator pe active tab.
-- **BodyOverview component**: muscle group visualization cu 11 muscle groups, bar chart per group (width = sets proportion), gradient fills (#FF6B6B → #FFA500), legend cu color coding.
-- **Consistent page headers**: all pages (Exercises, Measurements, Progress Photos, Workout Log) now have page-header showing title + count, section headers for form/list grouping. Visual consistency improved.
-- **Type updates**: adăugat `endedAt` optional property pe `WorkoutSession` pentru session completion tracking.
-- **CSS system**: comprehensive styling pentru cards, progress ring, grids, tabs, headers. CSS variables pentru light/dark theming, responsive mobile layout, proper spacing și visual hierarchy.
-- **Tests fixed**: updated 3 tests to match new heading names (Workout Log, Body Measurements).
-- **Branch**: `claude/chat-gpt-review-jlmm9c` — complete redesign, ready for review and merge to main.

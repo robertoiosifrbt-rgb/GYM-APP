@@ -51,7 +51,11 @@ Regula pentru fiecare etapă: nu se trece la următoarea până când `npm run l
   `src/shared/PageHeader.tsx` ca titlu unic pentru toate ecranele — înlocuiește trei headere
   aproape identice care ajunseseră la trei mărimi de titlu diferite (1.8rem / 1.34rem / 1.28rem).
   Bara veche avea și `env(safe-area-inset-top)` propriu, care se aduna cu cel al conținutului.
-- [ ] **Etapa 2 — Body Overview**: siluetă anatomică față/spate cu mușchii colorați, tab-uri Muscles/Body Parts, selector de perioadă
+- [x] **Etapa 2 — Body Overview**: siluetă față/spate cu mușchii colorați pe 4 niveluri, tab-uri
+  Muscles/Body Parts, selector de perioadă (This Week / This Month / All Time), card Muscle Focus.
+  Atribuirea mușchilor citește acum câmpurile **Primary/Secondary muscles** din bibliotecă —
+  înainte căuta numele mușchiului în numele exercițiului, deci „Barbell Bench Press" nu contribuia
+  nimic la piept.
 - [ ] **Etapa 3 — Workout Log**: calendar lunar cu zilele de antrenament marcate
 - [ ] **Etapa 4 — Exercises**: căutare, thumbnail-uri, favorite, FAB
 - [ ] **Etapa 5 — Body Stats**: tab-uri Measurements/Composition/History + „Key Measurements" cu delta față de măsurătoarea anterioară
