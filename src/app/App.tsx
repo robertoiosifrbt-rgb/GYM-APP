@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { BodyPage } from '../features/body'
 import { ExercisesPage } from '../features/exercises'
-import { ProgressPhotosPage } from '../features/progress-photos'
 import { WorkoutLogPage } from '../features/workout-log'
+import { ProgressPhotosPage } from '../features/progress-photos'
 import { SettingsPage } from '../features/settings'
 import { HomePage } from './HomePage'
 import { Nav } from './Nav'
@@ -64,6 +64,8 @@ function App() {
               {workoutSubPage === 'exercises' && <ExercisesPage />}
             </>
           )}
+
+          {page === 'progress' && <ProgressPhotosPage />}
 
           {page === 'settings' && <SettingsPage />}
         </ErrorBoundary>
