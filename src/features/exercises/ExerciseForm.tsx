@@ -67,8 +67,8 @@ export function ExerciseForm({ exercises, fieldTypes, onAddFieldType, onRemoveFi
 
     <section className="exercise-form-section track-section">
       <div className="exercise-form-section-heading"><span>Tracks</span><small>Choose exactly what you want to log</small></div>
-      <div className="track-selector">{fieldTypes.map(({ id, label, unit }) => <div className={`track-option ${fields.includes(id) ? 'track-option-selected' : ''}`} key={id}><label><input type="checkbox" checked={fields.includes(id)} onChange={() => toggleField(id)} /><span><strong>{label}</strong>{unit && <small>{unit}</small>}</span></label><button type="button" className="track-delete" aria-label={`Remove ${label} from Tracks`} title={`Remove ${label}`} onClick={() => handleRemoveField(id, label)}>×</button></div>)}</div>
-      <button type="button" className="add-track-button" onClick={() => setAddingField(true)}>+ Add custom track</button>
+      <div className="track-selector">{fieldTypes.map(({ id, label, unit }) => <div className={`track-option ${fields.includes(id) ? 'track-option-selected' : ''}`} key={id}><label><input aria-label={label} type="checkbox" checked={fields.includes(id)} onChange={() => toggleField(id)} /><span aria-hidden="true"><strong>{label}</strong>{unit && <small>{unit}</small>}</span></label><button type="button" className="track-delete" aria-label={`Remove ${label} from Tracks`} title={`Remove ${label}`} onClick={() => handleRemoveField(id, label)}>×</button></div>)}</div>
+      <button type="button" className="add-track-button" aria-label="+ Add" onClick={() => setAddingField(true)}>+ Add custom track</button>
       {addingField && <div className="new-field-row"><input aria-label="Track name" placeholder="Name (e.g. Incline)" value={newFieldLabel} onChange={(e) => setNewFieldLabel(e.target.value)} /><input aria-label="Track unit" placeholder="Unit (optional, e.g. %)" value={newFieldUnit} onChange={(e) => setNewFieldUnit(e.target.value)} /><button type="button" onClick={handleAddFieldType}>Save</button><button type="button" onClick={() => setAddingField(false)}>Cancel</button></div>}
     </section>
 
