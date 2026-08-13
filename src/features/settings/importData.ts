@@ -93,13 +93,13 @@ export function readBackup(text: string): ImportResult {
     return { ok: false, error: 'That file does not look like a GYM APP backup.' }
   }
 
-  const sections = IMPORT_SECTIONS.map(({ field, storageKey, label, parse }) => {
-    // Kept for backwards compatibility with old exports. The separate audit
-    // item for partial-import safety decides whether a missing core section may
-    // replace device data; this change only makes the new backup complete.
-    const raw = field in record ? record[field] : []
-    const { value, dropped } = recoverArray(parse)(raw)
-    return { storageKey, label, value: value as unknown[], dropped }
+  // Missing core sections mean "preserve what is already on this device".
+  // Only sections explicitly present in the file are returned for writing.
+  // This keeps old/partial backups from silently replacing unrelated data with [].
+  const sections = IMPORT_SECTIONS.flatMap(({ field, storageKey, label, parse }) => {
+    if (!(field in record)) return []
+    const { value, dropped } = recoverArray(parse)(record[field])
+    return [{ storageKey, label, value: value as unknown[], dropped }]
   })
 
   const extras: ImportExtras = { progressPhotosDropped: 0 }
