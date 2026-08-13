@@ -1,13 +1,17 @@
-const CACHE_NAME = 'gym-app-runtime-v2'
+const CACHE_NAME = 'gym-app-runtime-v3'
 const APP_SCOPE = '/GYM-APP/'
 const APP_SHELL = `${APP_SCOPE}`
 
 self.addEventListener('install', (event) => {
-  // Cache the app shell, but do not skip waiting. A new worker must not replace
-  // the currently running app underneath an active workout.
+  // Cache the app shell, but do not replace the active worker automatically.
+  // The user activates the waiting worker through the in-app update banner.
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.add(new Request(APP_SHELL, { cache: 'reload' }))).catch(() => undefined),
   )
+})
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
@@ -25,13 +29,13 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url)
   if (url.origin !== self.location.origin || !url.pathname.startsWith(APP_SCOPE)) return
 
-  // The existing version checker deliberately bypasses caches. Never let the
-  // service worker turn version.txt into a stale answer.
-  if (url.pathname === `${APP_SCOPE}version.txt`) return
+  // Never cache the version marker or the service worker itself. Both must
+  // always come from the current deployment so update detection cannot go stale.
+  if (url.pathname === `${APP_SCOPE}version.txt` || url.pathname === `${APP_SCOPE}sw.js`) return
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
+      fetch(request, { cache: 'no-store' })
         .then((response) => {
           if (response.ok) {
             const copy = response.clone()
