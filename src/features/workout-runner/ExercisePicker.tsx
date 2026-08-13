@@ -1,12 +1,16 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { Exercise } from '../exercises'
+import type { WorkoutPlan } from '../workout-plans'
 import { todayLocal } from '../../shared/localDate'
 
 interface ExercisePickerProps {
   exercises: Exercise[]
+  plans: WorkoutPlan[]
   onCancel: () => void
   /** Returns false when storage refused the write, so the picks stay on screen. */
   onStart: (name: string, exerciseIds: string[]) => boolean
+  onSavePlan: (name: string, exerciseIds: string[]) => boolean
+  onDeletePlan: (id: string) => boolean
 }
 
 /**
@@ -14,10 +18,12 @@ interface ExercisePickerProps {
  * The order you tap is the order the runner walks, which is why the tiles show
  * a position number rather than a checkbox.
  */
-export function ExercisePicker({ exercises, onCancel, onStart }: ExercisePickerProps) {
+export function ExercisePicker({ exercises, plans, onCancel, onStart, onSavePlan, onDeletePlan }: ExercisePickerProps) {
   const [name, setName] = useState('')
   const [picked, setPicked] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
+
+  const exerciseIds = useMemo(() => new Set(exercises.map((exercise) => exercise.id)), [exercises])
 
   function toggle(id: string) {
     setError(null)
@@ -28,6 +34,31 @@ export function ExercisePicker({ exercises, onCancel, onStart }: ExercisePickerP
     if (picked.length === 0) return
     if (!onStart(name.trim(), picked)) {
       setError('Could not start the workout — see the storage message. Your picks are still here.')
+    }
+  }
+
+  function handleSavePlan() {
+    const trimmed = name.trim()
+    if (!trimmed) {
+      setError('Give the routine a name before saving it.')
+      return
+    }
+    if (picked.length === 0) return
+    if (!onSavePlan(trimmed, picked)) {
+      setError('Could not save the routine — see the storage message. Your picks are still here.')
+      return
+    }
+    setError(null)
+  }
+
+  function startPlan(plan: WorkoutPlan) {
+    const available = plan.exerciseIds.filter((id) => exerciseIds.has(id))
+    if (available.length === 0) {
+      setError(`“${plan.name}” has no exercises left in your library.`)
+      return
+    }
+    if (!onStart(plan.name, available)) {
+      setError('Could not start the routine — see the storage message.')
     }
   }
 
@@ -45,6 +76,39 @@ export function ExercisePicker({ exercises, onCancel, onStart }: ExercisePickerP
       </header>
 
       <div className="runner-picker-body">
+        {plans.length > 0 && (
+          <section className="runner-routines" aria-label="Saved routines">
+            <div className="runner-picker-heading">
+              <h2>Saved routines</h2>
+              <span>{plans.length}</span>
+            </div>
+            <ul className="runner-routine-list">
+              {plans.map((plan) => {
+                const availableCount = plan.exerciseIds.filter((id) => exerciseIds.has(id)).length
+                return (
+                  <li key={plan.id} className="runner-routine-row">
+                    <button type="button" className="runner-routine-start" onClick={() => startPlan(plan)}>
+                      <strong>{plan.name}</strong>
+                      <small>{availableCount} exercise{availableCount === 1 ? '' : 's'}</small>
+                    </button>
+                    <button
+                      type="button"
+                      className="runner-routine-delete"
+                      aria-label={`Delete ${plan.name}`}
+                      onClick={() => {
+                        setError(null)
+                        if (!onDeletePlan(plan.id)) setError('Could not delete the routine — see the storage message.')
+                      }}
+                    >
+                      ×
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+        )}
+
         <label className="runner-name-field" htmlFor="runner-workout-name">
           Workout name
           <input
@@ -101,7 +165,15 @@ export function ExercisePicker({ exercises, onCancel, onStart }: ExercisePickerP
         )}
       </div>
 
-      <footer className="runner-footer">
+      <footer className="runner-footer runner-picker-actions">
+        <button
+          type="button"
+          className="runner-secondary-action"
+          onClick={handleSavePlan}
+          disabled={picked.length === 0 || !name.trim()}
+        >
+          Save Routine
+        </button>
         <button
           type="button"
           className="runner-primary-action"
