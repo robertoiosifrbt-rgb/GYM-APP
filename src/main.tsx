@@ -6,6 +6,7 @@ import './redesign.css'
 import './target-shell.css'
 import './workout-target.css'
 import './progress-target.css'
+import './styles/viewportStability.css'
 import App from './app/App.tsx'
 import { registerServiceWorker } from './app/registerServiceWorker'
 
