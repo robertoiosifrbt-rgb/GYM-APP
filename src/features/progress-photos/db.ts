@@ -48,3 +48,21 @@ export async function savePhotoSet(photoSet: ProgressPhotoSet): Promise<void> {
     tx.onabort = () => reject(tx.error ?? new Error('Saving the photos was interrupted'))
   })
 }
+
+/**
+ * Replaces every saved photo set in one IndexedDB transaction.
+ * `clear` and all `put`s either commit together or the browser rolls the whole
+ * transaction back, so a failed restore cannot leave half old / half new photos.
+ */
+export async function replaceAllPhotoSets(photoSets: ProgressPhotoSet[]): Promise<void> {
+  const db = await openDb()
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite')
+    const store = tx.objectStore(STORE_NAME)
+    store.clear()
+    for (const photoSet of photoSets) store.put(photoSet)
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error ?? new Error('Could not restore the progress photos'))
+    tx.onabort = () => reject(tx.error ?? new Error('Restoring the progress photos was interrupted'))
+  })
+}
