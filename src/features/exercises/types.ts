@@ -1,4 +1,5 @@
 import type { ParsedEntry } from '../../shared/storage'
+import { parseMuscles, isMuscleId, type MuscleId } from '../../shared/muscles'
 import { asString, isNonEmptyString, isRecord } from '../../shared/validate'
 
 export interface FieldType {
@@ -34,6 +35,9 @@ export interface Exercise extends ExerciseDetails {
   id: string
   name: string
   fields: string[]
+  /** Stable IDs used by analytics; text fields remain for display/editing and old backups. */
+  primaryMuscleIds?: MuscleId[]
+  secondaryMuscleIds?: MuscleId[]
   /**
    * Starred in the library. Optional, not defaulted to `false`: every exercise
    * saved before favourites existed simply has no opinion, and writing the flag
@@ -44,6 +48,13 @@ export interface Exercise extends ExerciseDetails {
 
 function isDifficulty(value: unknown): value is Difficulty {
   return DIFFICULTIES.includes(value as Difficulty)
+}
+
+function readMuscleIds(value: unknown, fallbackText: string): { ids: MuscleId[]; lossy: boolean } {
+  if (value === undefined) return { ids: parseMuscles(fallbackText), lossy: false }
+  if (!Array.isArray(value)) return { ids: parseMuscles(fallbackText), lossy: true }
+  const ids = value.filter(isMuscleId)
+  return { ids: [...new Set(ids)], lossy: ids.length !== value.length }
 }
 
 export function parseFieldType(entry: unknown): ParsedEntry<FieldType> {
@@ -57,9 +68,15 @@ export function parseExercise(entry: unknown): ParsedEntry<Exercise> {
   if (!isNonEmptyString(entry.id) || !isNonEmptyString(entry.name)) return null
 
   const fields = Array.isArray(entry.fields) ? entry.fields.filter(isNonEmptyString) : []
+  const primaryMuscles = asString(entry.primaryMuscles)
+  const secondaryMuscles = asString(entry.secondaryMuscles)
+  const primary = readMuscleIds(entry.primaryMuscleIds, primaryMuscles)
+  const secondary = readMuscleIds(entry.secondaryMuscleIds, secondaryMuscles)
   const lossy =
     fields.length !== (Array.isArray(entry.fields) ? entry.fields.length : 0) ||
-    (entry.difficulty !== undefined && entry.difficulty !== '' && !isDifficulty(entry.difficulty))
+    (entry.difficulty !== undefined && entry.difficulty !== '' && !isDifficulty(entry.difficulty)) ||
+    primary.lossy ||
+    secondary.lossy
 
   return {
     value: {
@@ -69,8 +86,10 @@ export function parseExercise(entry: unknown): ParsedEntry<Exercise> {
       category: asString(entry.category),
       difficulty: isDifficulty(entry.difficulty) ? entry.difficulty : '',
       equipment: asString(entry.equipment),
-      primaryMuscles: asString(entry.primaryMuscles),
-      secondaryMuscles: asString(entry.secondaryMuscles),
+      primaryMuscles,
+      secondaryMuscles,
+      primaryMuscleIds: primary.ids,
+      secondaryMuscleIds: secondary.ids,
       instructions: asString(entry.instructions),
       // Only `true` counts. Anything else stored under this key — a string, a
       // number, a leftover from a hand-edited export — means "not starred"
