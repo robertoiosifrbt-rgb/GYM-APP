@@ -233,7 +233,13 @@ export function WorkoutLogPage({ tabs }: WorkoutLogPageProps = {}) {
         onSelect={setSelectedDay}
       />
 
-      <StorageNotice message={sessionsError ?? entriesError ?? actionError} onDismiss={dismissAll} />
+      {/*
+       * A coordinated action can produce a more precise outcome than the raw
+       * storage hook error (for example: rollback succeeded, so nothing was
+       * removed). Show that action result first instead of hiding it behind the
+       * generic "out of storage" message.
+       */}
+      <StorageNotice message={actionError ?? sessionsError ?? entriesError} onDismiss={dismissAll} />
 
       <div className="section-header">
         {creating ? (
