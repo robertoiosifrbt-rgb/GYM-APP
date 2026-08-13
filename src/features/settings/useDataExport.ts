@@ -29,7 +29,10 @@ function describe(error: unknown): string {
 
 export function useDataExport() {
   const { exercises } = useExercises()
-  const { fieldTypes } = useFieldTypes()
+  // Backups must include archived tracks too. Old workout entries can still
+  // reference them, and exporting only active tracks would lose their labels
+  // and units after a restore.
+  const { allFieldTypes } = useFieldTypes()
   const { sessions } = useWorkoutSessions()
   const { entries } = useWorkoutLog()
   const { measurements } = useMeasurements()
@@ -45,7 +48,7 @@ export function useDataExport() {
       version: '1.1',
       exportedAt: new Date().toISOString(),
       exercises,
-      fieldTypes,
+      fieldTypes: allFieldTypes,
       sessions,
       entries,
       measurements,
