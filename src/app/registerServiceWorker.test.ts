@@ -17,8 +17,8 @@ describe('registerServiceWorker', () => {
     expect(register).not.toHaveBeenCalled()
 
     window.dispatchEvent(new Event('load'))
-    expect(register).toHaveBeenCalledWith('/GYM-APP/sw.js', {
-      scope: '/GYM-APP/',
+    expect(register).toHaveBeenCalledWith(`${import.meta.env.BASE_URL}sw.js`, {
+      scope: import.meta.env.BASE_URL,
       updateViaCache: 'none',
     })
   })
