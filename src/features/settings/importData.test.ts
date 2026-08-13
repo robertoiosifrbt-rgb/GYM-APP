@@ -3,6 +3,15 @@ import { describeSections, readBackup, totalDropped, totalEntries } from './impo
 
 const measurement = { id: 'm1', date: '2026-07-15', weightKg: 82.4 }
 const exercise = { id: 'e1', name: 'Bench Press', fields: ['reps', 'kg'] }
+const session = { id: 's1', date: '2026-07-15', name: 'Push' }
+const entry = {
+  id: 'log1',
+  sessionId: session.id,
+  date: session.date,
+  exerciseId: exercise.id,
+  exerciseName: exercise.name,
+  sets: [{ reps: 8, kg: 60 }],
+}
 
 function backup(extra: Record<string, unknown> = {}) {
   return JSON.stringify({
@@ -75,6 +84,54 @@ describe('readBackup', () => {
       label: 'exercises',
       value: [],
     })
+  })
+
+  it('rejects duplicate IDs inside a backup section', () => {
+    const result = readBackup(backup({ exercises: [exercise, { ...exercise, name: 'Duplicate' }] }))
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.error).toMatch(/duplicate IDs in exercises.*e1/i)
+  })
+
+  it('rejects a logged exercise linked to an exercise missing from the supplied exercise list', () => {
+    const result = readBackup(backup({
+      sessions: [session],
+      entries: [{ ...entry, exerciseId: 'missing-exercise' }],
+    }))
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.error).toMatch(/linked to a missing exercise.*missing-exercise/i)
+  })
+
+  it('rejects a logged exercise linked to a workout session missing from the supplied session list', () => {
+    const result = readBackup(backup({
+      sessions: [session],
+      entries: [{ ...entry, sessionId: 'missing-session' }],
+    }))
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.error).toMatch(/linked to a missing workout session.*missing-session/i)
+  })
+
+  it('rejects a session plan linked to a missing exercise', () => {
+    const result = readBackup(backup({
+      sessions: [{ ...session, plannedExerciseIds: ['missing-exercise'] }],
+    }))
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.error).toMatch(/planned with a missing exercise.*missing-exercise/i)
+  })
+
+  it('accepts a complete backup whose workout references are valid', () => {
+    const result = readBackup(backup({ sessions: [session], entries: [entry] }))
+
+    expect(result.ok).toBe(true)
+  })
+
+  it('does not reject references in a partial backup when their target section is intentionally absent', () => {
+    const result = readBackup(JSON.stringify({ entries: [entry] }))
+
+    expect(result.ok).toBe(true)
   })
 
   /*
