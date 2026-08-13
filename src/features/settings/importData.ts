@@ -31,6 +31,7 @@ export const IMPORT_SECTIONS: ImportSection[] = [
 ]
 
 export interface ImportedSection {
+  field: string
   storageKey: string
   label: string
   value: unknown[]
@@ -76,6 +77,70 @@ function readProfile(value: unknown): ImportedProfile | null {
   return { name, ...(avatar ? { avatar } : {}) }
 }
 
+function sectionByField(sections: ImportedSection[], field: string): ImportedSection | undefined {
+  return sections.find((section) => section.field === field)
+}
+
+function idOf(value: unknown): string {
+  return isRecord(value) ? asString(value.id) : ''
+}
+
+function duplicateIdError(sections: ImportedSection[]): string | null {
+  for (const section of sections) {
+    const seen = new Set<string>()
+    for (const value of section.value) {
+      const id = idOf(value)
+      if (!id) continue
+      if (seen.has(id)) return `That backup contains duplicate IDs in ${section.label} (${id}). Nothing was imported.`
+      seen.add(id)
+    }
+  }
+  return null
+}
+
+function referenceError(sections: ImportedSection[]): string | null {
+  const exercises = sectionByField(sections, 'exercises')
+  const sessions = sectionByField(sections, 'sessions')
+  const entries = sectionByField(sections, 'entries')
+
+  // Partial backups may intentionally omit the referenced section, in which
+  // case the referenced object can already exist on this device. Validate a
+  // relationship only when both sides are actually supplied by the file.
+  const exerciseIds = exercises ? new Set(exercises.value.map(idOf).filter(Boolean)) : null
+  const sessionIds = sessions ? new Set(sessions.value.map(idOf).filter(Boolean)) : null
+
+  if (entries) {
+    for (const value of entries.value) {
+      if (!isRecord(value)) continue
+      const entryId = asString(value.id) || 'unknown entry'
+      const exerciseId = asString(value.exerciseId)
+      const sessionId = asString(value.sessionId)
+
+      if (exerciseIds && !exerciseIds.has(exerciseId)) {
+        return `That backup has a logged exercise (${entryId}) linked to a missing exercise (${exerciseId}). Nothing was imported.`
+      }
+      // Empty sessionId is tolerated for legacy logs; the app migrates those by date.
+      if (sessionIds && sessionId && !sessionIds.has(sessionId)) {
+        return `That backup has a logged exercise (${entryId}) linked to a missing workout session (${sessionId}). Nothing was imported.`
+      }
+    }
+  }
+
+  if (sessions && exerciseIds) {
+    for (const value of sessions.value) {
+      if (!isRecord(value) || !Array.isArray(value.plannedExerciseIds)) continue
+      const sessionId = asString(value.id) || 'unknown session'
+      for (const exerciseId of value.plannedExerciseIds) {
+        if (typeof exerciseId === 'string' && !exerciseIds.has(exerciseId)) {
+          return `That backup has a workout session (${sessionId}) planned with a missing exercise (${exerciseId}). Nothing was imported.`
+        }
+      }
+    }
+  }
+
+  return null
+}
+
 export function readBackup(text: string): ImportResult {
   let parsed: unknown
   try {
@@ -99,8 +164,14 @@ export function readBackup(text: string): ImportResult {
   const sections = IMPORT_SECTIONS.flatMap(({ field, storageKey, label, parse }) => {
     if (!(field in record)) return []
     const { value, dropped } = recoverArray(parse)(record[field])
-    return [{ storageKey, label, value: value as unknown[], dropped }]
+    return [{ field, storageKey, label, value: value as unknown[], dropped }]
   })
+
+  const duplicateError = duplicateIdError(sections)
+  if (duplicateError) return { ok: false, error: duplicateError }
+
+  const brokenReference = referenceError(sections)
+  if (brokenReference) return { ok: false, error: brokenReference }
 
   const extras: ImportExtras = { progressPhotosDropped: 0 }
 
