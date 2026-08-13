@@ -10,18 +10,12 @@ import { describeSections, totalDropped, totalEntries } from './importData'
 import { initials, MAX_AVATAR_BYTES, useProfile } from './useProfile'
 import './settings.css'
 
-/** Cât de mare e salvat avatarul. Ajunge pentru un cerc de 50px pe ecran retina. */
 const AVATAR_PIXELS = 192
 
 function Chevron() {
   return <span className="settings-chevron" aria-hidden="true">›</span>
 }
 
-/*
- * Rândurile care doar spun ceva **nu au chevron**. Săgeata aia promite un ecran
- * în spate; pe „Storage" sau „Progress photos" nu e niciunul, iar apăsarea nu
- * făcea nimic.
- */
 function InfoRow({ icon, title, detail }: { icon: string; title: string; detail: string }) {
   return (
     <div className="settings-row">
@@ -60,8 +54,6 @@ function ProfileCard() {
         reader.readAsDataURL(blob)
       })
 
-      // Verificarea e pe ce se scrie, nu pe fișierul ales: base64 e cu o treime
-      // mai mare decât imaginea, iar în `localStorage` contează șirul.
       if (dataUrl.length > MAX_AVATAR_BYTES) {
         setAvatarError('That picture is too large even after resizing. Try a smaller one.')
         return
@@ -115,8 +107,6 @@ function ProfileCard() {
               className="visually-hidden"
               onChange={(event) => {
                 const file = event.target.files?.[0]
-                // Golit imediat: altfel, alegerea aceleiași poze a doua oară nu
-                // mai declanșează `change` și butonul pare mort.
                 event.target.value = ''
                 if (file) void pickAvatar(file)
               }}
@@ -157,10 +147,6 @@ function UnitsRow() {
         <strong>Units</strong>
         <span>{unitSystemLabel(system)}</span>
       </div>
-      {/*
-        Două butoane, nu un rând cu chevron: sunt exact două variante, deci un
-        ecran separat ar cere trei atingeri pentru o alegere care încape într-una.
-      */}
       <div className="settings-choice" role="group" aria-label="Units">
         {options.map((option) => (
           <button
@@ -211,20 +197,17 @@ function ImportRow() {
           <strong>{stage.fileName}</strong>
           <p>
             This file holds {describeSections(stage.result.sections)}.
-            {totalDropped(stage.result.sections) > 0 &&
-              ` ${totalDropped(stage.result.sections)} entries in it could not be read and will be left out.`}
+            {stage.result.extras.progressPhotos !== undefined && ` ${stage.result.extras.progressPhotos.length} progress photo sets are included.`}
+            {totalDropped(stage.result.sections) + stage.result.extras.progressPhotosDropped > 0 &&
+              ` ${totalDropped(stage.result.sections) + stage.result.extras.progressPhotosDropped} entries in it could not be read and will be left out.`}
           </p>
-          {/*
-            Spus înainte, nu după: importul înlocuiește, nu adaugă. Un „merge"
-            ar trebui să decidă singur ce se întâmplă cu două exerciții cu
-            același nume și date diferite — și ar decide greșit în tăcere.
-          */}
           <p className="settings-import-warning">
-            Everything saved on this device is replaced by these {totalEntries(stage.result.sections)} entries. Export
-            first if you want to keep what is here now. Progress photos are not affected.
+            Everything covered by this backup is replaced when you confirm. New backups include your profile, units and
+            progress photos as well as these {totalEntries(stage.result.sections)} workout/body entries. Export first if you
+            want to keep what is here now.
           </p>
           <div className="settings-editor-actions">
-            <button type="button" className="danger-action" onClick={confirmImport}>Replace my data</button>
+            <button type="button" className="danger-action" onClick={() => void confirmImport()}>Replace my data</button>
             <button type="button" onClick={cancel}>Cancel</button>
           </div>
         </div>
@@ -232,12 +215,7 @@ function ImportRow() {
 
       {stage.step === 'done' && (
         <div className="settings-import-panel" role="status">
-          <strong>Imported {stage.written} entries</strong>
-          {/*
-            Ecranele deschise încă țin în memorie ce era înainte de import.
-            Reîncărcarea e singurul răspuns onest — altfel Home ar arăta vechile
-            antrenamente până la următoarea navigare.
-          */}
+          <strong>Imported {stage.written} workout/body entries</strong>
           <p>Reload the app to see the restored data.</p>
           <div className="settings-editor-actions">
             <button type="button" className="settings-save" onClick={() => window.location.reload()}>Reload now</button>
@@ -249,7 +227,7 @@ function ImportRow() {
 }
 
 export function SettingsPage() {
-  const { downloadAsJson } = useDataExport()
+  const { downloadAsJson, exporting, error: exportError, dismissError: dismissExportError } = useDataExport()
 
   return (
     <section className="settings-page">
@@ -274,17 +252,23 @@ export function SettingsPage() {
 
       <section className="settings-section">
         <h2>Data</h2>
+        <StorageNotice message={exportError} onDismiss={dismissExportError} />
         <div className="settings-list">
-          <button type="button" className="settings-row settings-row-button" onClick={downloadAsJson}>
+          <button
+            type="button"
+            className="settings-row settings-row-button"
+            onClick={() => void downloadAsJson()}
+            disabled={exporting}
+          >
             <span className="settings-row-icon" aria-hidden="true">⇩</span>
             <div>
-              <strong>Export data</strong>
-              <span>Exercises, tracks, workouts and measurements</span>
+              <strong>{exporting ? 'Preparing export…' : 'Export data'}</strong>
+              <span>Exercises, workouts, measurements, profile, units and progress photos</span>
             </div>
             <Chevron />
           </button>
           <ImportRow />
-          <InfoRow icon="▣" title="Progress photos" detail="Stored separately on this device, and left alone by export and import" />
+          <InfoRow icon="▣" title="Progress photos" detail="Included in export and restored with new backups" />
         </div>
       </section>
 
