@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useExercises, useFieldTypes } from '../exercises'
 import { useWorkoutLog } from '../workout-log/useWorkoutLog'
 import { useWorkoutSessions } from '../workout-log/useWorkoutSessions'
+import { useWorkoutPlans } from '../workout-plans'
 import { StorageNotice } from '../../shared/StorageNotice'
 import { todayLocal } from '../../shared/localDate'
 import { ExercisePicker } from './ExercisePicker'
@@ -26,6 +27,13 @@ export function WorkoutRunnerScreen({ sessionId, onExit }: WorkoutRunnerScreenPr
   const { exercises } = useExercises()
   const { fieldTypes } = useFieldTypes()
   const {
+    plans,
+    addPlan,
+    deletePlan,
+    error: plansError,
+    dismissError: dismissPlansError,
+  } = useWorkoutPlans()
+  const {
     sessions,
     addSession,
     finishSession,
@@ -46,6 +54,7 @@ export function WorkoutRunnerScreen({ sessionId, onExit }: WorkoutRunnerScreenPr
   const session = sessions.find((candidate) => candidate.id === activeId)
 
   function dismissAll() {
+    dismissPlansError()
     dismissSessionsError()
     dismissEntriesError()
   }
@@ -57,13 +66,20 @@ export function WorkoutRunnerScreen({ sessionId, onExit }: WorkoutRunnerScreenPr
     return true
   }
 
-  const notice = <StorageNotice message={sessionsError ?? entriesError} onDismiss={dismissAll} />
+  const notice = <StorageNotice message={plansError ?? sessionsError ?? entriesError} onDismiss={dismissAll} />
 
   if (!session) {
     return (
       <div className="runner-root">
         {notice}
-        <ExercisePicker exercises={exercises} onCancel={onExit} onStart={handleStart} />
+        <ExercisePicker
+          exercises={exercises}
+          plans={plans}
+          onCancel={onExit}
+          onStart={handleStart}
+          onSavePlan={addPlan}
+          onDeletePlan={deletePlan}
+        />
       </div>
     )
   }

@@ -3,6 +3,7 @@ import { useExercises } from '../exercises/useExercises'
 import { useFieldTypes } from '../exercises/useFieldTypes'
 import { useWorkoutLog } from '../workout-log/useWorkoutLog'
 import { useWorkoutSessions } from '../workout-log/useWorkoutSessions'
+import { useWorkoutPlans } from '../workout-plans'
 import { useMeasurements } from '../measurements/useMeasurements'
 import { getAllPhotoSets } from '../progress-photos/db'
 import { useUnits } from '../../shared/unitsContext'
@@ -16,6 +17,7 @@ interface ExportData {
   fieldTypes: unknown
   sessions: unknown
   entries: unknown
+  workoutPlans: unknown
   measurements: unknown
   profile: unknown
   units: unknown
@@ -35,6 +37,7 @@ export function useDataExport() {
   const { allFieldTypes } = useFieldTypes()
   const { sessions } = useWorkoutSessions()
   const { entries } = useWorkoutLog()
+  const { plans: workoutPlans } = useWorkoutPlans()
   const { measurements } = useMeasurements()
   const { profile } = useProfile()
   const { system: units } = useUnits()
@@ -45,12 +48,13 @@ export function useDataExport() {
     const storedPhotoSets = await getAllPhotoSets()
     const progressPhotos = await serializePhotoSets(storedPhotoSets as unknown[])
     return {
-      version: '1.1',
+      version: '1.2',
       exportedAt: new Date().toISOString(),
       exercises,
       fieldTypes: allFieldTypes,
       sessions,
       entries,
+      workoutPlans,
       measurements,
       profile,
       units,
