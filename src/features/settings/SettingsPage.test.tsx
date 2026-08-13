@@ -19,13 +19,10 @@ function backupFile(contents: unknown, name = 'gym-app-backup-2026-08-12.json') 
 }
 
 function chooseFile(labelledInput: HTMLElement, file: File) {
-  // `fireEvent.change` nu populează singur `files`, iar `file.text()` din jsdom
-  // e o promisiune — de aici `findBy*` în testele de mai jos.
   Object.defineProperty(labelledInput, 'files', { value: [file], configurable: true })
   fireEvent.change(labelledInput)
 }
 
-/** Câmpul de fișier al importului — ascuns sub butonul „Import data". */
 const importInput = (container: HTMLElement) =>
   container.querySelector<HTMLInputElement>('input[accept="application/json,.json"]')!
 
@@ -50,10 +47,6 @@ describe('SettingsPage profile', () => {
     expect(screen.getByText('RI')).toBeInTheDocument()
   })
 
-  /*
-   * În `src`-ul unei imagini, un `http://…` salvat de altcineva ar fi o cerere
-   * către un server străin la fiecare deschidere a ecranului.
-   */
   it('ignores an avatar that is not an inline data URL', () => {
     localStorage.setItem(PROFILE_KEY, JSON.stringify({ name: 'Roberto', avatar: 'https://example.com/me.jpg' }))
     const { container } = renderSettings()
@@ -91,7 +84,6 @@ describe('SettingsPage import', () => {
     chooseFile(importInput(container), backupFile({ measurements: [{ id: 'm1', date: '2026-07-15', weightKg: 82.4 }] }))
 
     expect(await screen.findByText(/1 measurements/)).toBeInTheDocument()
-    // Încă nimic scris: confirmarea e ce declanșează înlocuirea.
     expect(JSON.parse(localStorage.getItem(MEASUREMENTS_KEY)!)[0].id).toBe('old')
 
     fireEvent.click(screen.getByRole('button', { name: 'Replace my data' }))
@@ -99,7 +91,7 @@ describe('SettingsPage import', () => {
     expect(JSON.parse(localStorage.getItem(MEASUREMENTS_KEY)!)).toEqual([
       { id: 'm1', date: '2026-07-15', weightKg: 82.4 },
     ])
-    expect(screen.getByText('Imported 1 entries')).toBeInTheDocument()
+    expect(screen.getByText('Imported 1 workout/body entries')).toBeInTheDocument()
   })
 
   it('leaves everything untouched when the confirmation is cancelled', async () => {
@@ -121,11 +113,6 @@ describe('SettingsPage import', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('does not look like a GYM APP backup')
   })
 
-  /*
-   * `localStorage` n-are tranzacții. Dacă a doua scriere e refuzată (memoria
-   * plină e cazul real pe telefon), importul trebuie să pună la loc ce
-   * apucase să schimbe — altfel rămân exercițiile noi lângă istoricul vechi.
-   */
   it('puts everything back when a write is refused halfway through', async () => {
     localStorage.setItem('gym-app:exercises', JSON.stringify([{ id: 'old-e', name: 'Squat', fields: [] }]))
     localStorage.setItem(MEASUREMENTS_KEY, JSON.stringify([{ id: 'old-m', date: '2020-01-01', weightKg: 70 }]))
@@ -140,8 +127,6 @@ describe('SettingsPage import', () => {
     )
     await screen.findByRole('button', { name: 'Replace my data' })
 
-    // Refuzată e doar scrierea datelor **noi**: o eroare de cvotă ține de cât
-    // se scrie, deci repunerea valorii vechi (mai mică) trece.
     const original = Storage.prototype.setItem
     const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, key: string, value: string) {
       if (key === MEASUREMENTS_KEY && value.includes('new-m')) throw new DOMException('full', 'QuotaExceededError')
@@ -158,11 +143,6 @@ describe('SettingsPage import', () => {
 })
 
 describe('SettingsPage rows', () => {
-  /*
-   * Chevronul promite un ecran în spatele rândului. „Appearance — System
-   * default" nu avea niciunul, și mai spunea și ceva neadevărat: aplicația e
-   * light-only de la etapa 0.
-   */
   it('has no rows that promise a screen and do nothing', () => {
     const { container } = renderSettings()
 
