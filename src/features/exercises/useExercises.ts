@@ -1,20 +1,29 @@
 import { recoverArray } from '../../shared/storage'
+import { parseMuscles } from '../../shared/muscles'
 import { usePersistedState } from '../../shared/usePersistedState'
 import { parseExercise, type Exercise, type ExerciseDetails } from './types'
 
 const STORAGE_KEY = 'gym-app:exercises'
 const recover = recoverArray(parseExercise)
 
+function withMuscleIds(details: ExerciseDetails) {
+  return {
+    ...details,
+    primaryMuscleIds: parseMuscles(details.primaryMuscles),
+    secondaryMuscleIds: parseMuscles(details.secondaryMuscles),
+  }
+}
+
 export function useExercises() {
   const { value: exercises, update, error, dismissError } = usePersistedState<Exercise[]>(STORAGE_KEY, [], recover)
 
   function addExercise(name: string, fields: string[], details: ExerciseDetails): boolean {
-    const exercise: Exercise = { id: crypto.randomUUID(), name, fields, ...details }
+    const exercise: Exercise = { id: crypto.randomUUID(), name, fields, ...withMuscleIds(details) }
     return update((prev) => [...prev, exercise])
   }
 
   function updateExercise(id: string, name: string, fields: string[], details: ExerciseDetails): boolean {
-    return update((prev) => prev.map((e) => (e.id === id ? { ...e, name, fields, ...details } : e)))
+    return update((prev) => prev.map((e) => (e.id === id ? { ...e, name, fields, ...withMuscleIds(details) } : e)))
   }
 
   function deleteExercise(id: string): boolean {
