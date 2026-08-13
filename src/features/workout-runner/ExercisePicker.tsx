@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import type { Exercise } from '../exercises'
 import type { WorkoutPlan } from '../workout-plans'
 import { todayLocal } from '../../shared/localDate'
+import './routines.css'
 
 interface ExercisePickerProps {
   exercises: Exercise[]
