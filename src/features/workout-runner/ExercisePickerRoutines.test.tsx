@@ -27,7 +27,7 @@ describe('ExercisePicker saved routines', () => {
       <ExercisePicker exercises={exercises} plans={[plan]} onCancel={() => {}} onStart={onStart} onSavePlan={() => true} onDeletePlan={() => true} />,
     )
 
-    fireEvent.click(screen.getByRole('button', { name: /Push Day/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^Push Day\s+2 exercises$/i }))
     expect(onStart).toHaveBeenCalledWith('Push Day', ['e2', 'e1'])
   })
 
