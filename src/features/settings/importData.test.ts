@@ -49,12 +49,32 @@ describe('readBackup', () => {
     expect(readBackup('"just a string"').ok).toBe(false)
   })
 
-  /** Un export mai vechi poate să nu aibă toate cheile de azi. */
-  it('treats a missing section as empty rather than as an error', () => {
+  /**
+   * Un export mai vechi/parțial poate să nu aibă toate cheile de azi.
+   * Cheile lipsă NU trebuie scrise ca liste goale peste datele dispozitivului.
+   */
+  it('imports only sections explicitly present in a partial backup', () => {
     const result = ok(JSON.stringify({ measurements: [measurement] }))
 
     expect(totalEntries(result.sections)).toBe(1)
     expect(totalDropped(result.sections)).toBe(0)
+    expect(result.sections).toHaveLength(1)
+    expect(result.sections[0]).toMatchObject({
+      storageKey: 'gym-app:measurements',
+      label: 'measurements',
+      value: [measurement],
+    })
+  })
+
+  it('still allows an explicitly empty section to clear that section', () => {
+    const result = ok(JSON.stringify({ exercises: [] }))
+
+    expect(result.sections).toHaveLength(1)
+    expect(result.sections[0]).toMatchObject({
+      storageKey: 'gym-app:exercises',
+      label: 'exercises',
+      value: [],
+    })
   })
 
   /*
