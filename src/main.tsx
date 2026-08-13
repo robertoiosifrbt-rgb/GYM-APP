@@ -7,6 +7,9 @@ import './target-shell.css'
 import './workout-target.css'
 import './progress-target.css'
 import App from './app/App.tsx'
+import { registerServiceWorker } from './app/registerServiceWorker'
+
+registerServiceWorker()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
