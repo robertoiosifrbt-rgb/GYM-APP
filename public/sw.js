@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gym-app-runtime-v1'
+const CACHE_NAME = 'gym-app-runtime-v2'
 const APP_SCOPE = '/GYM-APP/'
 const APP_SHELL = `${APP_SCOPE}`
 
