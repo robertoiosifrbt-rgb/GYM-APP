@@ -4,6 +4,7 @@ import { asString, isRecord } from '../../shared/validate'
 import { parseExercise, parseFieldType } from '../exercises/types'
 import { parseMeasurement } from '../measurements/types'
 import { parseWorkoutEntry, parseWorkoutSession } from '../workout-log/types'
+import { parseWorkoutPlan } from '../workout-plans'
 import { parseSerializedPhotoSets, type SerializedPhotoSet } from './backupPhotos'
 
 /*
@@ -27,6 +28,7 @@ export const IMPORT_SECTIONS: ImportSection[] = [
   { field: 'fieldTypes', storageKey: 'gym-app:field-types', label: 'tracks', parse: parseFieldType },
   { field: 'sessions', storageKey: 'gym-app:workout-sessions', label: 'workout sessions', parse: parseWorkoutSession },
   { field: 'entries', storageKey: 'gym-app:workout-log', label: 'logged exercises', parse: parseWorkoutEntry },
+  { field: 'workoutPlans', storageKey: 'gym-app:workout-plans', label: 'workout routines', parse: parseWorkoutPlan },
   { field: 'measurements', storageKey: 'gym-app:measurements', label: 'measurements', parse: parseMeasurement },
 ]
 
@@ -102,6 +104,7 @@ function referenceError(sections: ImportedSection[]): string | null {
   const exercises = sectionByField(sections, 'exercises')
   const sessions = sectionByField(sections, 'sessions')
   const entries = sectionByField(sections, 'entries')
+  const workoutPlans = sectionByField(sections, 'workoutPlans')
 
   // Partial backups may intentionally omit the referenced section, in which
   // case the referenced object can already exist on this device. Validate a
@@ -133,6 +136,18 @@ function referenceError(sections: ImportedSection[]): string | null {
       for (const exerciseId of value.plannedExerciseIds) {
         if (typeof exerciseId === 'string' && !exerciseIds.has(exerciseId)) {
           return `That backup has a workout session (${sessionId}) planned with a missing exercise (${exerciseId}). Nothing was imported.`
+        }
+      }
+    }
+  }
+
+  if (workoutPlans && exerciseIds) {
+    for (const value of workoutPlans.value) {
+      if (!isRecord(value) || !Array.isArray(value.exerciseIds)) continue
+      const planId = asString(value.id) || 'unknown routine'
+      for (const exerciseId of value.exerciseIds) {
+        if (typeof exerciseId === 'string' && !exerciseIds.has(exerciseId)) {
+          return `That backup has a workout routine (${planId}) linked to a missing exercise (${exerciseId}). Nothing was imported.`
         }
       }
     }
