@@ -41,6 +41,7 @@ export function WorkoutLogPage({ tabs }: WorkoutLogPageProps = {}) {
     updateEntry,
     deleteEntry,
     deleteEntriesForSession,
+    restoreEntries,
     getLastEntry,
     backfillSessionIds,
     updateEntriesDate,
@@ -166,9 +167,32 @@ export function WorkoutLogPage({ tabs }: WorkoutLogPageProps = {}) {
   }
 
   function handleDeleteSession(sessionId: string): boolean {
-    const deleted = deleteSession(sessionId)
-    if (deleted) deleteEntriesForSession(sessionId)
-    return deleted
+    const sessionEntries = entries.filter((entry) => entry.sessionId === sessionId)
+
+    // Delete child entries first. If this write is refused, the session has not
+    // been touched and the database is still consistent.
+    if (sessionEntries.length > 0 && !deleteEntriesForSession(sessionId)) {
+      setActionError('The workout was not deleted — storage refused the change. Nothing was removed.')
+      return false
+    }
+
+    if (deleteSession(sessionId)) {
+      setActionError(null)
+      return true
+    }
+
+    // The session write failed after its entries were removed. Put those exact
+    // entries back so a failed delete behaves as if nothing happened.
+    if (sessionEntries.length > 0 && !restoreEntries(sessionEntries)) {
+      setActionError(
+        'ERROR: The workout could not be deleted and its exercises could not be restored. ' +
+          'Free some storage space and reload the app before changing anything else.',
+      )
+      return false
+    }
+
+    setActionError('The workout was not deleted — storage refused the change. Nothing was removed.')
+    return false
   }
 
   function handleFinishSession(sessionId: string): boolean {
