@@ -4,6 +4,34 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-18 — un exercițiu uitat nu se putea adăuga la o sesiune încheiată
+
+Cerut de proprietar: „trebuie să adaug încă un exercițiu la o sesiune veche".
+Nu se putea deloc — formularul „Add another exercise" se randa doar cât sesiunea
+era în desfășurare (`active = !session.endedAt`). Pe o sesiune încheiată puteai
+edita sau șterge ce era deja logat, dar nu adăuga nimic; singura cale era să
+ștergi sesiunea și s-o rescrii.
+
+- Datele erau deja în regulă: `onAddEntry` ștampilează intrarea cu `session.id`
+  și **cu data sesiunii**, nu cu ziua de azi. Lipsea doar poarta din UI.
+- Pe o sesiune încheiată, formularul stă **în spatele unui buton**
+  („+ Add exercise", lângă „Edit session"). Te întorci la un antrenament vechi
+  ca să-l citești, nu ca să scrii în el — dar „am uitat ultimul exercițiu" e
+  real. Antetul panoului scrie „Add to this workout · 11 August 2026", ca să fie
+  clar unde aterizează, nu în ziua curentă.
+- Formularul rămâne deschis după salvare (poți adăuga mai multe) și se închide
+  cu „Done". Butonul de anulare exista doar în modul de editare; acum apare ori
+  de câte ori componenta primește `onCancel`.
+- Sesiunea activă e neatinsă: acolo formularul rămâne deschis din start, fără
+  buton.
+- Verificat: 4 teste noi în `WorkoutLogPage.test.tsx`, verificate prin mutație
+  (cu poarta pusă înapoi pică trei). Plus condus în browser pe 393px, pe o
+  sesiune din 11 august: fără formular la deschidere → „+ Add exercise" →
+  Seated Row 52.5kg × 10 → intrarea se scrie pe `sessionId: s0`, `date:
+  2026-08-11`, `endedAt` neschimbat, iar rândul sesiunii devine „2 exercises ·
+  1h 10m · 1,065 kg". „Done" închide formularul. Zero erori în consolă.
+- `lint` ✅, 460 de teste ✅, `build` ✅.
+
 ## 2026-08-18 — un exercițiu fără track-uri nu se putea înregistra
 
 Semnalat de proprietar din mijlocul unui antrenament, pe Plank: „aici nu pot să
@@ -121,81 +149,3 @@ randat în `App.tsx`, **înaintea** paginii — deci apărea deasupra titlului
   `h1` în ordinea din DOM. Verificată prin mutație — cu tab-urile puse înapoi
   deasupra, testul pică.
 - Verificat: `lint` ✅, 420 de teste ✅, `build` ✅.
-
-## 2026-08-12 — etapa 6: Settings. Unitățile sunt reale, importul există.
-
-Ultimul dintre cele 9 ecrane. Rândurile care doar arătau a setări au devenit
-setări; ce nu se poate face fără o decizie a proprietarului a rămas afară, nu
-prefăcut.
-
-### Units: metric / imperial, prin toată aplicația
-
-- **Ce se salvează nu se schimbă niciodată.** În `localStorage` greutatea rămâne
-  în kg și circumferința în cm, oricare ar fi setarea; conversia trăiește la
-  marginea ecranului — la afișare și la citirea din formular. Altfel o apăsare
-  pe „Imperial" ar trebui să rescrie tot istoricul, iar rotunjirea făcută acolo
-  s-ar aduna la fiecare comutare.
-- **Context, nu un hook per ecran** (`shared/UnitsProvider.tsx`). Cu
-  `usePersistedState` chemat în fiecare ecran, fiecare ar fi avut copia lui:
-  apeși „Imperial" în Settings, treci la Body și tot kg scrie, pentru că
-  evenimentul `storage` al browserului se trimite doar **între file**. Testul
-  care traversează ecranele (`App.test.tsx`) e acolo exact pentru asta.
-- **Limitele afișate se strâng, nu se lărgesc.** `1 kg` convertit în afară ar fi
-  `2.2 lb`, iar `2.2 lb` scris înapoi e `0.998 kg` — sub minim. Formularul ar fi
-  acceptat valoarea, iar `parseMeasurement` ar fi aruncat măsurătoarea la
-  următoarea citire: dispărea după reîncărcare. Minimul urcă, maximul coboară.
-- **Ce nu se convertește**: track-ul „Weight (kg)" din antrenamente. E o coloană
-  definită de utilizator, cu eticheta și unitatea alese de el — aplicația nu i-o
-  poate rescrie. Volumul calculat din ea, în schimb, se convertește peste tot
-  (Home, Workout Log), fiindcă acolo unitatea o punem noi.
-- Două liste de câmpuri au devenit una: formularul și tabelul de istoric aveau
-  fiecare copia lor, cu unitatea lipită în etichetă („Neck (cm)") — ar fi rămas
-  în centimetri pentru totdeauna.
-
-### Import Data
-
-- **Doi pași, cu o confirmare la mijloc**: întâi citește fișierul și spune ce e
-  în el, abia apoi scrie. Importul **înlocuiește**, nu adaugă — scris pe ecran
-  înainte de apăsare, nu după.
-- Fișierul trece prin **aceleași** funcții de parsare ca datele din storage: ce
-  n-ar fi acceptat la citire nu intră nici pe ușa asta, iar câte intrări au fost
-  refuzate se spune înainte de scriere.
-- **Ori toate secțiunile, ori niciuna.** `localStorage` n-are tranzacții și o
-  scriere poate fi refuzată la mijloc (memoria plină, cazul real pe telefon).
-  Fără revenire, ar fi rămas exercițiile din fișierul nou lângă antrenamentele
-  vechi — o bază de date pe care n-a avut-o nimeni. Revenirea e ea însăși
-  best-effort, în `try`: dacă tocmai o scriere refuzată ne-a adus acolo, poate
-  fi refuzată și repunerea, iar o excepție aruncată de acolo ar ieși din import
-  exact când datele sunt la jumătate.
-- Un JSON care nu conține **niciuna** din secțiunile cunoscute e refuzat. Altfel
-  importul unui fișier străin ar fi „reușit" scriind liste goale peste tot.
-
-### Profil
-
-Numele și avatarul erau scrise în cod. Acum se editează, iar salutul de pe Home
-citește același nume — fără el, îți schimbai numele în Settings și Home tot
-„Hey Roberto" spunea. Poza se redimensionează la 192px înainte de salvare:
-avatarul stă în `localStorage`, unde tot spațiul e câteva megabyte pentru toată
-aplicația. Un avatar care nu e `data:` URL e ignorat la citire — un `http://…`
-pus de altcineva ar fi o cerere către un server străin la fiecare deschidere.
-
-### Rânduri care nu mai mint
-
-- **„Appearance — System default" a dispărut.** Aplicația e light-only din etapa
-  0, deci rândul spunea ceva neadevărat și nu ducea nicăieri.
-- **Chevronul promite un ecran.** „Storage", „Progress photos" și „GYM APP" nu
-  au unul, deci l-au pierdut. Un test blochează revenirea: orice chevron de pe
-  ecran trebuie să fie într-un buton.
-- Singurul „Soon" rămas e Workout Reminders — chiar nu e construit (întrebarea
-  deschisă 4). Level/XP și Rest Timer nu apar deloc: sunt decizii, nu muncă.
-
-### Curățenie
-
-- `settings-target.css` a plecat din `main.tsx` în `features/settings/
-  settings.css`, al treilea ecran cu foaie proprie după Home și Exercises.
-  Regulile moarte din `index.css` și `redesign.css` au dispărut cu tot cu cele
-  6 `!important` ale lor; pe ecran au rămas 3, toate resetând stilul general de
-  buton, și un test le numără.
-- `.visually-hidden` s-a mutat din `BodyOverview.css` în `index.css`: de când o
-  folosesc două module, e unealtă comună.
-- Verificat: `lint` ✅, 419 de teste ✅ (+46), `build` ✅.

@@ -360,3 +360,64 @@ describe('what a session row shows', () => {
     expect(screen.getByRole('button', { name: /Push Day/ })).not.toHaveTextContent('kg')
   })
 })
+
+describe('adding an exercise to a finished session', () => {
+  /*
+   * The form used to render only while a session was still running, so an
+   * exercise you forgot to log could not be added afterwards at all — the only
+   * way in was to delete the session and type the whole thing again.
+   */
+  const FINISHED = { date: '2026-07-15', name: 'Push Day', createdAt: '2026-07-15T07:00:00.000Z', endedAt: '2026-07-15T08:10:00.000Z' }
+
+  function openFinishedSession() {
+    seedSession(FINISHED)
+    render(<WorkoutLogPage />)
+    fireEvent.click(screen.getByRole('button', { name: /Push Day/ }))
+  }
+
+  it('keeps the form behind a button until it is asked for', () => {
+    openFinishedSession()
+
+    expect(screen.queryByLabelText('Exercise')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '+ Add exercise' }))
+    expect(screen.getByLabelText('Exercise')).toBeInTheDocument()
+  })
+
+  it('logs the exercise into that session, on that session&apos;s date', () => {
+    openFinishedSession()
+
+    fireEvent.click(screen.getByRole('button', { name: '+ Add exercise' }))
+    logExercise('Squat', '5', '100')
+
+    expect(storedEntries()).toHaveLength(1)
+    expect(storedEntries()[0]).toMatchObject({
+      sessionId: 's1',
+      date: '2026-07-15',
+      exerciseName: 'Squat',
+      sets: [{ reps: 5, kg: 100 }],
+    })
+    expect(storedSessions()[0].endedAt).toEqual(FINISHED.endedAt)
+  })
+
+  it('stays open for a second exercise, and closes on Done', () => {
+    openFinishedSession()
+
+    fireEvent.click(screen.getByRole('button', { name: '+ Add exercise' }))
+    logExercise('Squat', '5', '100')
+    logExercise('Bench Press', '8', '60')
+    // Stored newest first, the way the log reads them back.
+    expect(storedEntries().map((entry) => entry.exerciseName)).toEqual(['Bench Press', 'Squat'])
+
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }))
+    expect(screen.queryByLabelText('Exercise')).not.toBeInTheDocument()
+  })
+
+  it('leaves a running session with its form already open', () => {
+    // The running session opens by itself, so there is nothing to click.
+    seedSession({ endedAt: undefined })
+    render(<WorkoutLogPage />)
+
+    expect(screen.getByLabelText('Exercise')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '+ Add exercise' })).not.toBeInTheDocument()
+  })
+})

@@ -15,6 +15,13 @@ interface SessionCardProps { session:WorkoutSession; entries:WorkoutEntry[]; isO
 export function SessionCard({ session, entries, isOpen, exercises, fieldTypes, historyFieldTypes, getLastEntry, onToggle, onUpdateSession, onFinishSession, onDeleteSession, onAddEntry, onUpdateEntry, onDeleteEntry }: SessionCardProps) {
   const [editing,setEditing]=useState(false)
   const [editingEntryId,setEditingEntryId]=useState('')
+  /*
+   * A finished session keeps its form behind a button. You come back to an old
+   * workout to read it, not to write in it — but "I forgot to log the last
+   * exercise" is real, and until now the only way in was to delete the session
+   * and type it again.
+   */
+  const [addingEntry,setAddingEntry]=useState(false)
   const { system }=useUnits()
   const active=!session.endedAt
   const completedSets=entries.reduce((sum,entry)=>sum+entry.sets.length,0)
@@ -44,7 +51,9 @@ export function SessionCard({ session, entries, isOpen, exercises, fieldTypes, h
 
       {active&&<div className="add-exercise-panel target-add-exercise"><div className="target-add-exercise-heading"><span>Current exercise</span><strong>{entries.length?'Add another exercise':'Choose your first exercise'}</strong></div><ExerciseEntryForm exercises={exercises} fieldTypes={fieldTypes} historyFieldTypes={historyFieldTypes} getLastEntry={getLastEntry} onAdd={onAddEntry}/></div>}
 
-      <div className="session-tools">{editing?<SessionForm initial={session} onSubmit={(date,name,durationSeconds)=>{if(!onUpdateSession(date,name,durationSeconds))return false;setEditing(false);return true}} onCancel={()=>setEditing(false)}/>:<><button type="button" onClick={()=>setEditing(true)}>Edit session</button>{onDeleteSession&&<button type="button" className="danger-action" onClick={()=>{if(window.confirm(`Delete ${session.name||'this workout session'} and all exercises logged in it? This cannot be undone.`))onDeleteSession()}}>Delete session</button>}</>}</div>
+      {!active&&addingEntry&&<div className="add-exercise-panel target-add-exercise"><div className="target-add-exercise-heading"><span>Add to this workout</span><strong>{dayLabel(session.date)}</strong></div><ExerciseEntryForm exercises={exercises} fieldTypes={fieldTypes} historyFieldTypes={historyFieldTypes} getLastEntry={getLastEntry} onAdd={onAddEntry} onCancel={()=>setAddingEntry(false)}/></div>}
+
+      <div className="session-tools">{editing?<SessionForm initial={session} onSubmit={(date,name,durationSeconds)=>{if(!onUpdateSession(date,name,durationSeconds))return false;setEditing(false);return true}} onCancel={()=>setEditing(false)}/>:<>{!active&&!addingEntry&&<button type="button" onClick={()=>setAddingEntry(true)}>+ Add exercise</button>}<button type="button" onClick={()=>setEditing(true)}>Edit session</button>{onDeleteSession&&<button type="button" className="danger-action" onClick={()=>{if(window.confirm(`Delete ${session.name||'this workout session'} and all exercises logged in it? This cannot be undone.`))onDeleteSession()}}>Delete session</button>}</>}</div>
     </div>}
   </div>
 }
