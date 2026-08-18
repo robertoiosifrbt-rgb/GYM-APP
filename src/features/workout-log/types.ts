@@ -63,6 +63,18 @@ export function byRecencyDesc(a: WorkoutEntry, b: WorkoutEntry): number {
   return (b.createdAt ?? '').localeCompare(a.createdAt ?? '')
 }
 
+/*
+ * The other way round, for reading one session back: the exercises are shown
+ * in the order they were done, so the first thing on the card is the first
+ * thing you did. Entries with no `createdAt` predate the field, which makes
+ * them the oldest thing in their day — they come first.
+ */
+export function byOldestFirst(a: WorkoutEntry, b: WorkoutEntry): number {
+  const byDate = a.date.localeCompare(b.date)
+  if (byDate !== 0) return byDate
+  return (a.createdAt ?? '').localeCompare(b.createdAt ?? '')
+}
+
 export function bySessionRecencyDesc(a: WorkoutSession, b: WorkoutSession): number {
   const byDate = b.date.localeCompare(a.date)
   if (byDate !== 0) return byDate

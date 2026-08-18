@@ -421,3 +421,29 @@ describe('adding an exercise to a finished session', () => {
     expect(screen.queryByRole('button', { name: '+ Add exercise' })).not.toBeInTheDocument()
   })
 })
+
+describe('the order exercises are listed in', () => {
+  /*
+   * Entries are stored newest first, so the card was reading them back in
+   * reverse: the treadmill you finished on came out as exercise 1 and the
+   * first thing you did was last on the list.
+   */
+  it('lists a session from the first exercise done to the last', () => {
+    seedSession({ date: '2026-07-15', name: 'Push Day', endedAt: '2026-07-15T08:10:00.000Z' })
+    localStorage.setItem(
+      LOG_KEY,
+      JSON.stringify([
+        { id: 'e3', sessionId: 's1', date: '2026-07-15', exerciseId: BENCH.id, exerciseName: 'Treadmill', sets: [{ reps: 1 }], createdAt: '2026-07-15T08:00:00.000Z' },
+        { id: 'e2', sessionId: 's1', date: '2026-07-15', exerciseId: BENCH.id, exerciseName: 'Squat', sets: [{ reps: 5 }], createdAt: '2026-07-15T07:30:00.000Z' },
+        { id: 'e1', sessionId: 's1', date: '2026-07-15', exerciseId: BENCH.id, exerciseName: 'Bench Press', sets: [{ reps: 8 }], createdAt: '2026-07-15T07:05:00.000Z' },
+      ]),
+    )
+    render(<WorkoutLogPage />)
+    fireEvent.click(screen.getByRole('button', { name: /Push Day/ }))
+
+    const listed = [...document.querySelectorAll('.logged-exercise-card')].map(
+      (card) => card.querySelector('.logged-exercise-index')?.textContent + ' ' + card.querySelector('strong')?.textContent,
+    )
+    expect(listed).toEqual(['1 Bench Press', '2 Squat', '3 Treadmill'])
+  })
+})

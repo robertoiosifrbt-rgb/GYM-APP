@@ -8,6 +8,7 @@ import { SessionCard } from './SessionCard'
 import { SessionForm } from './SessionForm'
 import { WorkoutCalendar } from './WorkoutCalendar'
 import { currentMonth, monthLabel, monthOf } from './calendarMonth'
+import { byOldestFirst } from './types'
 import './workout-log.css'
 import { PageHeader } from '../../shared/PageHeader'
 
@@ -272,7 +273,7 @@ export function WorkoutLogPage({ tabs }: WorkoutLogPageProps = {}) {
         <SessionCard
           key={session.id}
           session={session}
-          entries={entries.filter((e) => e.sessionId === session.id)}
+          entries={entries.filter((e) => e.sessionId === session.id).sort(byOldestFirst)}
           isOpen={session.id === openSessionId}
           exercises={exercises}
           fieldTypes={fieldTypes}

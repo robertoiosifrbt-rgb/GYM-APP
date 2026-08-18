@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  byOldestFirst,
   byRecencyDesc,
   parseWorkoutEntry,
   parseWorkoutSession,
@@ -152,5 +153,33 @@ describe('parseWorkoutSession', () => {
     expect(parseWorkoutSession({ id: 's1', date: '2026-07-15' })?.value).not.toHaveProperty(
       'plannedExerciseIds',
     )
+  })
+})
+
+describe('byOldestFirst', () => {
+  /*
+   * The log stores entries newest first, which is right for "last time you did
+   * this" and wrong for reading a session back: the card was numbering the
+   * exercise you finished last as 1.
+   */
+  it('puts the exercise done first at the top', () => {
+    const first = entry({ id: 'first', createdAt: '2026-07-15T07:05:00.000Z' })
+    const last = entry({ id: 'last', createdAt: '2026-07-15T08:40:00.000Z' })
+
+    expect([last, first].sort(byOldestFirst).map((e) => e.id)).toEqual(['first', 'last'])
+  })
+
+  it('reads an entry with no creation time as the oldest of its day', () => {
+    const legacy = entry({ id: 'legacy' })
+    const timed = entry({ id: 'timed', createdAt: '2026-07-15T07:05:00.000Z' })
+
+    expect([timed, legacy].sort(byOldestFirst).map((e) => e.id)).toEqual(['legacy', 'timed'])
+  })
+
+  it('keeps whole days in order before anything else', () => {
+    const older = entry({ id: 'older', date: '2026-07-10', createdAt: '2026-07-10T20:00:00.000Z' })
+    const newer = entry({ id: 'newer', date: '2026-07-15', createdAt: '2026-07-15T06:00:00.000Z' })
+
+    expect([newer, older].sort(byOldestFirst).map((e) => e.id)).toEqual(['older', 'newer'])
   })
 })
