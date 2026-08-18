@@ -268,4 +268,43 @@ describe('form fields', () => {
     expect(selector).toContain("not([type='checkbox'])")
     expect(selector).toContain("not([type='radio'])")
   })
+
+  /*
+   * The same rule also beat `.visually-hidden` — 0-2-1 against 0-1-0 — so the
+   * two hidden file inputs on Settings were as wide as the screen instead of
+   * 1px. Absolutely positioned, they still counted as overflow: the page came
+   * out 13px wider than the phone (28px with the profile panel open).
+   */
+  it('leaves visually hidden controls hidden', () => {
+    const selector = read('src/index.css').match(/^(input[^{]*,\nselect,\ntextarea) \{[^}]*width: 100%/m)?.[1] ?? ''
+
+    expect(selector).toContain('not(.visually-hidden)')
+  })
+})
+
+describe('nothing scrolls sideways', () => {
+  /*
+   * Why a few stray pixels mattered: `overflow-x: hidden` stops the page from
+   * scrolling sideways, but on iOS the *layout viewport* still grows to the
+   * width of the content, and `position: fixed` boxes are sized against that.
+   * The bottom nav and the workout runner (`inset: 0`) came out wider than the
+   * screen, so the session card hung off the right edge and the visible area
+   * could be panned left and right on top of it.
+   */
+  it('clips horizontal overflow at the page root', () => {
+    const rule = read('src/styles/viewportStability.css').match(/^html \{([^}]*)\}/m)
+
+    expect(rule?.[1]).toContain('overflow-x: hidden')
+  })
+
+  /*
+   * `overflow-y: auto` on its own makes overflow-x compute to `auto` as well,
+   * which is a horizontal scroller waiting for the first card that does not
+   * fit. The session screen never needs one.
+   */
+  it('keeps the workout runner from sliding sideways', () => {
+    const rule = read('src/features/workout-runner/workout-runner.css').match(/^\.runner-root \{([^}]*)\}/m)
+
+    expect(rule?.[1]).toContain('overflow-x: hidden')
+  })
 })
