@@ -4,6 +4,27 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-18 — sesiunea se citea de la coadă la cap
+
+Semnalat de proprietar: în cardul unei sesiuni, exercițiile apăreau începând cu
+ultimul terminat — banda de alergare, cu care încheiase, era numerotată „1", iar
+Lat Pulldown, cu care începuse, era „8".
+
+- Jurnalul își ține intrările **cele mai noi întâi** (`byRecencyDesc`), ceea ce e
+  corect pentru „ce ai făcut ultima dată la exercițiul ăsta" și greșit pentru
+  citirea unei sesiuni: acolo ordinea cerută e cea în care ai lucrat.
+- `byOldestFirst` în `types.ts`, lângă comparatorul existent, iar cardul își
+  sortează intrările cu el. Intrările fără `createdAt` (dinainte ca acel câmp să
+  existe) se așază primele în ziua lor — sunt cele mai vechi lucruri de acolo.
+- Aceeași ordine și în runner pentru intrările sesiunii curente, ca un exercițiu
+  logat din pagina de jurnal să intre la coada cozii, nu în față.
+- Ordinea **sesiunilor** în listă nu se schimbă: acolo tot cea mai recentă e sus.
+- Verificat: 3 teste pentru comparator + o gardă la nivel de pagină (cardul
+  numerotează „1 Bench Press, 2 Squat, 3 Treadmill"), verificate prin mutație.
+  Plus condus în browser pe 393px, cu 8 exerciții scrise în ordinea inversă în
+  care au fost făcute: cardul le listează „1 Lat Pulldown … 8 Treadmill".
+- `lint` ✅, 464 de teste ✅, `build` ✅.
+
 ## 2026-08-18 — un exercițiu uitat nu se putea adăuga la o sesiune încheiată
 
 Cerut de proprietar: „trebuie să adaug încă un exercițiu la o sesiune veche".
@@ -127,25 +148,3 @@ citit **doar** ca să decidă câte rânduri goale apar în tabel — nu se vede
   scos pică două, cu excluderea sesiunii scoasă pică cel care cere ca sesiunea
   curentă să nu se citeze pe ea însăși.
 - Verificat: `lint` ✅, 449 de teste ✅, `build` ✅.
-
-## 2026-08-12 — tab-urile Log / Exercises stăteau deasupra titlului
-
-Semnalat de proprietar. Pe ecranul Workout, rândul „Log | Exercises" era
-randat în `App.tsx`, **înaintea** paginii — deci apărea deasupra titlului
-„Workout Log". Arăta ca o a doua bară globală, exact forma scoasă în etapa 1,
-și contrazicea regula din target: fiecare ecran începe cu propriul titlu.
-
-- Tab-urile intră acum **în** ecran, sub titlu, ca la Body. Shell-ul le
-  construiește în continuare (el ține starea), dar le trimite ca `tabs` către
-  `WorkoutLogPage` și `ExercisesPage`, care le randează imediat sub
-  `PageHeader`.
-- **De ce nu am mutat titlul în shell**, varianta mai scurtă: subtitlul e
-  dependent de date (`6 sessions recorded`, `24 exercises in your library`),
-  iar numărătoarea trăiește în pagină. Ridicat în shell, ar fi trebuit ridicate
-  și hook-urile care îl calculează.
-- Spațierea a rămas aceeași: `.page-header` și `.sub-nav` au amândouă
-  `margin-bottom: 14px`, deci inversarea ordinii nu mișcă nimic.
-- Gardă în `App.test.tsx`: pe ambele tab-uri, rândul trebuie să vină **după**
-  `h1` în ordinea din DOM. Verificată prin mutație — cu tab-urile puse înapoi
-  deasupra, testul pică.
-- Verificat: `lint` ✅, 420 de teste ✅, `build` ✅.

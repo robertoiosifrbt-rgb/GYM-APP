@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useExercises, useFieldTypes } from '../exercises'
 import { useWorkoutLog } from '../workout-log/useWorkoutLog'
 import { useWorkoutSessions } from '../workout-log/useWorkoutSessions'
+import { byOldestFirst } from '../workout-log/types'
 import { useWorkoutPlans } from '../workout-plans'
 import { StorageNotice } from '../../shared/StorageNotice'
 import { todayLocal } from '../../shared/localDate'
@@ -87,7 +88,9 @@ export function WorkoutRunnerScreen({ sessionId, onExit }: WorkoutRunnerScreenPr
     )
   }
 
-  const sessionEntries = entries.filter((entry) => entry.sessionId === session.id)
+  // Oldest first, so an exercise logged into this session from the log page
+  // joins the end of the runner's queue in the order it was done.
+  const sessionEntries = entries.filter((entry) => entry.sessionId === session.id).sort(byOldestFirst)
 
   return (
     <div className="runner-root">
