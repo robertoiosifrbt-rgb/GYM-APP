@@ -43,9 +43,20 @@ export function useExercises() {
     )
   }
 
+  /*
+   * Attaches one track to one exercise and touches nothing else on it. The
+   * runner uses this: an exercise with no tracks cannot be logged, and being
+   * sent to the library mid-set to fix that is the whole complaint.
+   */
+  function addFieldToExercise(exerciseId: string, fieldId: string): boolean {
+    return update((prev) =>
+      prev.map((e) => (e.id === exerciseId && !e.fields.includes(fieldId) ? { ...e, fields: [...e.fields, fieldId] } : e)),
+    )
+  }
+
   function removeFieldFromExercises(fieldId: string): boolean {
     return update((prev) => prev.map((exercise) => ({ ...exercise, fields: exercise.fields.filter((id) => id !== fieldId) })))
   }
 
-  return { exercises, addExercise, updateExercise, deleteExercise, toggleFavourite, removeFieldFromExercises, error, dismissError }
+  return { exercises, addExercise, updateExercise, deleteExercise, toggleFavourite, addFieldToExercise, removeFieldFromExercises, error, dismissError }
 }

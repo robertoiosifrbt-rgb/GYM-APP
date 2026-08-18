@@ -4,6 +4,42 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-18 — un exercițiu fără track-uri nu se putea înregistra
+
+Semnalat de proprietar din mijlocul unui antrenament, pe Plank: „aici nu pot să
+înregistrez?". Cardul spunea „This exercise has no tracked fields. Add one under
+Workout → Exercises" — adică, cu cronometrul pornit, ieși din sesiune, cauți
+exercițiul în bibliotecă, îl editezi și te întorci.
+
+- **Cum ajunge un exercițiu acolo**: `×` pe un track din lista Tracks îl
+  arhivează și îl scoate din exercițiul pe care tocmai îl editezi. Dacă acela
+  era singurul lui track, rămâne cu `fields: []`. Celelalte exerciții păstrează
+  id-ul arhivat în `fields`, iar runner-ul construiește coloanele doar din
+  track-urile active — deci și ele rămân fără tabel.
+- **Reparat unde doare**: cardul oferă acum track-urile existente ca butoane
+  („Reps", „Weight (kg)", „Time (s)", „Distance (m)"). O apăsare le lipește pe
+  exercițiu (`addFieldToExercise`, scrie doar `fields`, nu atinge restul) și
+  tabelul apare pe loc, cu atâtea rânduri câte seturi ai făcut data trecută.
+  Rămâne pus, deci data viitoare tabelul e deja acolo. Dacă nu există niciun
+  track activ în toată aplicația, mesajul vechi rămâne — acolo chiar n-are ce
+  oferi.
+- **Pastilele „Last time" ieșeau goale** la același exercițiu: seturile lui
+  vechi sunt cheiate pe un track care nu mai e în listă, iar `formatSet` scria
+  doar track-urile pe care le recunoaște. Acum valorile orfane se scriu fără
+  etichetă — cifra fără nume e tot cifra. Repară și rândurile goale din Workout
+  Log, nu doar runner-ul.
+- **Ce n-am schimbat**: ștergerea unui track poate în continuare să lase un
+  exercițiu fără nimic de urmărit. Se poate refuza ștergerea ultimului track sau
+  se poate scoate track-ul din toate exercițiile deodată (`removeFieldFromExercises`
+  există deja, nefolosit) — decizie de proprietar, nu o iau singur.
+- Verificat: 4 teste noi în `WorkoutRunnerScreen.test.tsx`, toate prin mutație.
+  Plus condus în browser pe 393px, cu date care reproduc exact cazul: Plank fără
+  track-uri și un log vechi pe un track dispărut → pastilele arată „1 40 / 2 45 /
+  3 50", apăs „Time (s)", tabelul apare cu 3 rânduri, `fields` devine `['time']`,
+  scriu 45 și 40, „Finish Exercise" salvează `[{time:45},{time:40}]` și trece la
+  Treadmill, „1 of 2 exercises". Zero erori în consolă, pagina rămâne 393px.
+- `lint` ✅, 456 de teste ✅, `build` ✅.
+
 ## 2026-08-18 — ecranele ieșeau lateral: două `input type=file` ascunse
 
 Semnalat de proprietar („fixează ecranele"), cu cardul sesiunii tăiat pe
@@ -163,64 +199,3 @@ pus de altcineva ar fi o cerere către un server străin la fiecare deschidere.
 - `.visually-hidden` s-a mutat din `BodyOverview.css` în `index.css`: de când o
   folosesc două module, e unealtă comună.
 - Verificat: `lint` ✅, 419 de teste ✅ (+46), `build` ✅.
-
-## 2026-08-12 — etapa 5: Body Stats, plus rândul de sesiune. Design-ul e închis.
-
-Cu asta, opt din nouă ecrane din `DESIGN_TARGET.md` sunt făcute. Al nouălea
-(Settings) e cât se poate face fără deciziile proprietarului.
-
-### Rândul de sesiune din Workout Log
-
-Arăta `2026-08-12 | Legs | 6 exercises` — deci nimic despre cât de greu a fost
-antrenamentul. Acum poartă tot ce cere mockup-ul: data scrisă („12 August
-2026"), `6 exercises · 1h 10m`, volumul (`7,661 kg`), și o bară colorată la
-stânga pe sesiunea deschisă.
-
-- `sessionVolume` și `sessionDurationSeconds` erau în `HomePage.tsx`, unde le
-  folosea lista „Recent Workouts". S-au mutat în `features/workout-log/
-  sessionStats.ts`, lângă datele pe care le citesc. A doua copie ar fi însemnat
-  două definiții ale „volumului", care se pot despărți pe tăcute.
-- **Bara e un pseudo-element, nu un `border-left`**: un chenar ar fi mutat
-  conținutul cu 4px la fiecare deschidere, iar cardul ar fi tresărit sub deget.
-- **Efect secundar de accesibilitate, semnalat de un test care a picat**: de
-  când rândul scrie „15 July 2026", eticheta lui se potrivește cu a zilei din
-  calendar. Testul îl caută acum după numele sesiunii.
-
-### Body Stats
-
-- **Patru tab-uri pe un rând, nu două rânduri imbricate.** Ecranele 3 și 7 din
-  target trăiesc amândouă sub tab-ul Body. Cele trei tab-uri ale lui Body Stats
-  s-au alăturat lui „Overview": imbricate, drumul s-ar fi citit
-  „Body › Measurements › Measurements".
-- **Cardul „Key Measurements"**: ultima măsurătoare, cu diferența față de cea
-  dinainte. Asta e miezul — în tabelul de istoric diferența trebuia calculată în
-  cap, uitându-te de la un rând la altul.
-- **Delta nu e colorată în verde**, deși mockup-ul o arată așa. Săgeata arată
-  direcția, nu dă un verdict: la talie scăderea e de obicei ținta, la braț
-  creșterea. Verde pe tot ar spune că orice schimbare e progres; verde-sus /
-  roșu-jos ar face dintr-un centimetru pierdut în talie un eșec. **De răsturnat
-  dacă proprietarul vrea altfel** — e o alegere, nu o limitare.
-- **Rotunjire simetrică**, găsită de un test pe care îl scrisesem greșit:
-  `Math.round` rotunjește jumătățile mereu spre plus infinit, deci `+1.25` →
-  `+1.3` dar `−1.25` → `−1.2`. Aceeași schimbare, de mărime egală, afișată
-  diferit după cum ai crescut sau ai scăzut. Se rotunjește acum mărimea, apoi se
-  pune semnul înapoi.
-- **Fără delte inventate**: prima măsurătoare scrie „first", nu „0"; un câmp
-  lăsat gol data trecută n-are față de ce, deci apare fără deltă. Un câmp
-  necompletat acum nu apare deloc — un rând cu „—" ocupă loc și nu spune nimic.
-- **Ordonare după dată, nu după ordinea din storage**: se poate adăuga o
-  măsurătoare veche, uitată, iar „ultima" trebuie să rămână cea mai recentă din
-  calendar.
-- **Formularul a trecut în spatele butonului „+ Add Measurements".** Are
-  unsprezece câmpuri și era primul lucru pe ecran, deci cifrele pe care veneai
-  să le citești începeau sub un formular pe care nu-l completai.
-
-- **Teste**: +49 (14 pure pentru delte și ordonare, 7 pe cardul de sumar, 5 pe
-  rândul de sesiune, restul adaptate la noua structură), validate cu **7
-  mutații** — ordonare crescătoare, delta 0 la prima măsurătoare, rotunjire
-  asimetrică, formularul care nu se mai închide, un câmp scos din listă, rândul
-  fără volum, rândul revenit la data brută — toate au picat suita.
-- Verificat: `lint` ✅, **360 de teste** ✅, `build` ✅. Măsurat în browser la
-  430px: patru tab-uri pe un rând (102px fiecare), cardul cu „1 August 2026" și
-  rândurile `Waist 86cm ▼−2cm`, `Weight 77.1kg ▼−1.1kg`, `Height 181cm no
-  change`; zero derulare orizontală.

@@ -24,7 +24,7 @@ interface WorkoutRunnerScreenProps {
  * when it opens and the pages behind it re-read when it closes.
  */
 export function WorkoutRunnerScreen({ sessionId, onExit }: WorkoutRunnerScreenProps) {
-  const { exercises } = useExercises()
+  const { exercises, addFieldToExercise, error: exercisesError, dismissError: dismissExercisesError } = useExercises()
   const { fieldTypes, allFieldTypes } = useFieldTypes()
   const {
     plans,
@@ -54,6 +54,7 @@ export function WorkoutRunnerScreen({ sessionId, onExit }: WorkoutRunnerScreenPr
   const session = sessions.find((candidate) => candidate.id === activeId)
 
   function dismissAll() {
+    dismissExercisesError()
     dismissPlansError()
     dismissSessionsError()
     dismissEntriesError()
@@ -66,7 +67,9 @@ export function WorkoutRunnerScreen({ sessionId, onExit }: WorkoutRunnerScreenPr
     return true
   }
 
-  const notice = <StorageNotice message={plansError ?? sessionsError ?? entriesError} onDismiss={dismissAll} />
+  const notice = (
+    <StorageNotice message={exercisesError ?? plansError ?? sessionsError ?? entriesError} onDismiss={dismissAll} />
+  )
 
   if (!session) {
     return (
@@ -96,6 +99,7 @@ export function WorkoutRunnerScreen({ sessionId, onExit }: WorkoutRunnerScreenPr
         fieldTypes={fieldTypes}
         historyFieldTypes={allFieldTypes}
         getLastEntry={(exerciseId) => getLastEntry(exerciseId, session.id)}
+        onAddTrack={addFieldToExercise}
         onSaveEntry={(entry) => addEntry({ ...entry, sessionId: session.id, date: session.date })}
         onUpdateEntry={updateEntry}
         onFinishWorkout={() => finishSession(session.id)}
