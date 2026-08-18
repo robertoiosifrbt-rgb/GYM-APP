@@ -34,8 +34,13 @@ export function useWorkoutLog() {
     })
   }
 
-  function getLastEntry(exerciseId: string): WorkoutEntry | undefined {
-    return entries.filter((e) => e.exerciseId === exerciseId).sort(byRecencyDesc)[0]
+  /**
+   * The most recent log for an exercise. `excludeSessionId` leaves one session
+   * out: the runner asks "what did I lift last time", so the sets being typed
+   * into the session on screen must not end up answering their own question.
+   */
+  function getLastEntry(exerciseId: string, excludeSessionId?: string): WorkoutEntry | undefined {
+    return entries.filter((e) => e.exerciseId === exerciseId && e.sessionId !== excludeSessionId).sort(byRecencyDesc)[0]
   }
 
   function backfillSessionIds(sessionIdByDate: Record<string, string>): boolean {

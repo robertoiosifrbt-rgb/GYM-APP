@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import type { Exercise, FieldType } from '../exercises'
 import { parseBounded } from '../../shared/numbers'
 import { formatClock } from '../../shared/formatClock'
+import { dayLabel } from '../../shared/localDate'
 import { ExerciseMuscleMap } from '../body-overview'
+import { formatSet } from '../workout-log/formatSet'
 import {
   SET_VALUE_BOUNDS,
   type NewExerciseEntry,
@@ -20,6 +22,9 @@ interface WorkoutRunnerProps {
   /** The whole library, used to resolve the session's planned exercise ids. */
   exercises: Exercise[]
   fieldTypes: FieldType[]
+  /** Includes archived field types, so an old log still shows its labels. */
+  historyFieldTypes: FieldType[]
+  /** The last log for this exercise from *before* this session, if there is one. */
   getLastEntry: (exerciseId: string) => WorkoutEntry | undefined
   onSaveEntry: (entry: NewExerciseEntry) => boolean
   onUpdateEntry: (entryId: string, entry: NewExerciseEntry) => boolean
@@ -41,6 +46,7 @@ export function WorkoutRunner({
   entries,
   exercises,
   fieldTypes,
+  historyFieldTypes,
   getLastEntry,
   onSaveEntry,
   onUpdateEntry,
@@ -86,6 +92,8 @@ export function WorkoutRunner({
   const safeIndex = queue.length === 0 ? 0 : Math.min(index, queue.length - 1)
   const current: Exercise | undefined = queue[safeIndex]
   const currentEntry = current ? entryFor(current.id) : undefined
+  /** What you did the last time you trained this exercise, before today's session. */
+  const previousEntry = current ? getLastEntry(current.id) : undefined
   const isLast = safeIndex >= queue.length - 1
   const next = queue[safeIndex + 1]
 
@@ -301,6 +309,20 @@ export function WorkoutRunner({
               {current.secondaryMuscles && <small>{current.secondaryMuscles}</small>}
             </span>
           </div>
+
+          {previousEntry && (
+            <div className="runner-last-time">
+              <span className="runner-last-time-head">Last time · {dayLabel(previousEntry.date)}</span>
+              <ol className="runner-last-time-sets">
+                {previousEntry.sets.map((set, setIndex) => (
+                  <li key={setIndex}>
+                    <span aria-hidden="true">{setIndex + 1}</span>
+                    {formatSet(set, historyFieldTypes)}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
 
           {columns.length === 0 ? (
             <p className="runner-empty">

@@ -25,7 +25,7 @@ interface WorkoutRunnerScreenProps {
  */
 export function WorkoutRunnerScreen({ sessionId, onExit }: WorkoutRunnerScreenProps) {
   const { exercises } = useExercises()
-  const { fieldTypes } = useFieldTypes()
+  const { fieldTypes, allFieldTypes } = useFieldTypes()
   const {
     plans,
     addPlan,
@@ -94,7 +94,8 @@ export function WorkoutRunnerScreen({ sessionId, onExit }: WorkoutRunnerScreenPr
         entries={sessionEntries}
         exercises={exercises}
         fieldTypes={fieldTypes}
-        getLastEntry={getLastEntry}
+        historyFieldTypes={allFieldTypes}
+        getLastEntry={(exerciseId) => getLastEntry(exerciseId, session.id)}
         onSaveEntry={(entry) => addEntry({ ...entry, sessionId: session.id, date: session.date })}
         onUpdateEntry={updateEntry}
         onFinishWorkout={() => finishSession(session.id)}

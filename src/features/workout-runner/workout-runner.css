@@ -199,6 +199,52 @@
   font-size: 0.74rem;
 }
 
+/* What you lifted the last time you trained this exercise — the reference you
+   need while filling the table below, so it sits directly above it. */
+.runner-last-time {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 13px;
+  background: var(--color-surface-alt, #f5f7fa);
+}
+
+.runner-last-time-head {
+  color: var(--color-text-secondary, #7f8694);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.runner-last-time-sets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.runner-last-time-sets li {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 9px;
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #171b25);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.runner-last-time-sets li span {
+  color: var(--color-text-secondary, #7f8694);
+  font-weight: 700;
+}
+
 .runner-sets {
   display: flex;
   flex-direction: column;
