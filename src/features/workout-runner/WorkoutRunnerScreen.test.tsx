@@ -25,6 +25,19 @@ const SQUAT = { ...BENCH, id: 'ex-squat', name: 'Squat', category: 'Legs', prima
 const storedSessions = (): WorkoutSession[] => JSON.parse(localStorage.getItem(SESSIONS_KEY) ?? '[]')
 const storedEntries = (): WorkoutEntry[] => JSON.parse(localStorage.getItem(LOG_KEY) ?? '[]')
 
+function loggedEntry(over: Partial<WorkoutEntry> = {}): WorkoutEntry {
+  return {
+    id: 'e-old',
+    sessionId: 's0',
+    date: '2026-07-10',
+    exerciseId: BENCH.id,
+    exerciseName: 'Bench Press',
+    sets: [{ reps: 8, kg: 60 }, { reps: 8, kg: 62.5 }],
+    createdAt: '2026-07-10T07:10:00.000Z',
+    ...over,
+  }
+}
+
 function seedSession(over: Partial<WorkoutSession> = {}) {
   const session: WorkoutSession = {
     id: 's1',
@@ -248,5 +261,57 @@ describe('WorkoutRunnerScreen — running a session', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Previous exercise' }))
 
     expect(screen.getByRole('heading', { name: 'Bench Press' })).toBeInTheDocument()
+  })
+})
+
+describe('WorkoutRunnerScreen — last time', () => {
+  it('shows what was logged the last time this exercise was trained', () => {
+    seedSession()
+    localStorage.setItem(LOG_KEY, JSON.stringify([loggedEntry()]))
+
+    render(<WorkoutRunnerScreen sessionId="s1" onExit={() => {}} />)
+
+    expect(screen.getByText('Last time · 10 July 2026')).toBeInTheDocument()
+    const sets = screen.getByRole('list').querySelectorAll('li')
+    expect([...sets].map((set) => set.textContent)).toEqual(['18 reps · 60kg', '28 reps · 62.5kg'])
+  })
+
+  it('shows the previous workout, not the sets being logged right now', () => {
+    seedSession({ plannedExerciseIds: [BENCH.id] })
+    localStorage.setItem(LOG_KEY, JSON.stringify([loggedEntry({ sessionId: 's1', date: todayLocal() })]))
+
+    render(<WorkoutRunnerScreen sessionId="s1" onExit={() => {}} />)
+
+    // The only log for Bench Press belongs to the session on screen, so there
+    // is no "last time" to show — it would just repeat the table above it.
+    expect(screen.queryByText(/^Last time/)).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Set 1 Weight (kg)')).toHaveValue(60)
+  })
+
+  it('says nothing when the exercise has never been logged', () => {
+    seedSession()
+    render(<WorkoutRunnerScreen sessionId="s1" onExit={() => {}} />)
+
+    expect(screen.queryByText(/^Last time/)).not.toBeInTheDocument()
+  })
+
+  it('follows the runner from one exercise to the next', () => {
+    seedSession()
+    localStorage.setItem(
+      LOG_KEY,
+      JSON.stringify([
+        loggedEntry(),
+        loggedEntry({ id: 'e-old-squat', exerciseId: SQUAT.id, exerciseName: 'Squat', date: '2026-07-12', sets: [{ reps: 5, kg: 100 }] }),
+      ]),
+    )
+
+    render(<WorkoutRunnerScreen sessionId="s1" onExit={() => {}} />)
+    expect(screen.getByText('Last time · 10 July 2026')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Skip Exercise' }))
+
+    expect(screen.getByRole('heading', { name: 'Squat' })).toBeInTheDocument()
+    expect(screen.getByText('Last time · 12 July 2026')).toBeInTheDocument()
+    expect(screen.getByRole('list').textContent).toEqual('15 reps · 100kg')
   })
 })

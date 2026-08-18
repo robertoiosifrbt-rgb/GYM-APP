@@ -4,6 +4,28 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-18 — în runner nu se vedea ce ai ridicat data trecută
+
+Semnalat de proprietar, cu ecranul de sesiune activă deschis: „aici nu îmi arată
+ultimul exercițiu". Pe pagina Workout Log, formularul de intrare arată de mult
+rândul „Last time (dată): ..." (`ExerciseEntryForm`). În runner, ultimul log era
+citit **doar** ca să decidă câte rânduri goale apar în tabel — nu se vedea nicăieri.
+
+- Cardul exercițiului are acum, între harta de mușchi și tabelul de seturi, un
+  bloc „LAST TIME · 10 July 2026" cu o pastilă per set (`1  8 reps · 60kg`). Stă
+  **deasupra** tabelului fiindcă e reperul după care completezi tabelul.
+- **Ultimul log exclude sesiunea de pe ecran**: `getLastEntry(exerciseId, excludeSessionId?)`.
+  Fără asta, după „Finish Exercise" + „Previous exercise", blocul ar fi arătat
+  exact seturile din tabelul de deasupra lui — și-ar fi răspuns la propria
+  întrebare. Excluderea se aplică și numărului de seturi de pe cardul „Next".
+- Etichetele vin din `allFieldTypes` (inclusiv tipurile arhivate), ca la istoricul
+  din Workout Log — altfel un log vechi pe un track șters ar fi rămas fără unitate.
+- Data se scrie cu `dayLabel` („10 July 2026"), nu ISO.
+- 4 teste noi în `WorkoutRunnerScreen.test.tsx`, verificate prin mutație: cu blocul
+  scos pică două, cu excluderea sesiunii scoasă pică cel care cere ca sesiunea
+  curentă să nu se citeze pe ea însăși.
+- Verificat: `lint` ✅, 449 de teste ✅, `build` ✅.
+
 ## 2026-08-12 — tab-urile Log / Exercises stăteau deasupra titlului
 
 Semnalat de proprietar. Pe ecranul Workout, rândul „Log | Exercises" era
@@ -212,47 +234,3 @@ reparații de mai devreme.
   tastând cifră cu cifră ca pe keypad: câmpul ajunge la `01:10:23`, ajutorul
   spune „1h 10m 23s", iar după salvare cardul arată `01:10:23` în loc de
   `14:05:00`. Etichetele Tracks: fiecare pe un rând, checkbox 22px.
-
-## 2026-08-12 — etapa 4: Exercises
-
-- **Căutare care caută unde trebuie.** `searchExercises.ts`, funcții pure.
-  Termenii se potrivesc peste nume, categorie, echipament și cele două câmpuri de
-  mușchi — nu doar peste nume. Motivul concret: „quads" trebuie să găsească Leg
-  Press, al cărui nume nu conține cuvântul. **Toți** termenii trebuie să se
-  potrivească, dar nu în același câmp: „dumbbell arms" găsește un exercițiu cu
-  gantere din categoria Arms. Potrivire pe subșir, fiindcă un cuvânt pe jumătate
-  scris e starea normală a unei căutări — „ben" arată deja Bench Press.
-- **Chips-urile derulează orizontal**, pe un singur rând, ca în mockup. Înainte se
-  împachetau pe două rânduri și împingeau lista în jos la fiecare categorie nouă.
-  Verificat: 8 chips, 534px de conținut în 406px vizibili, un singur rând.
-- **Favorite.** Câmp nou pe exercițiu, scris doar când e pornit — un exercițiu care
-  n-a fost niciodată stelat și unul stelat apoi destelat se stochează la fel.
-  Favoritele **urcă în capul listei**: o steluță care schimbă doar o iconiță nu
-  merită o apăsare. Butonul de filtru de lângă căutare le izolează.
-- **Thumbnail** în fiecare rând: harta de mușchi, la dimensiune de rând. Mockup-ul
-  are fotografie; noi n-avem poze, iar harta duce exact informația pe care ar fi
-  dat-o poza dintr-o privire. Când exercițiul nu numește niciun mușchi nu
-  randează nimic, iar rândul se strânge la loc (`:empty`).
-- **FAB** coral, jos-dreapta, în locul butonului din antet. Se ascunde cât
-  formularul e deschis — altfel ar fi existat două butoane „Add exercise" pe
-  ecran, unul care deschide și unul care salvează.
-- **Rezervă pentru categoria dispărută**: ștergi ultimul exercițiu din Chest și
-  chip-ul dispare cât timp e încă selectat — ecranul rămânea gol, fără niciun chip
-  de apăsat ca să ieși din el. **Bug găsit de propriul test**: calculam rezerva
-  dar filtram tot după selecția veche.
-- **Un ecran, o foaie.** `exercises-target.css` → `features/exercises/exercises.css`,
-  plus regulile lui din `index.css` (chips-urile vechi, lista moartă
-  `.exercise-list`, `.exercise-details`, `.new-field-row` definit de două ori cu
-  alte coloane) și din `redesign.css` (formularul, selectorul de Tracks). 23 de
-  clase au acum exact o definiție, blocat de test ca la Home. `index.css` a
-  scăzut cu ~2100 de caractere.
-- `ExerciseList.tsx` rescris lizibil (era pe un rând), iar iconițele au ieșit
-  într-un modul propriu ca să nu facă import circular cu pagina.
-- **Teste**: +31 (16 pure pentru căutare/filtrare/categorii, 15 pe ecran),
-  validate cu **7 mutații** — căutare doar în nume, favoritele ne-urcate,
-  `every`→`some`, rezerva scoasă, favoritul necitit din storage, steluță care nu
-  se mai stinge, FAB rămas peste formular — toate au picat suita.
-- Verificat: `lint` ✅, **310 teste** ✅, `build` ✅. Măsurat în browser la 430px:
-  toate cele șapte elemente noi așezate corect, zero derulare orizontală a paginii
-  (chips-urile ies doar în containerul lor derulabil, cum trebuie), căutarea
-  „quads" → 7 din 25, steluța la `rgb(245,179,1)`.
