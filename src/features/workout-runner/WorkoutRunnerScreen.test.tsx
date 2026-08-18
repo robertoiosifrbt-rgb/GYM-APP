@@ -315,3 +315,77 @@ describe('WorkoutRunnerScreen — last time', () => {
     expect(screen.getByRole('list').textContent).toEqual('15 reps · 100kg')
   })
 })
+
+describe('WorkoutRunnerScreen — an exercise that tracks nothing', () => {
+  /*
+   * How an exercise ends up here: removing a track from the Tracks list
+   * archives it and strips it from the exercise being edited, so an exercise
+   * whose only track was that one is left with nothing to log. Until now the
+   * runner said "add one under Workout → Exercises" — mid-set, three taps and
+   * a lost place in the workout.
+   */
+  const TRACKLESS = { ...BENCH, id: 'ex-plank', name: 'Plank', fields: [] }
+
+  it('offers the tracks and starts logging with the one that is picked', () => {
+    localStorage.setItem(EXERCISES_KEY, JSON.stringify([TRACKLESS]))
+    seedSession({ plannedExerciseIds: [TRACKLESS.id] })
+
+    render(<WorkoutRunnerScreen sessionId="s1" onExit={() => {}} />)
+    expect(screen.getByText(/Plank tracks nothing/)).toBeInTheDocument()
+    expect(screen.queryByLabelText('Set 1 Reps')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Time (s)' }))
+
+    expect(screen.getByLabelText('Set 1 Time (s)')).toBeInTheDocument()
+    expect(screen.queryByText(/tracks nothing/)).not.toBeInTheDocument()
+    const stored = JSON.parse(localStorage.getItem(EXERCISES_KEY) ?? '[]')
+    expect(stored[0].fields).toEqual(['time'])
+  })
+
+  it('saves the sets logged on the track that was just added', () => {
+    localStorage.setItem(EXERCISES_KEY, JSON.stringify([TRACKLESS]))
+    seedSession({ plannedExerciseIds: [TRACKLESS.id] })
+
+    render(<WorkoutRunnerScreen sessionId="s1" onExit={() => {}} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Time (s)' }))
+    fireEvent.change(screen.getByLabelText('Set 1 Time (s)'), { target: { value: '45' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Finish Workout' }))
+
+    expect(storedEntries()).toHaveLength(1)
+    expect(storedEntries()[0]).toMatchObject({ exerciseName: 'Plank', sets: [{ time: 45 }] })
+  })
+
+  it('points at the library when there is no track to pick either', () => {
+    localStorage.setItem(EXERCISES_KEY, JSON.stringify([TRACKLESS]))
+    localStorage.setItem(
+      'gym-app:field-types',
+      JSON.stringify([{ id: 'reps', label: 'Reps', unit: '', archived: true }]),
+    )
+    seedSession({ plannedExerciseIds: [TRACKLESS.id] })
+
+    render(<WorkoutRunnerScreen sessionId="s1" onExit={() => {}} />)
+
+    expect(screen.getByText(/no tracks to log with yet/i)).toBeInTheDocument()
+  })
+
+  /*
+   * The "Last time" pills for such an exercise were coming out blank: its old
+   * sets are keyed by a track that is no longer in the list, and `formatSet`
+   * only ever printed the tracks it recognised.
+   */
+  it('still shows the numbers of a set whose track is gone', () => {
+    localStorage.setItem(EXERCISES_KEY, JSON.stringify([{ ...TRACKLESS, fields: ['reps'] }]))
+    localStorage.setItem('gym-app:field-types', JSON.stringify([{ id: 'reps', label: 'Reps', unit: '' }]))
+    seedSession({ plannedExerciseIds: [TRACKLESS.id] })
+    localStorage.setItem(
+      LOG_KEY,
+      JSON.stringify([
+        loggedEntry({ exerciseId: TRACKLESS.id, exerciseName: 'Plank', sets: [{ reps: 12, seconds: 45 }] }),
+      ]),
+    )
+
+    render(<WorkoutRunnerScreen sessionId="s1" onExit={() => {}} />)
+
+    expect(screen.getByRole('list').textContent).toEqual('112 reps · 45')
+  })
+})

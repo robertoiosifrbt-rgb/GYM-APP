@@ -26,6 +26,8 @@ interface WorkoutRunnerProps {
   historyFieldTypes: FieldType[]
   /** The last log for this exercise from *before* this session, if there is one. */
   getLastEntry: (exerciseId: string) => WorkoutEntry | undefined
+  /** Adds a track to an exercise that has none, so it can be logged from here. */
+  onAddTrack: (exerciseId: string, fieldId: string) => boolean
   onSaveEntry: (entry: NewExerciseEntry) => boolean
   onUpdateEntry: (entryId: string, entry: NewExerciseEntry) => boolean
   onFinishWorkout: () => boolean
@@ -48,6 +50,7 @@ export function WorkoutRunner({
   fieldTypes,
   historyFieldTypes,
   getLastEntry,
+  onAddTrack,
   onSaveEntry,
   onUpdateEntry,
   onFinishWorkout,
@@ -151,6 +154,16 @@ export function WorkoutRunner({
   function removeLastSet() {
     if (rows.length <= 1) return
     writeRows(rows.slice(0, -1), rowChecks.slice(0, -1))
+  }
+
+  /** Gives an exercise its first track without leaving the workout. */
+  function addTrack(fieldId: string) {
+    if (!current) return
+    if (!onAddTrack(current.id, fieldId)) {
+      setError('Could not add the track — see the storage message.')
+      return
+    }
+    setError(null)
   }
 
   /** Copies the last row's numbers into a new one — the common case of another set at the same weight. */
@@ -325,9 +338,25 @@ export function WorkoutRunner({
           )}
 
           {columns.length === 0 ? (
-            <p className="runner-empty">
-              This exercise has no tracked fields. Add one under Workout → Exercises to log sets for it.
-            </p>
+            fieldTypes.length === 0 ? (
+              <p className="runner-empty">
+                There are no tracks to log with yet. Add one under Workout → Exercises.
+              </p>
+            ) : (
+              <div className="runner-no-tracks">
+                <p>Nothing to log yet — {current.name} tracks nothing. Pick what you want to write down:</p>
+                <ul>
+                  {fieldTypes.map((field) => (
+                    <li key={field.id}>
+                      <button type="button" onClick={() => addTrack(field.id)}>
+                        {field.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <small>It stays on this exercise, so next time the table is already here.</small>
+              </div>
+            )
           ) : (
             <>
               <div className="runner-sets" style={{ '--runner-columns': columns.length } as React.CSSProperties}>

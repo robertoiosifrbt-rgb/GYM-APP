@@ -249,6 +249,48 @@
   font-weight: 700;
 }
 
+/* Shown instead of the set table when the exercise tracks nothing: the way
+   out is here, not in the library three taps away. */
+.runner-no-tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 13px;
+  background: var(--color-surface-alt, #f5f7fa);
+}
+
+.runner-no-tracks p {
+  margin: 0;
+  color: var(--color-text, #171b25);
+  font-size: 0.85rem;
+}
+
+.runner-no-tracks ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.runner-no-tracks button {
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1.5px solid var(--color-accent, #ff6553);
+  border-radius: 11px;
+  background: var(--color-surface, #fff);
+  color: var(--color-accent, #ff6553);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.runner-no-tracks small {
+  color: var(--color-text-secondary, #7f8694);
+  font-size: 0.74rem;
+}
+
 .runner-sets {
   display: flex;
   flex-direction: column;
