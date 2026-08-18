@@ -4,6 +4,44 @@
 > se mută în `docs/archive/dev-log/<an>-<luna>.md` (ex: `2026-08.md`). Așa fișierul
 > nu crește la nesfârșit și rămâne rapid de citit la începutul unei sesiuni noi.
 
+## 2026-08-18 — ecranele ieșeau lateral: două `input type=file` ascunse
+
+Semnalat de proprietar („fixează ecranele"), cu cardul sesiunii tăiat pe
+margine. Măsurat în Chromium pe 320 / 393 / 430 px, plimbând fiecare ecran și
+fiecare panou care se deschide: **un singur ecran ieșea din pagină — Settings**,
+cu 13px (28px cu panoul de profil deschis).
+
+- **Cauza**: `input:not([type='checkbox']):not([type='radio'])` din `index.css`
+  bate `.visually-hidden` la specificitate (0-2-1 față de 0-1-0), deci cele două
+  câmpuri de fișier ascunse (poza de profil, Import Data) erau late cât ecranul,
+  nu 1px. Poziționate absolut, dar tot numărau ca overflow. Reparat cu
+  `:not(.visually-hidden)` în selector — clasa nu mai e călcată.
+- **De ce se vedea tocmai în runner, care n-are niciun `input type=file`**:
+  `overflow-x: hidden` oprește derularea laterală, dar pe iOS *viewport-ul de
+  layout* tot crește până la lățimea conținutului, iar cutiile `position: fixed`
+  se măsoară după el. Bara de jos (`width: min(760px, 100%)`) și runner-ul
+  (`inset: 0`) se desenau la 406–421px pe un ecran de 393 — cardul ieșea pe
+  dreapta, iar zona vizibilă se putea plimba stânga-dreapta peste el. O intrare
+  în Settings strica așezarea pentru tot ce urma, până la o reîncărcare.
+- `.runner-root` cere acum explicit `overflow-x: hidden`: cu `overflow-y: auto`
+  singur, `overflow-x` se calculează tot `auto`, adică un derulator lateral care
+  așteaptă primul card care nu încape.
+- Verificat cu browser-ul, nu cu ochiul: un script Playwright deschide fiecare
+  tab și apasă pe rând fiecare buton din ecran (panouri, formulare, taburi,
+  runner-ul cu toate exercițiile și meniul lui), apoi compară
+  `documentElement.scrollWidth` cu lățimea ecranului și raportează orice element
+  care depășește marginea. Înainte: Settings pica pe 393 și 430. După: „no
+  screen sticks out" pe toate cele trei lățimi. Câmpul de fișier măsoară 1×1,
+  bara de jos exact 393, iar dialogul de import încă se deschide din buton.
+- Trei gărzi noi în `src/styles/screenRepairs.test.ts` (fișierul care ține
+  reparațiile de layout), toate verificate prin mutație. jsdom n-are motor de
+  layout, deci pinează regula, nu pixelul.
+- Verificat: `lint` ✅, 452 de teste ✅, `build` ✅.
+
+**De reținut pe telefon**: aplicația salvată pe ecranul principal ține așezarea
+veche până la o reîncărcare completă — după update, închide și redeschide
+aplicația dacă marginile încă arată strâmb.
+
 ## 2026-08-18 — în runner nu se vedea ce ai ridicat data trecută
 
 Semnalat de proprietar, cu ecranul de sesiune activă deschis: „aici nu îmi arată
@@ -186,51 +224,3 @@ stânga pe sesiunea deschisă.
   430px: patru tab-uri pe un rând (102px fiecare), cardul cu „1 August 2026" și
   rândurile `Waist 86cm ▼−2cm`, `Weight 77.1kg ▼−1.1kg`, `Height 181cm no
   change`; zero derulare orizontală.
-
-## 2026-08-12 — durata nu se putea modifica, iar selectorul de Tracks era rupt
-
-Două probleme raportate din capturi. A doua e o regresie a mea din tura de
-reparații de mai devreme.
-
-### „Nu mă lasă să modific timpul" — două defecte suprapuse
-
-- **Formatul cerut era imposibil de tastat.** Câmpul cerea `HH:MM:SS` și avea
-  `inputMode="numeric"` — iar keypad-ul numeric al iOS-ului **nu are două
-  puncte**. Nu era o validare prea strictă, era o validare pe care n-aveai cum
-  s-o treci pe singurul dispozitiv pe care rulează aplicația. Acum separatoarele
-  le pune câmpul, în timp ce tastezi: cifrele se grupează de la dreapta
-  (`011023` → `01:10:23`), ca la introducerea unei ore pe bancomat. Sub câmp
-  scrie ce s-a înțeles, în cuvinte — „1h 10m 23s" nu se poate citi greșit cum se
-  poate `01:10:23`.
-- **Sub asta, pagina arunca valoarea.** `onUpdateSession={(date, name) => …}`
-  ignora al treilea argument, deci chiar și o durată scrisă corect nu ajungea
-  nicăieri. `updateSession` din hook știa de mult s-o aplice. **Dacă reparam
-  doar tastatura, ar fi ieșit un câmp care acceptă ce scrii și tot nu schimbă
-  nimic** — de-asta merită spus că erau două, nu unul.
-- **Revenirea la eroare era și ea incompletă.** Dacă a doua scriere (datele de
-  pe intrări) eșuează, prima se anula cu `updateSession(id, date, name)` — care,
-  fără `durationSeconds`, lasă pe loc noul `endedAt`. Adică revenea data și
-  numele, dar păstra durata nouă. Hook-ul are acum `restoreSession(original)`,
-  care pune sesiunea înapoi întreagă.
-
-### Selectorul de Tracks, rupt pe verticală
-
-- Checkbox-ul ieșea **246px lățime**, iar etichetei („Weight (kg)") îi rămâneau
-  27 — deci se rupea literă cu literă, pe verticală, pe marginea rândului.
-  Cauza: regula globală `input { width: 100% }` se aplică și checkbox-urilor.
-  Erau excluse acum explicit, plus o dimensiune proprie de 22px.
-- **Partea care e greșeala mea**: fixul de acum două ture (`min-width: 0` pe
-  span, `overflow-wrap: anywhere` pe nume) n-a cauzat lățimea greșită, dar a
-  transformat simptomul din „textul iese din chenar" în „textul se rupe pe
-  verticală". `anywhere` rupe orice cuvânt de îndată ce spațiul se strânge;
-  acum e `break-word`, care rupe doar ce chiar nu încape. Reparasem simptomul
-  fără să văd că lățimea în sine era absurdă.
-
-- **Teste**: +30 (16 pure pentru parsarea și formatarea duratei, 6 pe ecran
-  pentru salvare, restul gărzi), validate cu **5 mutații** — pagina care aruncă
-  iar durata, câmpul fără separatoare, parserul fără cifre lipite, limita de 59
-  scoasă, checkbox-urile întoarse la `width: 100%` — toate au picat suita.
-- Verificat: `lint` ✅, **333 de teste** ✅, `build` ✅. Măsurat în browser,
-  tastând cifră cu cifră ca pe keypad: câmpul ajunge la `01:10:23`, ajutorul
-  spune „1h 10m 23s", iar după salvare cardul arată `01:10:23` în loc de
-  `14:05:00`. Etichetele Tracks: fiecare pe un rând, checkbox 22px.

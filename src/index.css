@@ -346,8 +346,12 @@ form {
  * Se vedea la selectorul de Tracks — checkbox-ul ieșea 246px, iar etichetei
  * („Weight (kg)") îi rămâneau 27, deci se rupea literă cu literă pe verticală.
  * Nimic nu semnala nimic: regula era validă, doar se aplica unde nu trebuia.
+ *
+ * `:not(.visually-hidden)` din același motiv, invers: regula bate clasa (0-2-1
+ * față de 0-1-0), deci câmpurile de fișier ascunse din Settings rămâneau late
+ * cât ecranul, nu 1px, și împingeau pagina cu 13px peste marginea telefonului.
  */
-input:not([type='checkbox']):not([type='radio']),
+input:not([type='checkbox']):not([type='radio']):not(.visually-hidden),
 select,
 textarea {
   width: 100%;
